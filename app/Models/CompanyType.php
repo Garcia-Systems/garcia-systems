@@ -9,12 +9,11 @@ class CompanyType extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
 
-    protected function casts(): array
-    {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
-    }
+    ];
 
-    
 }

@@ -9,12 +9,15 @@ class Department extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
 
-    protected function casts(): array
+    ];
+
+    public function workflows()
     {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
+        return $this->hasMany(Workflow::class);
     }
-
-    public function workflows(){return $this->hasMany(Workflow::class);} 
 }

@@ -9,12 +9,18 @@ class Assessment extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'email',
+        'company',
+        'score',
+        'result_tier',
+        'summary',
 
-    protected function casts(): array
+    ];
+
+    public function responses()
     {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
+        return $this->hasMany(AssessmentResponse::class);
     }
-
-    public function responses(){return $this->hasMany(AssessmentResponse::class);} 
 }

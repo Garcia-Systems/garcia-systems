@@ -9,12 +9,22 @@ class FrictionPoint extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'workflow_id',
+        'name',
+        'slug',
+        'description',
+        'impact',
 
-    protected function casts(): array
+    ];
+
+    public function workflow()
     {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
+        return $this->belongsTo(Workflow::class);
     }
 
-    public function workflow(){return $this->belongsTo(Workflow::class);} public function solutionPatterns(){return $this->belongsToMany(SolutionPattern::class);} 
+    public function solutionPatterns()
+    {
+        return $this->belongsToMany(SolutionPattern::class);
+    }
 }

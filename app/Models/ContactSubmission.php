@@ -9,12 +9,13 @@ class ContactSubmission extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'email',
+        'company',
+        'service_interest',
+        'message',
 
-    protected function casts(): array
-    {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
-    }
+    ];
 
-    
 }

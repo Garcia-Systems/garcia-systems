@@ -9,12 +9,21 @@ class AssessmentResponse extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'assessment_id',
+        'assessment_question_id',
+        'score',
+        'answer',
 
-    protected function casts(): array
+    ];
+
+    public function assessment()
     {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
+        return $this->belongsTo(Assessment::class);
     }
 
-    public function assessment(){return $this->belongsTo(Assessment::class);} public function question(){return $this->belongsTo(AssessmentQuestion::class,'assessment_question_id');} 
+    public function question()
+    {
+        return $this->belongsTo(AssessmentQuestion::class, 'assessment_question_id');
+    }
 }
