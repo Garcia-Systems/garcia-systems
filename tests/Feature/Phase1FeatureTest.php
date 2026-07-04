@@ -23,8 +23,9 @@ class Phase1FeatureTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('Systems consulting for practical automation')
-            ->assertSee('Garcia Systems helps teams map operations, prioritize opportunities, and build focused digital solutions without hype or over-engineering.');
+            ->assertSee('Business-first systems consulting')
+            ->assertSee('Turning Business Problems Into Products, Systems, and Intelligent Workflows')
+            ->assertSee('practical enough to adopt and specific enough to measure');
     }
 
     public function test_services_page_returns_successfully(): void
@@ -44,11 +45,18 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('Technical Liaison Services')
             ->assertSee('AI Opportunity Assessment')
             ->assertSee('Product Execution Support')
-            ->assertSee('What it is:')
-            ->assertSee('Business problem it solves:')
-            ->assertSee('Typical deliverables')
-            ->assertSee('Who it helps:')
+            ->assertSee('Overview')
+            ->assertSee('Business problems addressed')
+            ->assertSee('Expected outcomes')
+            ->assertSee('Deliverables')
+            ->assertSee('Ideal clients')
+            ->assertSee('Example engagements')
             ->assertSee('How Garcia Systems Works')
+            ->assertSee('Discover')
+            ->assertSee('Analyze')
+            ->assertSee('Validate')
+            ->assertSee('Measure')
+            ->assertSee('Iterate')
             ->assertSee('Best fit')
             ->assertSee('Not best fit')
             ->assertSee('href="'.route('contact').'"', false);
@@ -58,14 +66,17 @@ class Phase1FeatureTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('Service paths')
+            ->assertSee('Services summary')
             ->assertSee('Product Discovery')
             ->assertSee('Workflow Modernization')
             ->assertSee('AI Opportunity Assessment')
             ->assertSee('Solutions Engineering')
             ->assertSee('Technical Liaison Services')
             ->assertSee('Product Execution Support')
-            ->assertSee('Ship the next phase');
+            ->assertSee('Opportunity Atlas')
+            ->assertSee('Latest Thinking')
+            ->assertSee('Featured videos')
+            ->assertSee('Explore AI Readiness');
     }
 
     public function test_articles_index_returns_successfully_and_displays_sample_articles(): void
