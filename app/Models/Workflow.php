@@ -11,6 +11,7 @@ class Workflow extends Model
 
     protected $fillable = [
         'industry_id',
+        'company_type_id',
         'department_id',
         'name',
         'slug',
@@ -21,6 +22,11 @@ class Workflow extends Model
     public function industry()
     {
         return $this->belongsTo(Industry::class);
+    }
+
+    public function companyType()
+    {
+        return $this->belongsTo(CompanyType::class);
     }
 
     public function department()
