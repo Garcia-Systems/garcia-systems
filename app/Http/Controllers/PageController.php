@@ -41,13 +41,22 @@ class PageController extends Controller
 
     public function submitContact(Request $request)
     {
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:180'],
             'company' => ['nullable', 'string', 'max:180'],
             'service_interest' => ['nullable', 'string', 'max:180'],
             'message' => ['required', 'string', 'max:5000'],
         ]);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->route('contact')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $data = $validator->validated();
 
         ContactSubmission::create($data);
 
@@ -78,7 +87,7 @@ class PageController extends Controller
                 return;
             }
 
-            $submittedIds = array_keys($responses);
+            $submittedIds = array_map('strval', array_keys($responses));
             sort($submittedIds);
             sort($questionIds);
 
