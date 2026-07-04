@@ -1,0 +1,1 @@
+<x-layouts.app :title="$title"><section class="mx-auto max-w-4xl px-6 py-16"><h1 class="text-4xl font-bold">{{ $title }}</h1><p class="mt-6 text-lg text-slate-300">{{ $body }}</p></section></x-layouts.app>

@@ -1,0 +1,1 @@
+<footer class="border-t border-white/10 mt-16"><div class="mx-auto max-w-6xl p-6 text-sm text-slate-400">© {{ date('Y') }} Garcia Systems. Practical systems, automation, and AI readiness consulting.</div></footer>
