@@ -1,1 +1,119 @@
-<x-layouts.app title="Garcia Systems"><section class="mx-auto max-w-6xl px-6 py-20"><p class="text-cyan-300 font-semibold">Systems consulting for practical automation</p><h1 class="mt-4 text-5xl font-bold tracking-tight">Find the workflows where AI and automation can create measurable leverage.</h1><p class="mt-6 max-w-3xl text-lg text-slate-300">Garcia Systems helps teams map operations, prioritize opportunities, and build focused digital solutions without hype or over-engineering.</p><a class="mt-8 inline-block rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950" href="{{ route('contact') }}">Start a conversation</a></section><section class="mx-auto grid max-w-6xl gap-5 px-6 md:grid-cols-3">@foreach(['Workflow diagnosis','Automation roadmaps','MVP delivery'] as $item)<x-card><h2 class="text-xl font-semibold">{{ $item }}</h2><p class="mt-3 text-slate-300">Practical support to clarify problems, reduce manual work, and ship durable improvements.</p></x-card>@endforeach</section><section class="mx-auto max-w-6xl px-6 py-16"><h2 class="text-3xl font-bold">Services preview</h2><div class="mt-6 grid gap-5 md:grid-cols-3"><x-card>AI readiness and opportunity assessment</x-card><x-card>Workflow automation and systems design</x-card><x-card>Custom Laravel and internal tool MVPs</x-card></div></section><section class="mx-auto max-w-6xl px-6 py-8"><h2 class="text-3xl font-bold">Opportunity Atlas preview</h2><div class="mt-6 grid gap-5 md:grid-cols-3">@foreach($frictions as $f)<x-card><h3 class="font-semibold">{{ $f->name }}</h3><p class="mt-2 text-slate-300">{{ $f->description }}</p></x-card>@endforeach</div></section><section class="mx-auto grid max-w-6xl gap-5 px-6 py-8 md:grid-cols-2"><x-card><h2 class="text-2xl font-bold">AI Readiness Assessment</h2><p class="mt-2 text-slate-300">Answer a few questions and get a basic readiness tier.</p><a class="text-cyan-300" href="{{ route('assessment') }}">Take the assessment →</a></x-card><x-card><h2 class="text-2xl font-bold">Opportunity Explorer</h2><p class="mt-2 text-slate-300">Browse common friction points and solution patterns by industry and workflow.</p></x-card></section><section class="mx-auto max-w-6xl px-6 py-8"><h2 class="text-3xl font-bold">Latest Articles</h2><div class="mt-6 grid gap-5 md:grid-cols-3">@foreach($articles as $article)<x-card><h3 class="font-semibold">{{ $article->title }}</h3><p class="my-2 text-slate-300">{{ $article->excerpt }}</p><a class="text-cyan-300" href="{{ route('articles.show',$article) }}">Read →</a></x-card>@endforeach</div></section><section class="mx-auto grid max-w-6xl gap-5 px-6 py-8 md:grid-cols-2"><x-card><h2 class="text-2xl font-bold">Videos preview</h2><p class="text-slate-300">Short practical explainers for operations and automation.</p><div class="mt-4 space-y-3">@foreach($videos as $video)<div><h3 class="font-semibold">{{ $video->title }}</h3><a class="text-cyan-300" href="{{ $video->url }}">Watch →</a></div>@endforeach</div></x-card><x-card><h2 class="text-2xl font-bold">Tools preview</h2><p class="text-slate-300">Simple templates and assessments for prioritizing digital work.</p></x-card></section><section class="mx-auto max-w-6xl px-6 py-16"><h2 class="text-3xl font-bold">Why Garcia Systems</h2><p class="mt-3 max-w-3xl text-slate-300">Phase-based consulting that starts with business friction, not technology novelty.</p><a class="mt-6 inline-block text-cyan-300" href="{{ route('contact') }}">Contact Garcia Systems →</a></section></x-layouts.app>
+<x-layouts.app title="Garcia Systems">
+    <section class="mx-auto max-w-6xl px-6 py-20">
+        <p class="text-cyan-300 font-semibold">Systems consulting for practical automation</p>
+        <h1 class="mt-4 text-5xl font-bold tracking-tight">Find the workflows where AI and automation can create measurable leverage.</h1>
+        <p class="mt-6 max-w-3xl text-lg text-slate-300">Garcia Systems helps teams map operations, prioritize opportunities, and build focused digital solutions without hype or over-engineering.</p>
+        <a class="mt-8 inline-block rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950" href="{{ route('contact') }}">Start a conversation</a>
+    </section>
+
+    <section class="mx-auto grid max-w-6xl gap-5 px-6 md:grid-cols-3">
+        @foreach(['Workflow diagnosis','Automation roadmaps','MVP delivery'] as $item)
+            <x-card>
+                <h2 class="text-xl font-semibold">{{ $item }}</h2>
+                <p class="mt-3 text-slate-300">Practical support to clarify problems, reduce manual work, and ship durable improvements.</p>
+            </x-card>
+        @endforeach
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-16">
+        <p class="text-cyan-300 font-semibold">Service paths</p>
+        <h2 class="mt-3 text-3xl font-bold">Move from unclear friction to shipped improvement.</h2>
+        <p class="mt-3 max-w-3xl text-slate-300">Choose a focused consulting path for discovery, workflow modernization, AI opportunity assessment, or execution support.</p>
+        <div class="mt-6 grid gap-5 md:grid-cols-3">
+            <x-card>
+                <h3 class="text-xl font-semibold">Product Discovery</h3>
+                <p class="mt-3 text-slate-300">Clarify users, workflows, requirements, and the business case before investing in a build.</p>
+                <a class="mt-4 inline-block text-cyan-300" href="{{ route('services') }}">Explore discovery →</a>
+            </x-card>
+            <x-card>
+                <h3 class="text-xl font-semibold">Workflow Modernization</h3>
+                <p class="mt-3 text-slate-300">Redesign recurring work so handoffs, ownership, and automation opportunities are easier to see.</p>
+                <a class="mt-4 inline-block text-cyan-300" href="{{ route('services') }}">Modernize workflows →</a>
+            </x-card>
+            <x-card>
+                <h3 class="text-xl font-semibold">AI Opportunity Assessment</h3>
+                <p class="mt-3 text-slate-300">Identify practical AI and automation pilots connected to measurable operational outcomes.</p>
+                <a class="mt-4 inline-block text-cyan-300" href="{{ route('services') }}">Assess AI opportunities →</a>
+            </x-card>
+        </div>
+        <div class="mt-5 grid gap-5 md:grid-cols-3">
+            <x-card>
+                <h3 class="text-xl font-semibold">Solutions Engineering</h3>
+                <p class="mt-3 text-slate-300">Design useful internal tools, integrations, dashboards, and lightweight applications.</p>
+                <a class="mt-4 inline-block text-cyan-300" href="{{ route('contact') }}">Discuss a solution →</a>
+            </x-card>
+            <x-card>
+                <h3 class="text-xl font-semibold">Technical Liaison Services</h3>
+                <p class="mt-3 text-slate-300">Translate between business stakeholders, vendors, software teams, and leadership.</p>
+                <a class="mt-4 inline-block text-cyan-300" href="{{ route('contact') }}">Get alignment support →</a>
+            </x-card>
+            <x-card>
+                <h3 class="text-xl font-semibold">Product Execution Support</h3>
+                <p class="mt-3 text-slate-300">Turn an agreed direction into a roadmap, backlog, launch plan, and measurable iteration loop.</p>
+                <a class="mt-4 inline-block text-cyan-300" href="{{ route('contact') }}">Ship the next phase →</a>
+            </x-card>
+        </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-8">
+        <h2 class="text-3xl font-bold">Opportunity Atlas preview</h2>
+        <div class="mt-6 grid gap-5 md:grid-cols-3">
+            @foreach($frictions as $f)
+                <x-card>
+                    <h3 class="font-semibold">{{ $f->name }}</h3>
+                    <p class="mt-2 text-slate-300">{{ $f->description }}</p>
+                </x-card>
+            @endforeach
+        </div>
+    </section>
+
+    <section class="mx-auto grid max-w-6xl gap-5 px-6 py-8 md:grid-cols-2">
+        <x-card>
+            <h2 class="text-2xl font-bold">AI Readiness Assessment</h2>
+            <p class="mt-2 text-slate-300">Answer a few questions and get a basic readiness tier.</p>
+            <a class="text-cyan-300" href="{{ route('assessment') }}">Take the assessment →</a>
+        </x-card>
+        <x-card>
+            <h2 class="text-2xl font-bold">Opportunity Explorer</h2>
+            <p class="mt-2 text-slate-300">Browse common friction points and solution patterns by industry and workflow.</p>
+        </x-card>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-8">
+        <h2 class="text-3xl font-bold">Latest Articles</h2>
+        <div class="mt-6 grid gap-5 md:grid-cols-3">
+            @foreach($articles as $article)
+                <x-card>
+                    <h3 class="font-semibold">{{ $article->title }}</h3>
+                    <p class="my-2 text-slate-300">{{ $article->excerpt }}</p>
+                    <a class="text-cyan-300" href="{{ route('articles.show',$article) }}">Read →</a>
+                </x-card>
+            @endforeach
+        </div>
+    </section>
+
+    <section class="mx-auto grid max-w-6xl gap-5 px-6 py-8 md:grid-cols-2">
+        <x-card>
+            <h2 class="text-2xl font-bold">Videos preview</h2>
+            <p class="text-slate-300">Short practical explainers for operations and automation.</p>
+            <div class="mt-4 space-y-3">
+                @foreach($videos as $video)
+                    <div>
+                        <h3 class="font-semibold">{{ $video->title }}</h3>
+                        <a class="text-cyan-300" href="{{ $video->url }}">Watch →</a>
+                    </div>
+                @endforeach
+            </div>
+        </x-card>
+        <x-card>
+            <h2 class="text-2xl font-bold">Tools preview</h2>
+            <p class="text-slate-300">Simple templates and assessments for prioritizing digital work.</p>
+        </x-card>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-16">
+        <h2 class="text-3xl font-bold">Why Garcia Systems</h2>
+        <p class="mt-3 max-w-3xl text-slate-300">Phase-based consulting that starts with business friction, not technology novelty.</p>
+        <a class="mt-6 inline-block text-cyan-300" href="{{ route('contact') }}">Contact Garcia Systems →</a>
+    </section>
+</x-layouts.app>

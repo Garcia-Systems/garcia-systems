@@ -34,6 +34,40 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('Services');
     }
 
+    public function test_services_page_renders_expanded_service_offerings_and_conversion_paths(): void
+    {
+        $this->get('/services')
+            ->assertOk()
+            ->assertSee('Product Discovery')
+            ->assertSee('Solutions Engineering')
+            ->assertSee('Workflow Modernization')
+            ->assertSee('Technical Liaison Services')
+            ->assertSee('AI Opportunity Assessment')
+            ->assertSee('Product Execution Support')
+            ->assertSee('What it is:')
+            ->assertSee('Business problem it solves:')
+            ->assertSee('Typical deliverables')
+            ->assertSee('Who it helps:')
+            ->assertSee('How Garcia Systems Works')
+            ->assertSee('Best fit')
+            ->assertSee('Not best fit')
+            ->assertSee('href="'.route('contact').'"', false);
+    }
+
+    public function test_homepage_renders_service_cta_blocks(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Service paths')
+            ->assertSee('Product Discovery')
+            ->assertSee('Workflow Modernization')
+            ->assertSee('AI Opportunity Assessment')
+            ->assertSee('Solutions Engineering')
+            ->assertSee('Technical Liaison Services')
+            ->assertSee('Product Execution Support')
+            ->assertSee('Ship the next phase');
+    }
+
     public function test_articles_index_returns_successfully_and_displays_sample_articles(): void
     {
         $category = Category::create([
