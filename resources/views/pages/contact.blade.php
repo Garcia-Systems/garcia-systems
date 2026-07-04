@@ -9,14 +9,16 @@
             </div>
         @endif
 
-        @if($errors->any())
+        @if(session('contact_error_summary') || $errors->any())
             <div class="mt-6 rounded border border-rose-400/40 bg-rose-500/20 p-4 text-rose-100" role="alert">
-                <p class="font-semibold">Please fix the highlighted fields and try again.</p>
-                <ul class="mt-2 list-disc pl-5 text-sm">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+                <p class="font-semibold">{{ session('contact_error_summary', 'Please fix the highlighted fields and try again.') }}</p>
+                @if($errors->any())
+                    <ul class="mt-2 list-disc pl-5 text-sm">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                @endif
             </div>
         @endif
 
