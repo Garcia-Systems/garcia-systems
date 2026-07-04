@@ -53,6 +53,7 @@ class PageController extends Controller
             return redirect()
                 ->route('contact')
                 ->withErrors($validator)
+                ->with('contact_error_summary', 'Please fix the highlighted fields and try again.')
                 ->withInput();
         }
 
