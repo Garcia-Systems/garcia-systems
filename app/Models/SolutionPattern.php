@@ -9,12 +9,20 @@ class SolutionPattern extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
 
-    protected function casts(): array
+    ];
+
+    public function capabilities()
     {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
+        return $this->belongsToMany(Capability::class);
     }
 
-    public function capabilities(){return $this->belongsToMany(Capability::class);} public function frictionPoints(){return $this->belongsToMany(FrictionPoint::class);} 
+    public function frictionPoints()
+    {
+        return $this->belongsToMany(FrictionPoint::class);
+    }
 }

@@ -9,12 +9,15 @@ class Capability extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
 
-    protected function casts(): array
+    ];
+
+    public function solutionPatterns()
     {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
+        return $this->belongsToMany(SolutionPattern::class);
     }
-
-    public function solutionPatterns(){return $this->belongsToMany(SolutionPattern::class);} 
 }

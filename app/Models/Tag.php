@@ -9,12 +9,14 @@ class Tag extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'slug',
 
-    protected function casts(): array
+    ];
+
+    public function articles()
     {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
+        return $this->belongsToMany(Article::class);
     }
-
-    public function articles(){return $this->belongsToMany(Article::class);} 
 }

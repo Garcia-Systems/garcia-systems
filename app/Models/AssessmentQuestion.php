@@ -9,12 +9,11 @@ class AssessmentQuestion extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'question',
+        'help_text',
+        'sort_order',
 
-    protected function casts(): array
-    {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
-    }
+    ];
 
-    
 }

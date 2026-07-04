@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\ContactSubmission;
 use App\Models\FrictionPoint;
 use App\Models\Industry;
+use App\Models\Video;
 use App\Models\Workflow;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -64,6 +65,124 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('Finding Practical Automation Opportunities')
             ->assertSee('AI Readiness for Growing Teams')
             ->assertSee('Strategy');
+    }
+
+
+    public function test_articles_only_show_published_and_current_content(): void
+    {
+        $category = Category::create([
+            'name' => 'Strategy',
+            'slug' => 'strategy',
+            'description' => 'Practical AI and automation planning.',
+        ]);
+
+        $published = Article::create([
+            'category_id' => $category->id,
+            'title' => 'Published Article',
+            'slug' => 'published-article',
+            'excerpt' => 'Visible article excerpt.',
+            'body' => 'Visible article body.',
+            'is_published' => true,
+            'published_at' => now()->subDay(),
+        ]);
+
+        $draft = Article::create([
+            'category_id' => $category->id,
+            'title' => 'Draft Article',
+            'slug' => 'draft-article',
+            'excerpt' => 'Hidden draft excerpt.',
+            'body' => 'Hidden draft body.',
+            'is_published' => false,
+            'published_at' => now()->subDay(),
+        ]);
+
+        $future = Article::create([
+            'category_id' => $category->id,
+            'title' => 'Future Article',
+            'slug' => 'future-article',
+            'excerpt' => 'Hidden future excerpt.',
+            'body' => 'Hidden future body.',
+            'is_published' => true,
+            'published_at' => now()->addDay(),
+        ]);
+
+        $this->get('/articles')
+            ->assertOk()
+            ->assertSee($published->title)
+            ->assertDontSee($draft->title)
+            ->assertDontSee($future->title);
+
+        $this->get(route('articles.show', $published))->assertOk()->assertSee($published->title);
+        $this->get(route('articles.show', $draft))->assertNotFound();
+        $this->get(route('articles.show', $future))->assertNotFound();
+    }
+
+    public function test_homepage_only_previews_published_current_articles_and_published_videos(): void
+    {
+        Article::create([
+            'title' => 'Homepage Published Article',
+            'slug' => 'homepage-published-article',
+            'excerpt' => 'Visible homepage article.',
+            'body' => 'Visible homepage article body.',
+            'is_published' => true,
+            'published_at' => now()->subDay(),
+        ]);
+
+        Article::create([
+            'title' => 'Homepage Draft Article',
+            'slug' => 'homepage-draft-article',
+            'excerpt' => 'Hidden homepage draft.',
+            'body' => 'Hidden homepage draft body.',
+            'is_published' => false,
+            'published_at' => now()->subDay(),
+        ]);
+
+        Video::create([
+            'title' => 'Homepage Published Video',
+            'slug' => 'homepage-published-video',
+            'url' => 'https://example.com/videos/published',
+            'description' => 'Visible homepage video.',
+            'is_published' => true,
+        ]);
+
+        Video::create([
+            'title' => 'Homepage Draft Video',
+            'slug' => 'homepage-draft-video',
+            'url' => 'https://example.com/videos/draft',
+            'description' => 'Hidden homepage video.',
+            'is_published' => false,
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Homepage Published Article')
+            ->assertDontSee('Homepage Draft Article')
+            ->assertSee('Homepage Published Video')
+            ->assertDontSee('Homepage Draft Video');
+    }
+
+    public function test_videos_page_only_shows_published_videos(): void
+    {
+        Video::create([
+            'title' => 'Published Video',
+            'slug' => 'published-video',
+            'url' => 'https://example.com/videos/published',
+            'description' => 'Visible video.',
+            'is_published' => true,
+        ]);
+
+        Video::create([
+            'title' => 'Draft Video',
+            'slug' => 'draft-video',
+            'url' => 'https://example.com/videos/draft',
+            'description' => 'Hidden video.',
+            'is_published' => false,
+        ]);
+
+        $this->get('/videos')
+            ->assertOk()
+            ->assertSee('Published Video')
+            ->assertDontSee('Draft Video');
     }
 
     public function test_opportunity_atlas_returns_successfully_and_displays_seeded_content(): void
@@ -121,6 +240,24 @@ class Phase1FeatureTest extends TestCase
         $this->assertDatabaseHas(ContactSubmission::class, $payload);
     }
 
+
+    public function test_contact_form_validation_errors_are_rendered_and_do_not_persist(): void
+    {
+        $this->from('/contact')->post('/contact', [
+            'name' => '',
+            'email' => 'not-an-email',
+            'message' => '',
+        ])
+            ->assertRedirect('/contact')
+            ->assertSessionHasErrors(['name', 'email', 'message']);
+
+        $this->assertDatabaseCount(ContactSubmission::class, 0);
+
+        $this->get('/contact')
+            ->assertOk()
+            ->assertSee('Please fix the highlighted fields and try again.');
+    }
+
     public function test_ai_readiness_assessment_page_returns_successfully(): void
     {
         AssessmentQuestion::create([
@@ -133,6 +270,34 @@ class Phase1FeatureTest extends TestCase
             ->assertOk()
             ->assertSee('AI Readiness Assessment')
             ->assertSee('Do you have clearly documented workflows?');
+    }
+
+
+    public function test_assessment_rejects_unknown_question_keys_out_of_range_values_and_malformed_payloads(): void
+    {
+        $question = AssessmentQuestion::create([
+            'question' => 'Do you have clearly documented workflows?',
+            'help_text' => 'Use your current operating reality, not an ideal future state.',
+            'sort_order' => 1,
+        ]);
+
+        $this->from('/ai-readiness-assessment')->post('/ai-readiness-assessment', [
+            'responses' => [
+                $question->id => 6,
+                9999 => 3,
+            ],
+        ])
+            ->assertRedirect('/ai-readiness-assessment')
+            ->assertSessionHasErrors(['responses', 'responses.'.$question->id]);
+
+        $this->from('/ai-readiness-assessment')->post('/ai-readiness-assessment', [
+            'responses' => 'malformed',
+        ])
+            ->assertRedirect('/ai-readiness-assessment')
+            ->assertSessionHasErrors(['responses']);
+
+        $this->assertDatabaseCount(Assessment::class, 0);
+        $this->assertDatabaseCount(AssessmentResponse::class, 0);
     }
 
     public function test_assessment_submission_stores_assessment_responses_score_and_shows_result_page(): void

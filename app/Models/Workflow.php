@@ -9,12 +9,27 @@ class Workflow extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'industry_id',
+        'department_id',
+        'name',
+        'slug',
+        'description',
 
-    protected function casts(): array
+    ];
+
+    public function industry()
     {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
+        return $this->belongsTo(Industry::class);
     }
 
-    public function industry(){return $this->belongsTo(Industry::class);} public function department(){return $this->belongsTo(Department::class);} public function frictionPoints(){return $this->hasMany(FrictionPoint::class);} 
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function frictionPoints()
+    {
+        return $this->hasMany(FrictionPoint::class);
+    }
 }

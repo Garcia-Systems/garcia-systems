@@ -9,12 +9,13 @@ class Lead extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'email',
+        'company',
+        'source',
+        'notes',
 
-    protected function casts(): array
-    {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'answers' => 'array'];
-    }
+    ];
 
-    
 }
