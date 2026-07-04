@@ -1,0 +1,187 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Article;
+use App\Models\Assessment;
+use App\Models\AssessmentQuestion;
+use App\Models\AssessmentResponse;
+use App\Models\Category;
+use App\Models\ContactSubmission;
+use App\Models\FrictionPoint;
+use App\Models\Industry;
+use App\Models\Workflow;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class Phase1FeatureTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_homepage_returns_successfully_and_contains_positioning_text(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Systems consulting for practical automation')
+            ->assertSee('Garcia Systems helps teams map operations, prioritize opportunities, and build focused digital solutions without hype or over-engineering.');
+    }
+
+    public function test_services_page_returns_successfully(): void
+    {
+        $this->get('/services')
+            ->assertOk()
+            ->assertSee('Services');
+    }
+
+    public function test_articles_index_returns_successfully_and_displays_sample_articles(): void
+    {
+        $category = Category::create([
+            'name' => 'Strategy',
+            'slug' => 'strategy',
+            'description' => 'Practical AI and automation planning.',
+        ]);
+
+        Article::create([
+            'category_id' => $category->id,
+            'title' => 'Finding Practical Automation Opportunities',
+            'slug' => 'finding-practical-automation-opportunities',
+            'excerpt' => 'Start with recurring friction and measurable delays.',
+            'body' => 'Meaningful automation work begins with operational pain that can be observed and measured.',
+            'published_at' => now(),
+        ]);
+
+        Article::create([
+            'category_id' => $category->id,
+            'title' => 'AI Readiness for Growing Teams',
+            'slug' => 'ai-readiness-for-growing-teams',
+            'excerpt' => 'Clarify ownership, data quality, workflow stability, and risk tolerance.',
+            'body' => 'Readiness is created through better workflows, cleaner data, and clear success metrics.',
+            'published_at' => now()->subDay(),
+        ]);
+
+        $this->get('/articles')
+            ->assertOk()
+            ->assertSee('Finding Practical Automation Opportunities')
+            ->assertSee('AI Readiness for Growing Teams')
+            ->assertSee('Strategy');
+    }
+
+    public function test_opportunity_atlas_returns_successfully_and_displays_seeded_content(): void
+    {
+        $industry = Industry::create([
+            'name' => 'Professional services',
+            'slug' => 'professional-services',
+            'description' => 'Sample industry for opportunity mapping.',
+        ]);
+
+        $workflow = Workflow::create([
+            'industry_id' => $industry->id,
+            'name' => 'Client intake and follow-up',
+            'slug' => 'client-intake-follow-up',
+            'description' => 'Capture requests, qualify needs, route work, and follow up consistently.',
+        ]);
+
+        FrictionPoint::create([
+            'workflow_id' => $workflow->id,
+            'name' => 'Manual status chasing',
+            'slug' => 'manual-status-chasing',
+            'description' => 'Team members spend time asking where requests stand instead of moving work forward.',
+            'impact' => 'Slower response times and lower visibility.',
+        ]);
+
+        $this->get('/opportunity-atlas')
+            ->assertOk()
+            ->assertSee('Professional services')
+            ->assertSee('Client intake and follow-up')
+            ->assertSee('Manual status chasing');
+    }
+
+    public function test_contact_page_returns_successfully(): void
+    {
+        $this->get('/contact')
+            ->assertOk()
+            ->assertSee('Contact')
+            ->assertSee('Send message');
+    }
+
+    public function test_contact_form_stores_a_contact_submission(): void
+    {
+        $payload = [
+            'name' => 'Avery Garcia',
+            'email' => 'avery@example.com',
+            'company' => 'Garcia Demo Co',
+            'service_interest' => 'Workflow automation MVP',
+            'message' => 'We want to reduce manual intake and status chasing.',
+        ];
+
+        $this->from('/contact')->post('/contact', $payload)
+            ->assertRedirect('/contact')
+            ->assertSessionHas('status', 'Thanks — your message has been saved.');
+
+        $this->assertDatabaseHas(ContactSubmission::class, $payload);
+    }
+
+    public function test_ai_readiness_assessment_page_returns_successfully(): void
+    {
+        AssessmentQuestion::create([
+            'question' => 'Do you have clearly documented workflows?',
+            'help_text' => 'Use your current operating reality, not an ideal future state.',
+            'sort_order' => 1,
+        ]);
+
+        $this->get('/ai-readiness-assessment')
+            ->assertOk()
+            ->assertSee('AI Readiness Assessment')
+            ->assertSee('Do you have clearly documented workflows?');
+    }
+
+    public function test_assessment_submission_stores_assessment_responses_score_and_shows_result_page(): void
+    {
+        $questions = collect([
+            'Do you have clearly documented workflows?',
+            'Is your operational data organized and accessible?',
+            'Can your team define measurable success for an AI or automation pilot?',
+            'Do process owners have time to support implementation?',
+        ])->map(fn (string $question, int $index) => AssessmentQuestion::create([
+            'question' => $question,
+            'help_text' => 'Use your current operating reality, not an ideal future state.',
+            'sort_order' => $index + 1,
+        ]));
+
+        $responses = [
+            $questions[0]->id => 5,
+            $questions[1]->id => 4,
+            $questions[2]->id => 4,
+            $questions[3]->id => 3,
+        ];
+
+        $response = $this->post('/ai-readiness-assessment', [
+            'name' => 'Morgan Lee',
+            'email' => 'morgan@example.com',
+            'company' => 'Readiness Co',
+            'responses' => $responses,
+        ]);
+
+        $assessment = Assessment::query()->sole();
+
+        $response->assertRedirect(route('assessment.result', $assessment));
+
+        $this->assertSame(16, $assessment->score);
+        $this->assertSame('Ready to prioritize pilots', $assessment->result_tier);
+        $this->assertDatabaseCount(AssessmentResponse::class, 4);
+
+        foreach ($responses as $questionId => $score) {
+            $this->assertDatabaseHas(AssessmentResponse::class, [
+                'assessment_id' => $assessment->id,
+                'assessment_question_id' => $questionId,
+                'score' => $score,
+            ]);
+        }
+
+        $this->get(route('assessment.result', $assessment))
+            ->assertOk()
+            ->assertSee('Your readiness result')
+            ->assertSee('Score: 16')
+            ->assertSee('Ready to prioritize pilots');
+    }
+}
