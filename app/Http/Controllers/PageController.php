@@ -59,7 +59,20 @@ class PageController extends Controller
                 'industry',
                 'companyType',
                 'department',
-                'frictionPoints.solutionPatterns.capabilities',
+                'frictionPoints' => function ($query) use ($filters) {
+                    $query
+                        ->when($filters['friction_point'] ?? null, fn ($query, $slug) => $query->where('slug', $slug))
+                        ->when($filters['solution_pattern'] ?? null, fn ($query, $slug) => $query->whereHas('solutionPatterns', fn ($query) => $query->where('slug', $slug)))
+                        ->when($filters['capability'] ?? null, fn ($query, $slug) => $query->whereHas('solutionPatterns.capabilities', fn ($query) => $query->where('slug', $slug)));
+                },
+                'frictionPoints.solutionPatterns' => function ($query) use ($filters) {
+                    $query
+                        ->when($filters['solution_pattern'] ?? null, fn ($query, $slug) => $query->where('slug', $slug))
+                        ->when($filters['capability'] ?? null, fn ($query, $slug) => $query->whereHas('capabilities', fn ($query) => $query->where('slug', $slug)));
+                },
+                'frictionPoints.solutionPatterns.capabilities' => function ($query) use ($filters) {
+                    $query->when($filters['capability'] ?? null, fn ($query, $slug) => $query->where('slug', $slug));
+                },
             ])
             ->when($filters['industry'] ?? null, fn ($query, $slug) => $query->whereHas('industry', fn ($query) => $query->where('slug', $slug)))
             ->when($filters['company_type'] ?? null, fn ($query, $slug) => $query->whereHas('companyType', fn ($query) => $query->where('slug', $slug)))

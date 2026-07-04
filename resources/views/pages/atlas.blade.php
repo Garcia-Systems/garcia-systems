@@ -31,7 +31,12 @@
                         <select name="{{ $key }}" class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-slate-100">
                             <option value="">All {{ strtolower($label) }}</option>
                             @foreach($filterOptions[$key] as $option)
-                                <option value="{{ $option->slug }}" @selected(($filters[$key] ?? '') === $option->slug)>{{ $option->name }}</option>
+                                @php
+                                    $optionLabel = in_array($key, ['workflow', 'friction_point', 'solution_pattern'], true)
+                                        ? str($label)->headline().' option '.$loop->iteration
+                                        : $option->name;
+                                @endphp
+                                <option value="{{ $option->slug }}" @selected(($filters[$key] ?? '') === $option->slug)>{{ $optionLabel }}</option>
                             @endforeach
                         </select>
                     </label>
