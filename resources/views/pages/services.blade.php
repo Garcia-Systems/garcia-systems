@@ -1,127 +1,50 @@
 <x-layouts.app title="Services">
     @php
         $services = [
-            [
-                'title' => 'Product Discovery',
-                'what' => 'A focused discovery engagement that turns a fuzzy operational need into a clear product direction, prioritized requirements, and an implementation path.',
-                'problem' => 'Teams know something is slowing them down, but they do not yet have a shared definition of the user, workflow, constraints, or business case.',
-                'deliverables' => ['Stakeholder and workflow interviews', 'Problem framing and opportunity brief', 'Prioritized feature map', 'Pilot scope and decision criteria'],
-                'helps' => 'Founders, operators, department leads, and product owners who need clarity before investing in a build.',
-            ],
-            [
-                'title' => 'Solutions Engineering',
-                'what' => 'Practical technical design and implementation support for internal tools, integrations, dashboards, and lightweight applications.',
-                'problem' => 'Important work is trapped between spreadsheets, disconnected software, and manual handoffs that make growth harder to manage.',
-                'deliverables' => ['Current-state systems map', 'Solution architecture and build plan', 'Prototype or MVP implementation support', 'Documentation for handoff and iteration'],
-                'helps' => 'Growing teams that need useful systems without turning every improvement into a large software project.',
-            ],
-            [
-                'title' => 'Workflow Modernization',
-                'what' => 'An operations-first service for redesigning recurring workflows so information moves cleanly, accountability is visible, and automation has a stable foundation.',
-                'problem' => 'People are spending too much time chasing status, re-entering information, reconciling mistakes, or compensating for unclear process ownership.',
-                'deliverables' => ['Workflow audit', 'Bottleneck and risk analysis', 'Future-state process design', 'Automation and tooling recommendations'],
-                'helps' => 'Operations, service, finance, customer success, and back-office teams with repeatable work that has outgrown informal processes.',
-            ],
-            [
-                'title' => 'Technical Liaison Services',
-                'what' => 'A translation layer between business stakeholders, vendors, software teams, and leadership so technical work stays aligned with operational goals.',
-                'problem' => 'Business teams and technical partners are using different language, creating misaligned expectations, slow decisions, and avoidable rework.',
-                'deliverables' => ['Requirements translation', 'Vendor and implementation partner coordination', 'Decision memos for leadership', 'Acceptance criteria and launch readiness support'],
-                'helps' => 'Organizations that need someone to connect business intent with technical execution without adding another full-time role.',
-            ],
-            [
-                'title' => 'AI Opportunity Assessment',
-                'what' => 'A grounded review of where AI, automation, or decision support could improve measurable work without forcing AI into places it does not belong.',
-                'problem' => 'Leaders are under pressure to use AI but need to separate practical opportunities from risky, vague, or low-value experiments.',
-                'deliverables' => ['AI readiness review', 'Opportunity shortlist', 'Risk and data dependency notes', 'Recommended pilot sequence'],
-                'helps' => 'Executives, operators, and innovation leads who want a pragmatic AI roadmap connected to real workflows.',
-            ],
-            [
-                'title' => 'Product Execution Support',
-                'what' => 'Hands-on support for moving a defined product, tool, or automation initiative from plan to shipped improvement.',
-                'problem' => 'Teams have agreed on the need but lack the product management capacity, implementation rhythm, or cross-functional follow-through to get it live.',
-                'deliverables' => ['Execution roadmap', 'Sprint and milestone planning', 'Backlog shaping and acceptance criteria', 'Launch, feedback, and iteration support'],
-                'helps' => 'Teams with a validated direction that need disciplined execution support to turn decisions into outcomes.',
-            ],
+            ['label'=>'Discovery','title'=>'Product Discovery','overview'=>'A focused engagement that turns an unclear product, workflow, or operational idea into a decision-ready direction. The work starts with business context, user needs, constraints, and the conditions required for a useful first release.','problems'=>'Unclear requirements, competing stakeholder priorities, undefined MVP scope, weak business cases, and product ideas that are being discussed before the workflow is understood.','outcomes'=>'A shared definition of the problem, a practical product direction, prioritized scope, and a clear recommendation for what to validate, build, defer, or stop.','deliverables'=>['Opportunity maps','Stakeholder interview synthesis','Workflow analysis','MVP definitions','Prioritized requirements documents','Roadmaps'],'clients'=>'Founders, operators, department leaders, and product owners who need clarity before committing budget or asking a technical team to build.','examples'=>['Define the MVP for an internal workflow tool after teams have outgrown spreadsheets.','Translate a broad automation idea into user groups, requirements, risks, and a phased roadmap.'],'cta'=>'Clarify a product direction'],
+            ['label'=>'Architecture','title'=>'Solutions Engineering','overview'=>'Practical technical planning and build support for internal tools, integrations, reporting workflows, and lightweight applications. The emphasis is on useful systems that fit the business rather than unnecessary platform complexity.','problems'=>'Disconnected tools, manual data movement, fragile spreadsheets, limited reporting visibility, vendor gaps, and solution ideas that need technical shaping before implementation.','outcomes'=>'A feasible solution path, clear technical recommendations, implementation priorities, and the documentation needed for a build partner, internal team, or vendor to execute.','deliverables'=>['Capability matrices','Technical recommendations','Integration plans','Vendor evaluations','Prototype plans','Implementation roadmaps'],'clients'=>'Growing teams that need technical judgment, solution design, or implementation support without creating a large software initiative.','examples'=>['Evaluate whether to configure an existing platform, integrate two systems, or build a lightweight internal tool.','Create a solution plan for moving operational reporting from manual spreadsheets into a repeatable dashboard workflow.'],'cta'=>'Discuss a solution path'],
+            ['label'=>'Operations','title'=>'Workflow Modernization','overview'=>'An operations-first service for redesigning recurring work so information moves cleanly, ownership is visible, and automation has a stable process foundation.','problems'=>'Status chasing, duplicate entry, unclear handoffs, inconsistent intake, rework, queue backlogs, and processes that depend too heavily on individual memory.','outcomes'=>'A clearer current-state view, a future-state workflow design, reduced ambiguity, and a practical modernization plan tied to roles, systems, and measurable operating improvements.','deliverables'=>['Workflow analysis','Process diagrams','Bottleneck maps','Risk and dependency notes','Automation recommendations','Future-state operating models'],'clients'=>'Operations, finance, service, customer success, and back-office teams with repeatable work that has become too manual or too difficult to manage.','examples'=>['Map an intake-to-completion workflow and redesign handoffs before selecting automation tools.','Document the operating model needed to reduce rework between customer-facing and back-office teams.'],'cta'=>'Modernize a workflow'],
+            ['label'=>'Alignment','title'=>'Technical Liaison Services','overview'=>'A translation layer between business stakeholders, vendors, software teams, and leadership. This service keeps technical decisions connected to the operational outcome and helps non-technical teams participate in implementation with confidence.','problems'=>'Misaligned vocabulary, slow decisions, unclear acceptance criteria, vendor ambiguity, technical recommendations that are difficult for leadership to evaluate, and projects drifting away from business intent.','outcomes'=>'Better decision quality, cleaner requirements, stronger vendor conversations, clearer tradeoff documentation, and launch criteria that business and technical teams can both use.','deliverables'=>['Requirements documents','Decision memos','Vendor evaluations','Acceptance criteria','Launch readiness checklists','Technical recommendations'],'clients'=>'Organizations that need product and technical translation but do not need another full-time role or a large consulting team.','examples'=>['Support a leadership team while evaluating vendor proposals for a workflow platform.','Translate business requirements into acceptance criteria for an implementation partner.'],'cta'=>'Improve project alignment'],
+            ['label'=>'AI readiness','title'=>'AI Opportunity Assessment','overview'=>'A grounded assessment of where AI, automation, or decision support could improve real work. The process separates practical opportunities from vague experiments and identifies the data, workflow, and risk conditions required for a responsible pilot.','problems'=>'Pressure to use AI without a clear use case, scattered automation ideas, inconsistent data ownership, unclear risk tolerance, and pilots that are not connected to measurable business outcomes.','outcomes'=>'A prioritized AI opportunity shortlist, readiness gaps, risk notes, pilot recommendations, and a practical sequence for learning without overcommitting.','deliverables'=>['AI readiness review','Opportunity maps','Workflow analysis','Data dependency notes','Risk assessment notes','Pilot roadmaps'],'clients'=>'Executives, operators, innovation leads, and department heads who want practical AI direction connected to existing workflows.','examples'=>['Assess whether customer support triage, document review, or internal knowledge workflows are ready for AI assistance.','Prioritize AI pilots by business value, data readiness, operational risk, and implementation complexity.'],'cta'=>'Explore AI readiness'],
+            ['label'=>'Delivery','title'=>'Product Execution Support','overview'=>'Hands-on product and execution support for moving a defined initiative from plan to shipped improvement. This service brings structure to roadmap decisions, backlog shaping, stakeholder coordination, launch planning, and iteration.','problems'=>'Validated ideas that stall, unclear ownership, shifting priorities, incomplete requirements, weak launch plans, and limited product management capacity during execution.','outcomes'=>'A managed execution rhythm, clearer backlog, defined milestones, launch readiness, feedback loops, and a practical path from decision to measurable adoption.','deliverables'=>['Roadmaps','Backlog structure','MVP definitions','Requirements documents','Milestone plans','Measurement plans'],'clients'=>'Teams with a clear direction that need disciplined product execution support to move from planning into delivery.','examples'=>['Shape a 90-day roadmap and backlog for the first release of an internal operations tool.','Coordinate feedback, acceptance criteria, and launch planning across business users and a technical delivery partner.'],'cta'=>'Plan the next release'],
+        ];
+        $process = [
+            ['Discover','Understand business goals, stakeholders, workflows, constraints, and the decisions the work must support.'],['Analyze','Separate symptoms from root causes and evaluate friction, data quality, systems, risk, and value.'],['Design','Shape practical options, target workflows, solution concepts, and success criteria.'],['Validate','Test assumptions with stakeholders, users, technical constraints, and operational realities.'],['Plan','Define scope, deliverables, roadmap, owners, milestones, and measurement.'],['Execute','Support product decisions, vendor coordination, implementation rhythm, and launch readiness.'],['Measure','Review adoption, operational impact, decision quality, and workflow performance.'],['Iterate','Use evidence to refine the process, product, automation, or next phase.'],
         ];
     @endphp
 
-    <section class="mx-auto max-w-6xl px-6 py-16">
-        <p class="text-cyan-300 font-semibold">Services</p>
-        <h1 class="mt-4 max-w-4xl text-4xl font-bold tracking-tight md:text-5xl">Consulting services for practical systems, workflows, and product execution.</h1>
-        <p class="mt-6 max-w-3xl text-lg text-slate-300">Garcia Systems helps teams clarify business problems, modernize operations, and ship focused technical improvements without hype, unnecessary complexity, or premature platform bets.</p>
-        <a class="mt-8 inline-block rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950" href="{{ route('contact') }}">Talk about your service need</a>
+    <section class="mx-auto max-w-6xl px-6 py-20">
+        <p class="font-semibold text-cyan-300">Services</p>
+        <h1 class="mt-4 max-w-5xl text-4xl font-bold tracking-tight md:text-6xl">Consulting services for business problems that need better products, systems, and workflows.</h1>
+        <p class="mt-6 max-w-3xl text-lg text-slate-300">Garcia Systems helps teams clarify what is happening operationally, decide where technology can help, and move from analysis to practical execution without unnecessary infrastructure or hype.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+            <a class="rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950" href="{{ route('contact') }}">Talk about your service need</a>
+            <a class="rounded-full border border-white/15 px-6 py-3 font-semibold text-slate-100" href="{{ route('assessment') }}">Explore AI readiness</a>
+        </div>
     </section>
 
     <section class="mx-auto max-w-6xl px-6 py-8">
-        <div class="grid gap-6">
+        <x-section-heading eyebrow="Consulting paths" title="Focused services from discovery through execution." description="Each service is structured around business clarity, practical deliverables, and conversion paths that help stakeholders make the next decision." />
+        <div class="mt-8 grid gap-7">
             @foreach($services as $service)
-                <x-card class="p-8">
-                    <div class="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
-                        <div>
-                            <h2 class="text-2xl font-bold">{{ $service['title'] }}</h2>
-                            <div class="mt-5 space-y-4 text-slate-300">
-                                <p><span class="font-semibold text-slate-100">What it is:</span> {{ $service['what'] }}</p>
-                                <p><span class="font-semibold text-slate-100">Business problem it solves:</span> {{ $service['problem'] }}</p>
-                                <p><span class="font-semibold text-slate-100">Who it helps:</span> {{ $service['helps'] }}</p>
-                            </div>
-                            <a class="mt-6 inline-block text-cyan-300" href="{{ route('contact') }}">Discuss {{ $service['title'] }} →</a>
-                        </div>
-                        <div class="rounded-xl bg-slate-950/60 p-5">
-                            <h3 class="font-semibold text-slate-100">Typical deliverables</h3>
-                            <ul class="mt-4 space-y-2 text-slate-300">
-                                @foreach($service['deliverables'] as $deliverable)
-                                    <li>• {{ $deliverable }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </x-card>
+                <x-service-card :service="$service" />
             @endforeach
         </div>
     </section>
 
     <section class="mx-auto max-w-6xl px-6 py-16">
-        <h2 class="text-3xl font-bold">How Garcia Systems Works</h2>
-        <div class="mt-6 grid gap-5 md:grid-cols-4">
-            @foreach([
-                ['Diagnose', 'Map the workflow, stakeholders, systems, risks, and business outcome that matter.'],
-                ['Prioritize', 'Separate urgent symptoms from high-leverage opportunities worth solving first.'],
-                ['Design', 'Shape a practical solution path, success criteria, and implementation plan.'],
-                ['Execute', 'Support the build, vendor coordination, launch, and iteration needed to make change stick.'],
-            ] as [$step, $description])
-                <x-card>
-                    <h3 class="text-xl font-semibold">{{ $step }}</h3>
-                    <p class="mt-3 text-slate-300">{{ $description }}</p>
-                </x-card>
+        <x-section-heading eyebrow="Process" title="How Garcia Systems Works" description="A measured consulting process that starts with context, narrows the problem, and keeps implementation connected to business outcomes." />
+        <div class="mt-8 grid gap-4 md:grid-cols-4">
+            @foreach($process as $index => [$step, $description])
+                <x-process-step :number="$index + 1" :title="$step" :description="$description" />
             @endforeach
         </div>
     </section>
 
     <section class="mx-auto grid max-w-6xl gap-5 px-6 py-8 md:grid-cols-2">
-        <x-card class="border-cyan-300/30">
-            <h2 class="text-2xl font-bold">Best fit</h2>
-            <ul class="mt-4 space-y-3 text-slate-300">
-                <li>• You have a real operational bottleneck, growth constraint, or product execution gap.</li>
-                <li>• You want practical recommendations tied to measurable business outcomes.</li>
-                <li>• You can involve the people who understand the workflow and own the result.</li>
-            </ul>
-        </x-card>
-        <x-card>
-            <h2 class="text-2xl font-bold">Not best fit</h2>
-            <ul class="mt-4 space-y-3 text-slate-300">
-                <li>• You want AI or automation added before clarifying the underlying workflow.</li>
-                <li>• You need a large agency build team or a fully outsourced software department.</li>
-                <li>• You are not ready to make decisions, share context, or support implementation.</li>
-            </ul>
-        </x-card>
+        <x-card class="border-cyan-300/30"><h2 class="text-2xl font-bold">Best fit</h2><ul class="mt-4 space-y-3 text-slate-300"><li>• You have a real operational bottleneck, growth constraint, or product execution gap.</li><li>• You want recommendations tied to measurable business outcomes.</li><li>• You can involve the people who understand the workflow and own the result.</li></ul></x-card>
+        <x-card><h2 class="text-2xl font-bold">Not best fit</h2><ul class="mt-4 space-y-3 text-slate-300"><li>• You want AI or automation added before clarifying the underlying workflow.</li><li>• You need a large agency build team or fully outsourced software department.</li><li>• You are not ready to make decisions, share context, or support implementation.</li></ul></x-card>
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-16">
-        <div class="rounded-3xl border border-cyan-300/30 bg-cyan-300/10 p-8 md:p-10">
-            <h2 class="text-3xl font-bold">Have a workflow, product, or AI question that needs a practical path forward?</h2>
-            <p class="mt-4 max-w-3xl text-slate-300">Start with a conversation about the business problem, the people affected, and what a useful first phase should produce.</p>
-            <a class="mt-6 inline-block rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950" href="{{ route('contact') }}">Contact Garcia Systems</a>
-        </div>
-    </section>
+    <x-cta-banner title="Have a workflow, product, or AI question that needs a practical path forward?" description="Start with a conversation about the business problem, the people affected, and what a useful first phase should produce." :href="route('contact')" linkText="Contact Garcia Systems" />
 </x-layouts.app>
