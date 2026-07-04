@@ -65,11 +65,11 @@
                 @foreach($workflows as $workflow)
                     <x-card>
                         <div class="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide">
-                            <span class="rounded-full bg-white/10 px-3 py-1">Industry: {{ $workflow->industry?->name ?? 'General' }}</span>
-                            <span class="rounded-full bg-white/10 px-3 py-1">Company Type: {{ $workflow->companyType?->name ?? 'Any' }}</span>
-                            <span class="rounded-full bg-white/10 px-3 py-1">Department: {{ $workflow->department?->name ?? 'Cross-functional' }}</span>
+                            <span class="rounded-full bg-white/10 px-3 py-1">Industry: @if($workflow->industry)<a class="hover:text-cyan-200" href="{{ route('atlas.industries.show', $workflow->industry->slug) }}">{{ $workflow->industry->name }}</a>@else General @endif</span>
+                            <span class="rounded-full bg-white/10 px-3 py-1">Company Type: @if($workflow->companyType)<a class="hover:text-cyan-200" href="{{ route('atlas.company-types.show', $workflow->companyType->slug) }}">{{ $workflow->companyType->name }}</a>@else Any @endif</span>
+                            <span class="rounded-full bg-white/10 px-3 py-1">Department: @if($workflow->department)<a class="hover:text-cyan-200" href="{{ route('atlas.departments.show', $workflow->department->slug) }}">{{ $workflow->department->name }}</a>@else Cross-functional @endif</span>
                         </div>
-                        <h2 class="mt-4 text-2xl font-bold">{{ $workflow->name }}</h2>
+                        <h2 class="mt-4 text-2xl font-bold"><a href="{{ route('atlas.workflows.show', $workflow->slug) }}" class="hover:text-cyan-200">{{ $workflow->name }}</a></h2>
                         <p class="mt-2 text-slate-300">{{ $workflow->description }}</p>
 
                         <div class="mt-5 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-4 text-sm text-slate-300">
@@ -80,17 +80,17 @@
                         <div class="mt-5 grid gap-4 md:grid-cols-{{ max(1, min(2, $workflow->frictionPoints->count())) }}">
                             @foreach($workflow->frictionPoints as $friction)
                                 <div class="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-                                    <div class="text-sm font-semibold text-rose-200">Friction: {{ $friction->name }}</div>
+                                    <div class="text-sm font-semibold text-rose-200">Friction: <a href="{{ route('atlas.friction-points.show', $friction->slug) }}" class="hover:text-rose-100">{{ $friction->name }}</a></div>
                                     <p class="mt-2 text-sm text-slate-300">{{ $friction->description }}</p>
                                     @if($friction->impact)<p class="mt-2 text-sm text-slate-400">Impact: {{ $friction->impact }}</p>@endif
 
                                     @foreach($friction->solutionPatterns as $pattern)
                                         <div class="mt-4 border-t border-white/10 pt-4">
-                                            <div class="font-semibold text-cyan-200">Solution Pattern: {{ $pattern->name }}</div>
+                                            <div class="font-semibold text-cyan-200">Solution Pattern: <a href="{{ route('atlas.solution-patterns.show', $pattern->slug) }}" class="hover:text-cyan-100">{{ $pattern->name }}</a></div>
                                             <p class="mt-1 text-sm text-slate-300">{{ $pattern->description }}</p>
                                             <div class="mt-3 flex flex-wrap gap-2">
                                                 @foreach($pattern->capabilities as $capability)
-                                                    <span class="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">Capability: {{ $capability->name }}</span>
+                                                    <span class="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">Capability: <a href="{{ route('atlas.capabilities.show', $capability->slug) }}" class="hover:text-emerald-100">{{ $capability->name }}</a></span>
                                                 @endforeach
                                             </div>
                                         </div>
