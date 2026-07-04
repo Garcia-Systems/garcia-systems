@@ -16,4 +16,8 @@ class CompanyType extends Model
 
     ];
 
+    public function workflows()
+    {
+        return $this->hasMany(Workflow::class);
+    }
 }

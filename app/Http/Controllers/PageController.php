@@ -6,10 +6,15 @@ use App\Models\Article;
 use App\Models\Assessment;
 use App\Models\AssessmentQuestion;
 use App\Models\AssessmentResponse;
+use App\Models\Capability;
+use App\Models\CompanyType;
 use App\Models\ContactSubmission;
+use App\Models\Department;
 use App\Models\FrictionPoint;
 use App\Models\Industry;
+use App\Models\SolutionPattern;
 use App\Models\Video;
+use App\Models\Workflow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -36,9 +41,87 @@ class PageController extends Controller
     public function services() { return view('pages.services'); }
     public function videos() { return view('pages.videos', ['videos' => Video::published()->latest()->get()]); }
     public function tools() { return view('pages.tools'); }
-    public function atlas() { return view('pages.atlas', ['industries' => Industry::with('workflows.frictionPoints.solutionPatterns')->get()]); }
-    public function contact() { return view('pages.contact'); }
 
+    public function atlas(Request $request)
+    {
+        $filters = collect($request->only([
+            'industry',
+            'company_type',
+            'department',
+            'workflow',
+            'friction_point',
+            'capability',
+            'solution_pattern',
+        ]))->filter(fn ($value) => filled($value))->map(fn ($value) => str($value)->slug()->toString())->all();
+
+        $workflows = Workflow::query()
+            ->with([
+                'industry',
+                'companyType',
+                'department',
+                'frictionPoints' => function ($query) use ($filters) {
+                    $query
+                        ->when($filters['friction_point'] ?? null, fn ($query, $slug) => $query->where('slug', $slug))
+                        ->when($filters['solution_pattern'] ?? null, fn ($query, $slug) => $query->whereHas('solutionPatterns', fn ($query) => $query->where('slug', $slug)))
+                        ->when($filters['capability'] ?? null, fn ($query, $slug) => $query->whereHas('solutionPatterns.capabilities', fn ($query) => $query->where('slug', $slug)));
+                },
+                'frictionPoints.solutionPatterns' => function ($query) use ($filters) {
+                    $query
+                        ->when($filters['solution_pattern'] ?? null, fn ($query, $slug) => $query->where('slug', $slug))
+                        ->when($filters['capability'] ?? null, fn ($query, $slug) => $query->whereHas('capabilities', fn ($query) => $query->where('slug', $slug)));
+                },
+                'frictionPoints.solutionPatterns.capabilities' => function ($query) use ($filters) {
+                    $query->when($filters['capability'] ?? null, fn ($query, $slug) => $query->where('slug', $slug));
+                },
+            ])
+            ->when($filters['industry'] ?? null, fn ($query, $slug) => $query->whereHas('industry', fn ($query) => $query->where('slug', $slug)))
+            ->when($filters['company_type'] ?? null, fn ($query, $slug) => $query->whereHas('companyType', fn ($query) => $query->where('slug', $slug)))
+            ->when($filters['department'] ?? null, fn ($query, $slug) => $query->whereHas('department', fn ($query) => $query->where('slug', $slug)))
+            ->when($filters['workflow'] ?? null, fn ($query, $slug) => $query->where('slug', $slug))
+            ->when($filters['friction_point'] ?? null, fn ($query, $slug) => $query->whereHas('frictionPoints', fn ($query) => $query->where('slug', $slug)))
+            ->when($filters['solution_pattern'] ?? null, fn ($query, $slug) => $query->whereHas('frictionPoints.solutionPatterns', fn ($query) => $query->where('slug', $slug)))
+            ->when($filters['capability'] ?? null, fn ($query, $slug) => $query->whereHas('frictionPoints.solutionPatterns.capabilities', fn ($query) => $query->where('slug', $slug)))
+            ->orderBy('name')
+            ->get();
+
+        $articles = Article::published()->latest('published_at')->get();
+        $videos = Video::published()->latest()->get();
+        $services = collect([
+            'Product Discovery',
+            'Solutions Engineering',
+            'Workflow Modernization',
+            'Technical Liaison Services',
+            'AI Opportunity Assessment',
+            'Product Execution Support',
+        ]);
+
+        return view('pages.atlas', [
+            'workflows' => $workflows,
+            'filters' => $filters,
+            'filterOptions' => [
+                'industry' => Industry::orderBy('name')->get(),
+                'company_type' => CompanyType::orderBy('name')->get(),
+                'department' => Department::orderBy('name')->get(),
+                'workflow' => Workflow::orderBy('name')->get(),
+                'friction_point' => FrictionPoint::orderBy('name')->get(),
+                'capability' => Capability::orderBy('name')->get(),
+                'solution_pattern' => SolutionPattern::orderBy('name')->get(),
+            ],
+            'articles' => $articles,
+            'videos' => $videos,
+            'services' => $services,
+            'summary' => [
+                'workflows' => $workflows->count(),
+                'friction_points' => $workflows->pluck('frictionPoints')->flatten()->count(),
+                'solution_patterns' => $workflows->pluck('frictionPoints')->flatten()->pluck('solutionPatterns')->flatten()->unique('id')->count(),
+                'capabilities' => $workflows->pluck('frictionPoints')->flatten()->pluck('solutionPatterns')->flatten()->pluck('capabilities')->flatten()->unique('id')->count(),
+                'articles' => $articles->count(),
+                'videos' => $videos->count(),
+                'services' => $services->count(),
+            ],
+        ]);
+    }
+    public function contact() { return view('pages.contact'); }
     public function submitContact(Request $request)
     {
         $validator = Validator::make($request->all(), [

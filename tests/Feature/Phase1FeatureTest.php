@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Article;
+use App\Models\Capability;
+use App\Models\CompanyType;
 use App\Models\Assessment;
 use App\Models\AssessmentQuestion;
 use App\Models\AssessmentResponse;
@@ -10,6 +12,8 @@ use App\Models\Category;
 use App\Models\ContactSubmission;
 use App\Models\FrictionPoint;
 use App\Models\Industry;
+use App\Models\Department;
+use App\Models\SolutionPattern;
 use App\Models\Video;
 use App\Models\Workflow;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -258,6 +262,93 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('Professional services')
             ->assertSee('Client intake and follow-up')
             ->assertSee('Manual status chasing');
+    }
+
+
+    public function test_opportunity_atlas_filters_by_query_parameters(): void
+    {
+        $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
+        $this->createAtlasExample('Education', 'Public agency', 'Compliance', 'Grant documentation', 'Knowledge Silos', 'Knowledge Management', 'Shared knowledge base');
+
+        $this->get('/opportunity-atlas?industry=healthcare')
+            ->assertOk()
+            ->assertSee('Healthcare')
+            ->assertSee('Inventory visibility')
+            ->assertDontSee('Grant documentation');
+
+        $this->get('/opportunity-atlas?department=operations')
+            ->assertOk()
+            ->assertSee('Inventory visibility')
+            ->assertDontSee('Grant documentation');
+
+        $this->get('/opportunity-atlas?workflow=inventory-visibility')
+            ->assertOk()
+            ->assertSee('Manual Reporting')
+            ->assertDontSee('Knowledge Silos');
+
+        $this->get('/opportunity-atlas?capability=automation')
+            ->assertOk()
+            ->assertSee('Operational dashboard')
+            ->assertDontSee('Shared knowledge base');
+    }
+
+    public function test_opportunity_atlas_combines_filters(): void
+    {
+        $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
+        $this->createAtlasExample('Healthcare', 'Public agency', 'Compliance', 'Records reconciliation', 'Data Quality', 'Reporting', 'Data cleanup workflow');
+
+        $this->get('/opportunity-atlas?industry=healthcare&department=operations&capability=automation')
+            ->assertOk()
+            ->assertSee('Inventory visibility')
+            ->assertDontSee('Records reconciliation');
+    }
+
+    public function test_opportunity_atlas_empty_filters_return_all_results(): void
+    {
+        $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
+        $this->createAtlasExample('Retail', 'Small business', 'Procurement', 'Supplier replenishment', 'Vendor Coordination', 'Vendor Coordination', 'Vendor coordination hub');
+
+        $this->get('/opportunity-atlas?industry=&department=&workflow=')
+            ->assertOk()
+            ->assertSee('Inventory visibility')
+            ->assertSee('Supplier replenishment')
+            ->assertSee('No filters active');
+    }
+
+    public function test_opportunity_atlas_invalid_filters_fail_gracefully(): void
+    {
+        $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
+
+        $this->get('/opportunity-atlas?industry=does-not-exist&capability=unknown')
+            ->assertOk()
+            ->assertSee('No atlas results yet')
+            ->assertDontSee('Inventory visibility');
+    }
+
+    private function createAtlasExample(string $industryName, string $companyTypeName, string $departmentName, string $workflowName, string $frictionName, string $capabilityName, string $patternName): void
+    {
+        $industry = Industry::firstOrCreate(['slug' => str($industryName)->slug()], ['name' => $industryName, 'description' => 'Test industry.']);
+        $companyType = CompanyType::firstOrCreate(['slug' => str($companyTypeName)->slug()], ['name' => $companyTypeName, 'description' => 'Test company type.']);
+        $department = Department::firstOrCreate(['slug' => str($departmentName)->slug()], ['name' => $departmentName, 'description' => 'Test department.']);
+        $capability = Capability::firstOrCreate(['slug' => str($capabilityName)->slug()], ['name' => $capabilityName, 'description' => 'Test capability.']);
+        $pattern = SolutionPattern::firstOrCreate(['slug' => str($patternName)->slug()], ['name' => $patternName, 'description' => 'Test pattern.']);
+        $pattern->capabilities()->attach($capability);
+        $workflow = Workflow::create([
+            'industry_id' => $industry->id,
+            'company_type_id' => $companyType->id,
+            'department_id' => $department->id,
+            'name' => $workflowName,
+            'slug' => str($workflowName)->slug(),
+            'description' => 'Test workflow.',
+        ]);
+        $friction = FrictionPoint::create([
+            'workflow_id' => $workflow->id,
+            'name' => $frictionName,
+            'slug' => str($frictionName)->slug(),
+            'description' => 'Test friction.',
+            'impact' => 'Test impact.',
+        ]);
+        $friction->solutionPatterns()->attach($pattern);
     }
 
     public function test_contact_page_returns_successfully(): void
