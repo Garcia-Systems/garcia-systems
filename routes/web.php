@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\AtlasDetailController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 Route::get('/', [PageController::class,'home'])->name('home');
@@ -10,6 +11,13 @@ Route::get('/articles/{article:slug}', [ArticleController::class,'show'])->name(
 Route::get('/videos', [PageController::class,'videos'])->name('videos');
 Route::get('/tools', [PageController::class,'tools'])->name('tools');
 Route::get('/opportunity-atlas', [PageController::class,'atlas'])->name('atlas');
+Route::get('/opportunity-atlas/industries/{industry:slug}', [AtlasDetailController::class, 'industry'])->name('atlas.industries.show');
+Route::get('/opportunity-atlas/company-types/{companyType:slug}', [AtlasDetailController::class, 'companyType'])->name('atlas.company-types.show');
+Route::get('/opportunity-atlas/departments/{department:slug}', [AtlasDetailController::class, 'department'])->name('atlas.departments.show');
+Route::get('/opportunity-atlas/workflows/{workflow:slug}', [AtlasDetailController::class, 'workflow'])->name('atlas.workflows.show');
+Route::get('/opportunity-atlas/friction-points/{frictionPoint:slug}', [AtlasDetailController::class, 'frictionPoint'])->name('atlas.friction-points.show');
+Route::get('/opportunity-atlas/solution-patterns/{solutionPattern:slug}', [AtlasDetailController::class, 'solutionPattern'])->name('atlas.solution-patterns.show');
+Route::get('/opportunity-atlas/capabilities/{capability:slug}', [AtlasDetailController::class, 'capability'])->name('atlas.capabilities.show');
 Route::get('/contact', [PageController::class,'contact'])->name('contact');
 Route::post('/contact', [PageController::class,'submitContact'])->name('contact.submit');
 Route::get('/ai-readiness-assessment', [PageController::class,'assessment'])->name('assessment');
