@@ -39,6 +39,18 @@ class Article extends Model
             ->where('published_at', '<=', now());
     }
 
+    public function getReadingTimeAttribute(): int
+    {
+        $words = str_word_count(strip_tags($this->body ?? ''));
+
+        return max(1, (int) ceil($words / 200));
+    }
+
+    public function getAuthorNameAttribute(): string
+    {
+        return 'Garcia Systems';
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
