@@ -10,6 +10,11 @@ class AssessmentQuestion extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'weight' => 1,
+        'is_active' => true,
+    ];
+
     protected $fillable = [
         'question',
         'help_text',
@@ -27,7 +32,10 @@ class AssessmentQuestion extends Model
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where(function (Builder $query): void {
+            $query->where('is_active', true)
+                ->orWhereNull('is_active');
+        });
     }
 
     public function responses()
