@@ -485,4 +485,35 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('Score: 16')
             ->assertSee('Ready to prioritize pilots');
     }
+
+    public function test_database_seeder_populates_content_library_and_atlas_examples(): void
+    {
+        $this->seed();
+
+        $this->assertDatabaseCount(Article::class, 16);
+        $this->assertDatabaseCount(Video::class, 8);
+        $this->assertDatabaseCount(Industry::class, 7);
+        $this->assertDatabaseCount(Department::class, 12);
+        $this->assertDatabaseCount(Workflow::class, 14);
+        $this->assertDatabaseCount(FrictionPoint::class, 14);
+        $this->assertDatabaseCount(SolutionPattern::class, 8);
+        $this->assertDatabaseCount(Capability::class, 12);
+
+        $this->get('/articles')
+            ->assertOk()
+            ->assertSee('Turning Business Problems Into Intelligent Workflows')
+            ->assertSee('Duplicate Work Is a Signal, Not Just a Nuisance')
+            ->assertSee('AI Readiness');
+
+        $this->get('/videos')
+            ->assertOk()
+            ->assertSee('Mapping Workflow Friction')
+            ->assertSee('Customer Intake Bottleneck Map');
+
+        $this->get('/opportunity-atlas')
+            ->assertOk()
+            ->assertSee('Professional Services')
+            ->assertSee('Inventory coordination')
+            ->assertSee('Legacy system dependency');
+    }
 }
