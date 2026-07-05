@@ -1,4 +1,4 @@
-<x-layouts.app title="Contact">
+<x-layouts.app title="Contact" page-description="Contact Garcia Systems to discuss workflow, product, systems, automation, or operational bottlenecks.">
     <section class="mx-auto max-w-3xl px-6 py-16">
         <h1 class="text-4xl font-bold">Contact</h1>
         <p class="mt-4 text-slate-300">Tell us what workflow, system, or operational bottleneck you want to improve.</p>

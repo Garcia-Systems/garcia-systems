@@ -1,4 +1,4 @@
-<x-layouts.app title="AI Readiness Assessment">
+<x-layouts.app title="AI Readiness Assessment" page-description="Score workflow clarity, data quality, ownership, and risk to identify practical AI or automation pilot readiness.">
     <section class="mx-auto max-w-3xl px-6 py-16">
         <h1 class="text-4xl font-bold">AI Readiness Assessment</h1>
         <p class="mt-4 text-slate-300">Score each area from 1 (early) to 5 (strong).</p>

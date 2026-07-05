@@ -1,4 +1,4 @@
-<x-layouts.app title="Opportunity Atlas">
+<x-layouts.app title="Opportunity Atlas" page-description="Explore operational friction by industry, workflow, capability, and solution pattern before choosing a technology path.">
     <section class="mx-auto max-w-6xl px-6 py-16">
         <p class="font-semibold text-cyan-300">Opportunity Atlas</p>
         <h1 class="mt-4 text-4xl font-bold tracking-tight md:text-6xl">Explore operational friction by industry, workflow, capability, and solution pattern.</h1>
