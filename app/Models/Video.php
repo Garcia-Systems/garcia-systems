@@ -16,6 +16,8 @@ class Video extends Model
         'url',
         'thumbnail_url',
         'description',
+        'transcript',
+        'article_id',
         'is_published',
     ];
 
@@ -24,6 +26,11 @@ class Video extends Model
         return [
             'is_published' => 'boolean',
         ];
+    }
+
+    public function article()
+    {
+        return $this->belongsTo(Article::class);
     }
 
     public function scopePublished(Builder $query): Builder

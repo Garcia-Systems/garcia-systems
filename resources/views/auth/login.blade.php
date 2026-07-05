@@ -1,0 +1,1 @@
+<x-layouts.app title="Admin login"><section class="mx-auto max-w-md px-6 py-16"><h1 class="text-3xl font-bold">Admin login</h1><p class="mt-4 text-slate-300">Authentication is required to access the admin area.</p></section></x-layouts.app>
