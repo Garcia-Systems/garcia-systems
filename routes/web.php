@@ -24,7 +24,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('tags', AdminTagController::class)->only(['index', 'store']);
     Route::patch('/assessment-questions/reorder', [AdminAssessmentQuestionController::class, 'reorder'])->name('assessment-questions.reorder');
     Route::resource('assessment-questions', AdminAssessmentQuestionController::class)->except(['show']);
-    Route::resource('assessment-submissions', AdminAssessmentSubmissionController::class)->only(['index', 'show']);
+    Route::resource('assessment-submissions', AdminAssessmentSubmissionController::class)
+        ->only(['index', 'show'])
+        ->parameters(['assessment-submissions' => 'assessment']);
     Route::get('/atlas/{resource}', [AdminAtlasController::class, 'index'])->name('atlas.index');
     Route::get('/atlas/{resource}/create', [AdminAtlasController::class, 'create'])->name('atlas.create');
     Route::post('/atlas/{resource}', [AdminAtlasController::class, 'store'])->name('atlas.store');
