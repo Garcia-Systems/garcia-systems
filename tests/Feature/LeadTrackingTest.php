@@ -1,0 +1,89 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Assessment;
+use App\Models\AssessmentQuestion;
+use App\Models\ContactSubmission;
+use App\Models\Lead;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class LeadTrackingTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_contact_form_creates_and_updates_lead(): void
+    {
+        $this->post('/contact', ['name' => 'Avery Garcia', 'email' => 'avery@example.com', 'company' => 'First Co', 'message' => 'Hello']);
+        $this->assertDatabaseHas('leads', ['email' => 'avery@example.com', 'name' => 'Avery Garcia', 'company' => 'First Co', 'source' => 'contact_form', 'status' => 'new']);
+        $this->assertSame(Lead::first()->id, ContactSubmission::first()->lead_id);
+
+        $this->post('/contact', ['name' => 'Avery Updated', 'email' => 'avery@example.com', 'company' => 'Second Co', 'message' => 'Again']);
+        $this->assertDatabaseCount('leads', 1);
+        $this->assertDatabaseHas('leads', ['email' => 'avery@example.com', 'name' => 'Avery Updated', 'company' => 'Second Co']);
+    }
+
+    public function test_assessment_creates_and_updates_lead_without_resetting_later_status(): void
+    {
+        $question = AssessmentQuestion::create(['question' => 'Ready?', 'sort_order' => 1]);
+        Lead::create(['name' => 'Morgan', 'email' => 'morgan@example.com', 'source' => 'contact_form', 'status' => 'contacted']);
+
+        $this->post('/ai-readiness-assessment', ['name' => 'Morgan Lee', 'email' => 'morgan@example.com', 'company' => 'Readiness Co', 'responses' => [$question->id => 5]]);
+
+        $lead = Lead::sole();
+        $assessment = Assessment::sole();
+        $this->assertSame('contacted', $lead->status);
+        $this->assertSame('ai_readiness_assessment', $lead->source);
+        $this->assertSame(5, $lead->assessment_score);
+        $this->assertSame('Early readiness', $lead->assessment_tier);
+        $this->assertSame($lead->id, $assessment->lead_id);
+    }
+
+    public function test_admin_leads_index_requires_auth(): void
+    {
+        $this->get('/admin/leads')->assertRedirect('/login');
+    }
+
+    public function test_admin_can_view_leads_index(): void
+    {
+        $lead = Lead::create(['name' => 'Jordan Lead', 'email' => 'jordan@example.com', 'company' => 'Jordan Co', 'source' => 'contact_form', 'status' => 'new']);
+        $this->actingAs(User::factory()->create())->get('/admin/leads')->assertOk()->assertSee($lead->name)->assertSee($lead->email)->assertSee('Jordan Co');
+    }
+
+    public function test_admin_can_search_and_filter_leads(): void
+    {
+        Lead::create(['name' => 'Needle Lead', 'email' => 'needle@example.com', 'company' => 'Search Co', 'source' => 'contact_form', 'status' => 'new']);
+        Lead::create(['name' => 'Other Lead', 'email' => 'other@example.com', 'company' => 'Other Co', 'source' => 'ai_readiness_assessment', 'status' => 'qualified']);
+
+        $this->actingAs(User::factory()->create())->get(route('admin.leads.index', ['search' => 'Needle', 'status' => 'new', 'source' => 'contact_form']))
+            ->assertOk()->assertSee('Needle Lead')->assertDontSee('Other Lead');
+    }
+
+    public function test_admin_can_view_lead_detail(): void
+    {
+        $lead = Lead::create(['name' => 'Detail Lead', 'email' => 'detail@example.com', 'company' => 'Detail Co', 'source' => 'contact_form', 'status' => 'new']);
+        ContactSubmission::create(['lead_id' => $lead->id, 'name' => 'Detail Lead', 'email' => 'detail@example.com', 'message' => 'Related message']);
+        Assessment::create(['lead_id' => $lead->id, 'email' => 'detail@example.com', 'score' => 12, 'result_tier' => 'Foundation in progress', 'summary' => 'Useful foundations.']);
+
+        $this->actingAs(User::factory()->create())->get(route('admin.leads.show', $lead))
+            ->assertOk()->assertSee('Detail Lead')->assertSee('Related message')->assertSee('Foundation in progress');
+    }
+
+    public function test_admin_can_update_lead_status(): void
+    {
+        $lead = Lead::create(['name' => 'Status Lead', 'email' => 'status@example.com', 'source' => 'contact_form', 'status' => 'new']);
+        $this->actingAs(User::factory()->create())->put(route('admin.leads.update', $lead), ['status' => 'qualified', 'notes' => 'Good fit'])->assertRedirect(route('admin.leads.show', $lead));
+        $this->assertDatabaseHas('leads', ['id' => $lead->id, 'status' => 'qualified', 'notes' => 'Good fit']);
+    }
+
+    public function test_dashboard_displays_lead_metrics(): void
+    {
+        Lead::create(['name' => 'Recent Lead', 'email' => 'recent@example.com', 'source' => 'contact_form', 'status' => 'new']);
+        Lead::create(['name' => 'Qualified Lead', 'email' => 'qualified@example.com', 'source' => 'ai_readiness_assessment', 'status' => 'qualified']);
+
+        $this->actingAs(User::factory()->create())->get('/admin')
+            ->assertOk()->assertSee('Total leads')->assertSee('New leads')->assertSee('Recent leads')->assertSee('Recent Lead');
+    }
+}

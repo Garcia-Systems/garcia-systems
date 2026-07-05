@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\AtlasController as AdminAtlasController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\LeadController as AdminLeadController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Admin\VideoController as AdminVideoController;
 use App\Http\Controllers\Auth\LoginController;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [LoginController::class, 'create'])->name('login');
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', AdminDashboardController::class)->name('index');
+    Route::resource('leads', AdminLeadController::class)->only(['index', 'show', 'update']);
     Route::patch('/articles/{article}/publish', [AdminArticleController::class, 'togglePublish'])->name('articles.publish');
     Route::resource('articles', AdminArticleController::class)->except(['show', 'destroy']);
     Route::patch('/videos/{video}/publish', [AdminVideoController::class, 'togglePublish'])->name('videos.publish');

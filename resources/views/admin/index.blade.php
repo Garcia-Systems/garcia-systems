@@ -9,12 +9,22 @@
     </div>
 
     <div class="mt-8 grid gap-4 md:grid-cols-4">
-        @foreach(['articles' => 'Articles', 'videos' => 'Videos', 'categories' => 'Categories', 'tags' => 'Tags'] as $route => $label)
+        @foreach(['articles' => 'Articles', 'videos' => 'Videos', 'categories' => 'Categories', 'tags' => 'Tags', 'leads' => 'Leads'] as $route => $label)
             <a class="rounded-xl border border-slate-700 bg-slate-900 p-6 font-semibold" href="{{ route('admin.'.$route.'.index') }}">Manage {{ $label }}</a>
         @endforeach
     </div>
 
-    <div class="mt-10 grid gap-6 lg:grid-cols-3">
+    <div class="mt-10 grid gap-6 lg:grid-cols-4">
+        <section class="rounded-xl border border-slate-700 bg-slate-900 p-5">
+            <h2 class="font-semibold text-white">Recent leads</h2>
+            <div class="mt-4 space-y-3">
+                @forelse($recentLeads as $lead)
+                    <a class="block text-sm text-cyan-300" href="{{ route('admin.leads.show', $lead) }}">{{ $lead->name ?: $lead->email }} · {{ str($lead->status)->headline() }}</a>
+                @empty
+                    <p class="text-sm text-slate-400">No leads yet.</p>
+                @endforelse
+            </div>
+        </section>
         <section class="rounded-xl border border-slate-700 bg-slate-900 p-5">
             <h2 class="font-semibold text-white">Recent articles</h2>
             <div class="mt-4 space-y-3">

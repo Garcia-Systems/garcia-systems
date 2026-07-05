@@ -12,6 +12,7 @@ use App\Models\ContactSubmission;
 use App\Models\Department;
 use App\Models\FrictionPoint;
 use App\Models\Industry;
+use App\Models\Lead;
 use App\Models\SolutionPattern;
 use App\Models\Video;
 use App\Models\Workflow;
@@ -139,7 +140,8 @@ class PageController extends Controller
 
         $data = $validator->validated();
 
-        ContactSubmission::create($data);
+        $submission = ContactSubmission::create($data);
+        Lead::createOrUpdateFromContactSubmission($submission);
 
         return back()->with('status', 'Thanks — your message has been saved.');
     }
@@ -189,6 +191,8 @@ class PageController extends Controller
             'result_tier' => $tier,
             'summary' => $summary,
         ]);
+
+        Lead::createOrUpdateFromAssessment($assessment);
 
         foreach ($data['responses'] as $qid => $value) {
             AssessmentResponse::create([
