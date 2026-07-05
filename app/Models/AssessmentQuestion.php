@@ -21,7 +21,7 @@ class AssessmentQuestion extends Model
     ];
 
     protected $casts = [
-        'weight' => 'decimal:2',
+        'weight' => 'float',
         'is_active' => 'boolean',
     ];
 
