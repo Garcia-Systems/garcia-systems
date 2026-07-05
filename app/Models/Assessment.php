@@ -16,11 +16,17 @@ class Assessment extends Model
         'score',
         'result_tier',
         'summary',
+        'lead_id',
 
     ];
 
     public function responses()
     {
         return $this->hasMany(AssessmentResponse::class);
+    }
+
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class);
     }
 }
