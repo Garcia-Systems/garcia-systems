@@ -32,10 +32,7 @@ class PageController extends Controller
 
     public function about()
     {
-        return view('pages.simple', [
-            'title' => 'About Garcia Systems',
-            'body' => 'Garcia Systems helps growing teams identify practical automation opportunities, clarify workflows, and ship useful technology in measured phases.',
-        ]);
+        return view('pages.about');
     }
 
     public function services() { return view('pages.services'); }
