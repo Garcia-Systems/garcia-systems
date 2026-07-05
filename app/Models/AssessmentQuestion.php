@@ -12,6 +12,7 @@ class AssessmentQuestion extends Model
     protected $fillable = [
         'question',
         'help_text',
+        'category',
         'sort_order',
 
     ];

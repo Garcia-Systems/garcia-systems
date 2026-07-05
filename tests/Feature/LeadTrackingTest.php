@@ -41,7 +41,7 @@ class LeadTrackingTest extends TestCase
         $this->assertSame('contacted', $lead->status);
         $this->assertSame('ai_readiness_assessment', $lead->source);
         $this->assertSame(5, $lead->assessment_score);
-        $this->assertSame('Early readiness', $lead->assessment_tier);
+        $this->assertSame('Early', $lead->assessment_tier);
         $this->assertSame($lead->id, $assessment->lead_id);
     }
 
@@ -86,7 +86,7 @@ class LeadTrackingTest extends TestCase
             return in_array('mail', $channels, true)
                 && $notifiable->routes['mail'] === 'admin@example.com'
                 && $notification->assessment->score === 5
-                && $notification->assessment->result_tier === 'Early readiness'
+                && $notification->assessment->result_tier === 'Early'
                 && $notification->lead?->email === 'assess@example.com';
         });
     }
@@ -132,10 +132,10 @@ class LeadTrackingTest extends TestCase
     {
         $lead = Lead::create(['name' => 'Detail Lead', 'email' => 'detail@example.com', 'company' => 'Detail Co', 'source' => 'contact_form', 'status' => 'new']);
         ContactSubmission::create(['lead_id' => $lead->id, 'name' => 'Detail Lead', 'email' => 'detail@example.com', 'message' => 'Related message']);
-        Assessment::create(['lead_id' => $lead->id, 'email' => 'detail@example.com', 'score' => 12, 'result_tier' => 'Foundation in progress', 'summary' => 'Useful foundations.']);
+        Assessment::create(['lead_id' => $lead->id, 'email' => 'detail@example.com', 'score' => 12, 'result_tier' => 'Emerging', 'summary' => 'Useful foundations.']);
 
         $this->actingAs(User::factory()->create())->get(route('admin.leads.show', $lead))
-            ->assertOk()->assertSee('Detail Lead')->assertSee('Related message')->assertSee('Foundation in progress');
+            ->assertOk()->assertSee('Detail Lead')->assertSee('Related message')->assertSee('Emerging');
     }
 
     public function test_admin_can_update_lead_status(): void
