@@ -16,6 +16,7 @@ use App\Models\SolutionPattern;
 use App\Models\Video;
 use App\Models\Workflow;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -149,12 +150,22 @@ class PageController extends Controller
 
     public function assessment()
     {
-        return view('pages.assessment', ['questions' => AssessmentQuestion::where('is_active', true)->orderBy('sort_order')->orderBy('id')->get()]);
+        return view('pages.assessment', [
+            'questions' => AssessmentQuestion::query()
+                ->active()
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get(),
+        ]);
     }
 
     public function submitAssessment(Request $request)
     {
-        $questions = AssessmentQuestion::query()->where('is_active', true)->get();
+        $questions = AssessmentQuestion::query()
+            ->active()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
         $questionIds = $questions->pluck('id')->map(fn ($id) => (string) $id)->all();
 
         $validator = Validator::make($request->all(), [
@@ -185,22 +196,26 @@ class PageController extends Controller
         $score = $this->calculateAssessmentScore($data['responses'], $questions->keyBy('id'));
         [$tier, $summary] = $this->assessmentResultForScore($score);
 
-        $assessment = Assessment::create([
-            'name' => $data['name'] ?? null,
-            'email' => $data['email'] ?? null,
-            'company' => $data['company'] ?? null,
-            'score' => $score,
-            'result_tier' => $tier,
-            'summary' => $summary,
-        ]);
-
-        foreach ($data['responses'] as $qid => $value) {
-            AssessmentResponse::create([
-                'assessment_id' => $assessment->id,
-                'assessment_question_id' => $qid,
-                'score' => (int) $value,
+        $assessment = DB::transaction(function () use ($data, $score, $tier, $summary) {
+            $assessment = Assessment::create([
+                'name' => $data['name'] ?? null,
+                'email' => $data['email'] ?? null,
+                'company' => $data['company'] ?? null,
+                'score' => $score,
+                'result_tier' => $tier,
+                'summary' => $summary,
             ]);
-        }
+
+            foreach ($data['responses'] as $qid => $value) {
+                AssessmentResponse::create([
+                    'assessment_id' => $assessment->id,
+                    'assessment_question_id' => $qid,
+                    'score' => (int) $value,
+                ]);
+            }
+
+            return $assessment;
+        });
 
         return redirect()->route('assessment.result', $assessment);
     }

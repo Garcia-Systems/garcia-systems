@@ -17,7 +17,9 @@ class AssessmentSubmissionController extends Controller
     public function show(Assessment $assessment)
     {
         return view('admin.assessment-submissions.show', [
-            'assessment' => $assessment->load('responses.question'),
+            'assessment' => $assessment->load([
+                'responses' => fn ($query) => $query->with('question')->orderBy('id'),
+            ]),
         ]);
     }
 }

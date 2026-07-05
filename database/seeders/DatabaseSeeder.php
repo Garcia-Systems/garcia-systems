@@ -128,7 +128,7 @@ class DatabaseSeeder extends Seeder
             $friction->solutionPatterns()->attach($patterns[Str::slug($patternName)]->id);
         }
 
-        foreach(['Do you have clearly documented workflows?','Is your operational data organized and accessible?','Can your team define measurable success for an AI or automation pilot?','Do process owners have time to support implementation?'] as $i=>$q) AssessmentQuestion::create(['question'=>$q,'help_text'=>'Use your current operating reality, not an ideal future state.','sort_order'=>$i+1]);
+        foreach(['Do you have clearly documented workflows?','Is your operational data organized and accessible?','Can your team define measurable success for an AI or automation pilot?','Do process owners have time to support implementation?'] as $i=>$q) AssessmentQuestion::create(['question'=>$q,'help_text'=>'Use your current operating reality, not an ideal future state.','sort_order'=>$i+1,'weight'=>1,'is_active'=>true]);
 
         $videos = [
             ['Mapping Workflow Friction', 'A short placeholder summary for identifying repeated handoffs, manual reporting, and disconnected systems before proposing a product or automation path.'],

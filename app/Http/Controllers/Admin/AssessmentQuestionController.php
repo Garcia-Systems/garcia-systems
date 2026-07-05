@@ -38,7 +38,9 @@ class AssessmentQuestionController extends Controller
     {
         $assessmentQuestion->update($this->validated($request));
 
-        return redirect()->route('admin.assessment-questions.edit', $assessmentQuestion)->with('status', 'Question updated.');
+        return redirect()
+            ->route('admin.assessment-questions.edit', $assessmentQuestion->getKey())
+            ->with('status', 'Question updated.');
     }
 
     public function destroy(AssessmentQuestion $assessmentQuestion)
