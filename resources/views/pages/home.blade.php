@@ -1,4 +1,4 @@
-<x-layouts.app title="Garcia Systems">
+<x-layouts.app title="Garcia Systems" page-description="Business-first systems consulting for products, systems, automation, and AI-ready workflows that teams can adopt and measure.">
     @php
         $process = [
             ['Discover','Frame the business problem, stakeholders, and workflow context.'],

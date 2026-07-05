@@ -1,4 +1,4 @@
-<x-layouts.app title="About Garcia Systems">
+<x-layouts.app title="About Garcia Systems" page-description="Learn how Garcia Systems translates operational friction into scoped product, automation, systems, and AI readiness work.">
     <section class="mx-auto max-w-5xl px-6 py-16">
         <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">About Garcia Systems</p>
         <h1 class="mt-4 text-4xl font-bold text-white md:text-6xl">A solutions engineering platform for modernizing practical work.</h1>
