@@ -2,6 +2,7 @@
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AtlasDetailController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\OpportunityExplorerController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\AtlasController as AdminAtlasController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -37,6 +38,7 @@ Route::get('/articles/{article:slug}', [ArticleController::class,'show'])->name(
 Route::get('/videos', [PageController::class,'videos'])->name('videos');
 Route::get('/tools', [PageController::class,'tools'])->name('tools');
 Route::get('/opportunity-atlas', [PageController::class,'atlas'])->name('atlas');
+Route::get('/opportunity-explorer', OpportunityExplorerController::class)->name('opportunity-explorer');
 Route::get('/opportunity-atlas/industries/{industry:slug}', [AtlasDetailController::class, 'industry'])->name('atlas.industries.show');
 Route::get('/opportunity-atlas/company-types/{companyType:slug}', [AtlasDetailController::class, 'companyType'])->name('atlas.company-types.show');
 Route::get('/opportunity-atlas/departments/{department:slug}', [AtlasDetailController::class, 'department'])->name('atlas.departments.show');

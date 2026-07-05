@@ -15,6 +15,7 @@
                 <div class="flex flex-wrap gap-4 text-sm text-slate-300">
                     <a href="{{ route('services') }}">Services</a>
                     <a href="{{ route('atlas') }}">Atlas</a>
+                    <a href="{{ route('opportunity-explorer') }}">Explorer</a>
                     <a href="{{ route('assessment') }}">Assessment</a>
                     <a href="{{ route('articles.index') }}">Articles</a>
                     <a href="{{ route('videos') }}">Videos</a>
