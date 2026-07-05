@@ -18,10 +18,14 @@ class Lead extends Model
         'assessment_score',
         'assessment_tier',
         'notes',
+        'last_contacted_at',
+        'next_follow_up_at',
         'latest_activity_at',
     ];
 
     protected $casts = [
+        'last_contacted_at' => 'datetime',
+        'next_follow_up_at' => 'datetime',
         'latest_activity_at' => 'datetime',
     ];
 

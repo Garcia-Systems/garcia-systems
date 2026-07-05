@@ -55,6 +55,8 @@ class LeadController extends Controller
         $data = $request->validate([
             'status' => ['required', Rule::in(Lead::statuses())],
             'notes' => ['nullable', 'string', 'max:5000'],
+            'last_contacted_at' => ['nullable', 'date'],
+            'next_follow_up_at' => ['nullable', 'date'],
         ]);
 
         $lead->update($data);
