@@ -311,6 +311,17 @@ class Phase1FeatureTest extends TestCase
             ->assertDontSee('Shared knowledge base');
     }
 
+    public function test_opportunity_atlas_filters_by_keyword_search(): void
+    {
+        $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
+        $this->createAtlasExample('Education', 'Public agency', 'Compliance', 'Grant documentation', 'Knowledge Silos', 'Knowledge Management', 'Shared knowledge base');
+
+        $this->get('/opportunity-atlas?q=inventory')
+            ->assertOk()
+            ->assertSee('Inventory visibility')
+            ->assertDontSee('Grant documentation');
+    }
+
     public function test_opportunity_atlas_combines_filters(): void
     {
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');

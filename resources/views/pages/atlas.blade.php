@@ -16,6 +16,10 @@
 
     <section class="mx-auto max-w-6xl px-6 pb-10">
         <form method="GET" action="{{ route('atlas') }}" class="rounded-3xl border border-white/10 bg-white/5 p-5">
+            <label class="block text-sm font-semibold text-slate-200">
+                Keyword search
+                <input name="q" value="{{ $keyword }}" placeholder="Search workflows, friction, patterns, or capabilities" class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-slate-100">
+            </label>
             <div class="grid gap-4 md:grid-cols-4">
                 @foreach([
                     'industry' => 'Industry',
@@ -45,10 +49,15 @@
             <div class="mt-5 flex flex-wrap items-center gap-3">
                 <button class="rounded-full bg-cyan-400 px-5 py-2 font-semibold text-slate-950">Apply filters</button>
                 <a href="{{ route('atlas') }}" class="rounded-full border border-white/15 px-5 py-2 font-semibold text-slate-100">Clear filters</a>
+                @if($keyword !== '')
+                    <span class="rounded-full bg-cyan-400/10 px-3 py-1 text-sm text-cyan-200">Search: {{ $keyword }}</span>
+                @endif
                 @forelse($filters as $key => $value)
                     <span class="rounded-full bg-cyan-400/10 px-3 py-1 text-sm text-cyan-200">{{ str($key)->replace('_', ' ')->title() }}: {{ str($value)->replace('-', ' ')->title() }}</span>
                 @empty
-                    <span class="text-sm text-slate-400">No filters active. Showing all atlas examples.</span>
+                    @if($keyword === '')
+                        <span class="text-sm text-slate-400">No filters active. Showing all atlas examples.</span>
+                    @endif
                 @endforelse
             </div>
         </form>

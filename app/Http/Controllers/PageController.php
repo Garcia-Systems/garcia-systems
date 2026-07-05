@@ -51,6 +51,7 @@ class PageController extends Controller
             'capability',
             'solution_pattern',
         ]))->filter(fn ($value) => filled($value))->map(fn ($value) => str($value)->slug()->toString())->all();
+        $keyword = str($request->query('q', ''))->trim()->toString();
 
         $workflows = Workflow::query()
             ->with([
@@ -79,6 +80,19 @@ class PageController extends Controller
             ->when($filters['friction_point'] ?? null, fn ($query, $slug) => $query->whereHas('frictionPoints', fn ($query) => $query->where('slug', $slug)))
             ->when($filters['solution_pattern'] ?? null, fn ($query, $slug) => $query->whereHas('frictionPoints.solutionPatterns', fn ($query) => $query->where('slug', $slug)))
             ->when($filters['capability'] ?? null, fn ($query, $slug) => $query->whereHas('frictionPoints.solutionPatterns.capabilities', fn ($query) => $query->where('slug', $slug)))
+            ->when($keyword !== '', function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query
+                        ->where('name', 'like', "%{$keyword}%")
+                        ->orWhere('description', 'like', "%{$keyword}%")
+                        ->orWhereHas('industry', fn ($query) => $query->where('name', 'like', "%{$keyword}%"))
+                        ->orWhereHas('companyType', fn ($query) => $query->where('name', 'like', "%{$keyword}%"))
+                        ->orWhereHas('department', fn ($query) => $query->where('name', 'like', "%{$keyword}%"))
+                        ->orWhereHas('frictionPoints', fn ($query) => $query->where('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%"))
+                        ->orWhereHas('frictionPoints.solutionPatterns', fn ($query) => $query->where('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%"))
+                        ->orWhereHas('frictionPoints.solutionPatterns.capabilities', fn ($query) => $query->where('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%"));
+                });
+            })
             ->orderBy('name')
             ->get();
 
@@ -96,6 +110,7 @@ class PageController extends Controller
         return view('pages.atlas', [
             'workflows' => $workflows,
             'filters' => $filters,
+            'keyword' => $keyword,
             'filterOptions' => [
                 'industry' => Industry::orderBy('name')->get(),
                 'company_type' => CompanyType::orderBy('name')->get(),
