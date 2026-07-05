@@ -2,15 +2,30 @@
 
 namespace Database\Seeders;
 
-use App\Models\{Article,AssessmentQuestion,Capability,Category,Department,FrictionPoint,Industry,SolutionPattern,Tag,Video,Workflow,CompanyType};
+use App\Models\{Article,AssessmentQuestion,Capability,Category,Department,FrictionPoint,Industry,SolutionPattern,Tag,User,Video,Workflow,CompanyType};
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $adminEmail = env('ADMIN_EMAIL');
+        $adminPassword = env('ADMIN_PASSWORD');
+
+        if ($adminEmail && $adminPassword) {
+            User::updateOrCreate(
+                ['email' => $adminEmail],
+                [
+                    'name' => env('ADMIN_NAME', 'Garcia Systems Admin'),
+                    'password' => Hash::make($adminPassword),
+                    'email_verified_at' => now(),
+                ]
+            );
+        }
+
         $categories = collect([
             ['Strategy', 'Practical AI, automation, and systems planning.'],
             ['Operations', 'Workflow and operating-system improvement.'],
