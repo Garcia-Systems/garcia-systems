@@ -16,6 +16,11 @@ class Industry extends Model
 
     ];
 
+    public function companyTypes()
+    {
+        return $this->hasMany(CompanyType::class);
+    }
+
     public function workflows()
     {
         return $this->hasMany(Workflow::class);

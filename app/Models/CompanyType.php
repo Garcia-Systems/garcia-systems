@@ -10,11 +10,22 @@ class CompanyType extends Model
     use HasFactory;
 
     protected $fillable = [
+        'industry_id',
         'name',
         'slug',
         'description',
 
     ];
+
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class);
+    }
+
+    public function departments()
+    {
+        return $this->hasMany(Department::class);
+    }
 
     public function workflows()
     {
