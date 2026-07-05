@@ -32,6 +32,25 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('practical enough to adopt and specific enough to measure');
     }
 
+
+
+    public function test_about_page_returns_successfully(): void
+    {
+        $this->get('/about')
+            ->assertOk()
+            ->assertSee('solutions engineering platform')
+            ->assertSee('Workflow modernization practice')
+            ->assertSee('AI opportunity assessment lab')
+            ->assertSee('Business/technology liaison');
+    }
+
+    public function test_tools_page_returns_successfully(): void
+    {
+        $this->get('/tools')
+            ->assertOk()
+            ->assertSee('Tools');
+    }
+
     public function test_services_page_returns_successfully(): void
     {
         $this->get('/services')

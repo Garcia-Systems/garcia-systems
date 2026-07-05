@@ -14,9 +14,24 @@ use Illuminate\View\View;
 
 class ArticleController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        return view('admin.articles.index', ['articles' => Article::with('category', 'tags')->latest()->paginate(20)]);
+        $search = trim((string) $request->query('search', ''));
+
+        $articles = Article::with('category', 'tags')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('title', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%")
+                        ->orWhere('excerpt', 'like', "%{$search}%")
+                        ->orWhere('body', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.articles.index', ['articles' => $articles, 'search' => $search]);
     }
 
     public function create(): View

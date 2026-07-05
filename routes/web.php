@@ -18,8 +18,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('articles', AdminArticleController::class)->except(['show', 'destroy']);
     Route::patch('/videos/{video}/publish', [AdminVideoController::class, 'togglePublish'])->name('videos.publish');
     Route::resource('videos', AdminVideoController::class)->except(['show', 'destroy']);
-    Route::resource('categories', AdminCategoryController::class)->only(['index', 'store']);
-    Route::resource('tags', AdminTagController::class)->only(['index', 'store']);
+    Route::resource('categories', AdminCategoryController::class)->except(['show', 'create']);
+    Route::resource('tags', AdminTagController::class)->except(['show', 'create']);
     Route::get('/atlas/{resource}', [AdminAtlasController::class, 'index'])->name('atlas.index');
     Route::get('/atlas/{resource}/create', [AdminAtlasController::class, 'create'])->name('atlas.create');
     Route::post('/atlas/{resource}', [AdminAtlasController::class, 'store'])->name('atlas.store');

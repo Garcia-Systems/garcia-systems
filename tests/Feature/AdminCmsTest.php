@@ -90,4 +90,113 @@ class AdminCmsTest extends TestCase
         $this->actingAs($user)->patch(route('admin.videos.publish', $video))->assertRedirect();
         $this->assertFalse($video->fresh()->is_published);
     }
+
+    public function test_admin_dashboard_displays_metrics_and_recent_activity(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create(['name' => 'Ops', 'slug' => 'ops']);
+        $article = Article::create(['category_id' => $category->id, 'title' => 'Recent Ops Article', 'slug' => 'recent-ops-article', 'excerpt' => 'Excerpt', 'body' => 'Body']);
+        Video::create(['title' => 'Recent Video', 'slug' => 'recent-video', 'url' => 'https://example.com/video', 'description' => 'Description']);
+        \App\Models\Industry::create(['name' => 'Manufacturing', 'slug' => 'manufacturing']);
+        \App\Models\Assessment::create(['email' => 'ops@example.com', 'score' => 12]);
+        \App\Models\ContactSubmission::create(['name' => 'Alex Admin', 'email' => 'alex@example.com', 'message' => 'Hello']);
+
+        $this->actingAs($user)->get('/admin')
+            ->assertOk()
+            ->assertSee('Articles')
+            ->assertSee('Videos')
+            ->assertSee('Industries')
+            ->assertSee('Assessments')
+            ->assertSee('Contact submissions')
+            ->assertSee('Recent articles')
+            ->assertSee($article->title)
+            ->assertSee('Recent assessments')
+            ->assertSee('ops@example.com')
+            ->assertSee('Recent contact submissions')
+            ->assertSee('Alex Admin');
+    }
+
+    public function test_article_admin_search_matches_expected_fields(): void
+    {
+        $user = User::factory()->create();
+        Article::create(['title' => 'Workflow Search Match', 'slug' => 'workflow-search-match', 'excerpt' => 'Plain excerpt', 'body' => 'Plain body']);
+        Article::create(['title' => 'Other Article', 'slug' => 'other-article', 'excerpt' => 'Needle excerpt', 'body' => 'Plain body']);
+        Article::create(['title' => 'Hidden Body', 'slug' => 'hidden-body', 'excerpt' => 'Plain excerpt', 'body' => 'Needle body']);
+        Article::create(['title' => 'Unrelated', 'slug' => 'unrelated', 'excerpt' => 'Plain excerpt', 'body' => 'Plain body']);
+
+        $this->actingAs($user)->get(route('admin.articles.index', ['search' => 'Needle']))
+            ->assertOk()
+            ->assertSee('Other Article')
+            ->assertSee('Hidden Body')
+            ->assertDontSee('Workflow Search Match')
+            ->assertDontSee('Unrelated');
+    }
+
+    public function test_video_admin_search_matches_expected_fields(): void
+    {
+        $user = User::factory()->create();
+        Video::create(['title' => 'Video Title Match', 'slug' => 'video-title-match', 'url' => 'https://example.com/1', 'description' => 'Plain description']);
+        Video::create(['title' => 'Description Video', 'slug' => 'description-video', 'url' => 'https://example.com/2', 'description' => 'Needle description']);
+        Video::create(['title' => 'Transcript Video', 'slug' => 'transcript-video', 'url' => 'https://example.com/3', 'description' => 'Plain description', 'transcript' => 'Needle transcript']);
+        Video::create(['title' => 'Unrelated Video', 'slug' => 'unrelated-video', 'url' => 'https://example.com/4', 'description' => 'Plain description']);
+
+        $this->actingAs($user)->get(route('admin.videos.index', ['search' => 'Needle']))
+            ->assertOk()
+            ->assertSee('Description Video')
+            ->assertSee('Transcript Video')
+            ->assertDontSee('Video Title Match')
+            ->assertDontSee('Unrelated Video');
+    }
+
+    public function test_category_crud_and_safe_delete_behavior(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('admin.categories.store'), [
+            'name' => 'Modernization',
+            'slug' => '',
+            'description' => 'Workflow modernization topics.',
+        ])->assertRedirect();
+
+        $category = Category::where('slug', 'modernization')->firstOrFail();
+
+        $this->actingAs($user)->put(route('admin.categories.update', $category), [
+            'name' => 'Workflow Modernization',
+            'slug' => 'workflow-modernization',
+            'description' => 'Updated description.',
+        ])->assertRedirect(route('admin.categories.index'));
+
+        $category = $category->fresh();
+        $this->assertSame('Workflow Modernization', $category->name);
+
+        Article::create(['category_id' => $category->id, 'title' => 'Related Article', 'slug' => 'related-article', 'excerpt' => 'Excerpt', 'body' => 'Body']);
+        $this->actingAs($user)->delete(route('admin.categories.destroy', $category))->assertRedirect();
+        $this->assertDatabaseHas('categories', ['id' => $category->id]);
+
+        Article::query()->delete();
+        $this->actingAs($user)->delete(route('admin.categories.destroy', $category))->assertRedirect(route('admin.categories.index'));
+        $this->assertDatabaseMissing('categories', ['id' => $category->id]);
+    }
+
+    public function test_tag_crud_and_safe_delete_behavior(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('admin.tags.store'), ['name' => 'Automation', 'slug' => ''])->assertRedirect();
+        $tag = Tag::where('slug', 'automation')->firstOrFail();
+
+        $this->actingAs($user)->put(route('admin.tags.update', $tag), ['name' => 'Practical Automation', 'slug' => 'practical-automation'])->assertRedirect(route('admin.tags.index'));
+        $tag = $tag->fresh();
+        $this->assertSame('Practical Automation', $tag->name);
+
+        $article = Article::create(['title' => 'Tagged Article', 'slug' => 'tagged-article', 'excerpt' => 'Excerpt', 'body' => 'Body']);
+        $article->tags()->attach($tag);
+        $this->actingAs($user)->delete(route('admin.tags.destroy', $tag))->assertRedirect();
+        $this->assertDatabaseHas('tags', ['id' => $tag->id]);
+
+        $article->tags()->detach($tag);
+        $this->actingAs($user)->delete(route('admin.tags.destroy', $tag))->assertRedirect(route('admin.tags.index'));
+        $this->assertDatabaseMissing('tags', ['id' => $tag->id]);
+    }
+
 }

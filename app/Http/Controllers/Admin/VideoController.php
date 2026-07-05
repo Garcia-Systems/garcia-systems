@@ -13,7 +13,25 @@ use Illuminate\View\View;
 
 class VideoController extends Controller
 {
-    public function index(): View { return view('admin.videos.index', ['videos' => Video::with('article')->latest()->paginate(20)]); }
+    public function index(Request $request): View
+    {
+        $search = trim((string) $request->query('search', ''));
+
+        $videos = Video::with('article')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('title', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('transcript', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.videos.index', ['videos' => $videos, 'search' => $search]);
+    }
     public function create(): View { return view('admin.videos.create', $this->formData(new Video(['is_published' => false]))); }
     public function store(Request $request): RedirectResponse
     {
