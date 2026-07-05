@@ -3,7 +3,7 @@
         $activeFilters = collect($filters)->filter();
         $selected = fn ($key, $value) => ($filters[$key] ?? '') === $value ? 'selected' : '';
         $relatedTerms = function ($capability) {
-            return str($capability->name.' '.$capability->description.' '.$capability->solutionPatterns->pluck('name')->join(' ').' '.$capability->solutionPatterns->flatMap->frictionPoints->pluck('name')->join(' '))->lower()->toString();
+            return str($capability->name.' '.$capability->slug.' '.$capability->description.' '.$capability->solutionPatterns->pluck('name')->join(' ').' '.$capability->solutionPatterns->pluck('slug')->join(' ').' '.$capability->matchedFrictionPoints->pluck('name')->join(' ').' '.$capability->matchedFrictionPoints->pluck('slug')->join(' '))->lower()->toString();
         };
     @endphp
 
@@ -55,7 +55,7 @@
             @forelse($capabilities as $capability)
                 @php
                     $patterns = $capability->solutionPatterns;
-                    $frictions = $patterns->flatMap->frictionPoints->unique('id');
+                    $frictions = $capability->matchedFrictionPoints;
                     $terms = $relatedTerms($capability);
                     $suggestedArticles = $articles->filter(fn ($article) => str($terms)->contains(str($article->title.' '.$article->excerpt.' '.$article->tags->pluck('name')->join(' '))->lower()->explode(' ')->filter()->take(8)->all()))->take(3);
                     if ($suggestedArticles->isEmpty()) $suggestedArticles = $articles->take(3);

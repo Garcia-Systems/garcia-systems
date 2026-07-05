@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
                 'slug' => Str::slug($title),
                 'excerpt' => $excerpt,
                 'body' => $body,
-                'published_at' => Carbon::parse($date),
+                'published_at' => Carbon::parse($date)->isFuture() ? now()->subDay() : Carbon::parse($date),
             ]);
             $article->tags()->sync(collect($tagSlugs)->map(fn ($slug) => $tags[$slug]->id));
         }

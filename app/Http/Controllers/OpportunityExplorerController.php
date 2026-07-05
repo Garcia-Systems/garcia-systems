@@ -41,7 +41,20 @@ class OpportunityExplorerController extends Controller
                 });
             })
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function (Capability $capability) use ($filters) {
+                $matchedFrictionPoints = $capability->solutionPatterns
+                    ->flatMap->frictionPoints
+                    ->unique('id')
+                    ->filter(fn (FrictionPoint $frictionPoint) => $this->frictionPointMatches($frictionPoint, $filters))
+                    ->values();
+
+                $capability->setRelation('matchedFrictionPoints', $matchedFrictionPoints);
+
+                return $capability;
+            })
+            ->filter(fn (Capability $capability) => $capability->getRelation('matchedFrictionPoints')->isNotEmpty())
+            ->values();
 
         $articles = Article::published()->with('tags')->latest('published_at')->get();
         $videos = Video::published()->latest()->get();
@@ -59,6 +72,53 @@ class OpportunityExplorerController extends Controller
             'services' => $this->services(),
             'filters' => $filters,
         ]);
+    }
+
+    private function frictionPointMatches(FrictionPoint $frictionPoint, array $filters): bool
+    {
+        $workflow = $frictionPoint->workflow;
+
+        if (($filters['industry'] ?? null) && $workflow?->industry?->slug !== $filters['industry']) {
+            return false;
+        }
+
+        if (($filters['company_type'] ?? null) && $workflow?->companyType?->slug !== $filters['company_type']) {
+            return false;
+        }
+
+        if (($filters['department'] ?? null) && $workflow?->department?->slug !== $filters['department']) {
+            return false;
+        }
+
+        if (($filters['workflow'] ?? null) && $workflow?->slug !== $filters['workflow']) {
+            return false;
+        }
+
+        if (($filters['friction_point'] ?? null) && $frictionPoint->slug !== $filters['friction_point']) {
+            return false;
+        }
+
+        if (! ($filters['search'] ?? null)) {
+            return true;
+        }
+
+        $searchableContext = str(implode(' ', array_filter([
+            $frictionPoint->name,
+            $frictionPoint->slug,
+            $frictionPoint->description,
+            $frictionPoint->impact,
+            $workflow?->name,
+            $workflow?->slug,
+            $workflow?->description,
+            $workflow?->industry?->name,
+            $workflow?->industry?->slug,
+            $workflow?->companyType?->name,
+            $workflow?->companyType?->slug,
+            $workflow?->department?->name,
+            $workflow?->department?->slug,
+        ])))->lower();
+
+        return $searchableContext->contains(str($filters['search'])->lower()->toString());
     }
 
     private function services(): array
