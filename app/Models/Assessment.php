@@ -16,8 +16,20 @@ class Assessment extends Model
         'score',
         'result_tier',
         'summary',
+        'category_scores',
+        'risks',
+        'next_steps',
+        'recommendations',
+        'service_cta',
         'lead_id',
 
+    ];
+
+    protected $casts = [
+        'category_scores' => 'array',
+        'risks' => 'array',
+        'next_steps' => 'array',
+        'recommendations' => 'array',
     ];
 
     public function responses()

@@ -208,15 +208,21 @@ class PageController extends Controller
         unset($data['website']);
 
         $score = $this->calculateAssessmentScore($data['responses']);
-        [$tier, $summary] = $this->assessmentResultForScore($score);
+        $categoryScores = $this->assessmentCategoryScores($data['responses']);
+        $result = $this->assessmentResultForScore($score, $categoryScores);
 
         $assessment = Assessment::create([
             'name' => $data['name'] ?? null,
             'email' => $data['email'] ?? null,
             'company' => $data['company'] ?? null,
             'score' => $score,
-            'result_tier' => $tier,
-            'summary' => $summary,
+            'result_tier' => $result['tier'],
+            'summary' => $result['summary'],
+            'category_scores' => $categoryScores,
+            'risks' => $result['risks'],
+            'next_steps' => $result['next_steps'],
+            'recommendations' => $result['recommendations'],
+            'service_cta' => $result['service_cta'],
         ]);
 
         $lead = Lead::createOrUpdateFromAssessment($assessment);
@@ -237,7 +243,18 @@ class PageController extends Controller
 
     public function assessmentResult(Assessment $assessment)
     {
-        return view('pages.assessment-result', ['assessment' => $assessment]);
+        $assessment->loadMissing('responses.question');
+
+        $categoryScores = $assessment->category_scores ?: $this->assessmentCategoryScores(
+            $assessment->responses->pluck('score', 'assessment_question_id')->all()
+        );
+        $result = $this->assessmentResultForScore($assessment->score, $categoryScores);
+
+        return view('pages.assessment-result', [
+            'assessment' => $assessment,
+            'categoryScores' => $categoryScores,
+            'result' => $result,
+        ]);
     }
 
     private function calculateAssessmentScore(array $responses): int
@@ -245,12 +262,111 @@ class PageController extends Controller
         return collect($responses)->map(fn ($value) => (int) $value)->sum();
     }
 
-    private function assessmentResultForScore(int $score): array
+    private function assessmentCategoryScores(array $responses): array
     {
-        return match (true) {
-            $score >= 16 => ['Ready to prioritize pilots', 'You appear ready to select a focused pilot and define success metrics.'],
-            $score >= 10 => ['Foundation in progress', 'You have useful foundations; start with one workflow and tighten data/process ownership.'],
-            default => ['Early readiness', 'Begin with workflow clarity, data quality, and a narrow business problem before investing heavily.'],
+        $questions = AssessmentQuestion::query()
+            ->whereIn('id', array_keys($responses))
+            ->orderBy('sort_order')
+            ->get()
+            ->keyBy('id');
+
+        $fallbackCategories = [
+            1 => 'Workflow documentation',
+            2 => 'Data readiness',
+            3 => 'Pilot selection',
+            4 => 'Stakeholder alignment',
+        ];
+
+        return collect($responses)
+            ->map(function ($score, $questionId) use ($questions, $fallbackCategories) {
+                $question = $questions->get((int) $questionId);
+                $sortOrder = $question?->sort_order ?: 0;
+                $label = $question?->category ?: ($fallbackCategories[$sortOrder] ?? 'Readiness area');
+
+                return [
+                    'question_id' => (int) $questionId,
+                    'label' => $label,
+                    'score' => (int) $score,
+                    'max_score' => 5,
+                    'question' => $question?->question,
+                ];
+            })
+            ->sortBy(fn ($category) => $questions->get($category['question_id'])?->sort_order ?? $category['question_id'])
+            ->values()
+            ->all();
+    }
+
+    private function assessmentResultForScore(int $score, array $categoryScores = []): array
+    {
+        $tier = match (true) {
+            $score >= 18 => 'Advanced',
+            $score >= 14 => 'Ready',
+            $score >= 9 => 'Emerging',
+            default => 'Early',
         };
+
+        $tiers = [
+            'Early' => [
+                'summary' => 'Your team is still forming the operating foundation needed for useful AI or automation work.',
+                'risks' => ['Unclear workflows can create automation around the wrong steps.', 'Inconsistent data may limit trustworthy outputs.'],
+                'next_steps' => ['Document one priority workflow from trigger to outcome.', 'Identify the data, owner, and decision points that support that workflow.'],
+                'service_cta' => 'Start with an AI Opportunity Assessment to clarify the best first use case.',
+            ],
+            'Emerging' => [
+                'summary' => 'You have useful foundations, but a pilot will need tighter scope, ownership, and data checks.',
+                'risks' => ['A broad pilot could dilute momentum.', 'Unresolved ownership gaps may slow implementation.'],
+                'next_steps' => ['Pick one workflow with visible friction and measurable impact.', 'Confirm stakeholders, data sources, and success metrics before selecting tools.'],
+                'service_cta' => 'Use Garcia Systems workflow modernization to turn readiness into a focused pilot plan.',
+            ],
+            'Ready' => [
+                'summary' => 'You appear ready to prioritize a focused pilot with clear success metrics and operating support.',
+                'risks' => ['Teams may still overbuild if the pilot is not constrained.', 'Change management can lag behind technical execution.'],
+                'next_steps' => ['Define a 30- to 60-day pilot with a narrow workflow and adoption metric.', 'Create a lightweight implementation backlog and measurement plan.'],
+                'service_cta' => 'Bring in Garcia Systems product discovery to shape and validate the pilot.',
+            ],
+            'Advanced' => [
+                'summary' => 'Your foundation supports more systematic AI and automation execution across priority workflows.',
+                'risks' => ['Multiple opportunities may compete without a clear portfolio view.', 'Governance and measurement need to keep pace with delivery.'],
+                'next_steps' => ['Rank opportunities by value, feasibility, and risk.', 'Establish reusable delivery patterns for data, workflow, and stakeholder review.'],
+                'service_cta' => 'Partner with Garcia Systems on solutions engineering and product execution support.',
+            ],
+        ];
+
+        return array_merge(['tier' => $tier], $tiers[$tier], [
+            'recommendations' => $this->assessmentRecommendations($categoryScores),
+        ]);
+    }
+
+    private function assessmentRecommendations(array $categoryScores): array
+    {
+        $recommendations = [
+            'Workflow documentation' => 'Create a simple workflow map that captures triggers, handoffs, decisions, exceptions, and current pain points.',
+            'Data readiness' => 'Inventory the data sources used in the workflow and flag missing fields, duplicate entry, quality issues, and ownership gaps.',
+            'Pilot selection' => 'Choose one automation candidate with measurable time savings, manageable risk, and a clear before-and-after success metric.',
+            'Stakeholder alignment' => 'Confirm the process owner, daily users, approver, and technical contact before investing in implementation work.',
+        ];
+
+        $selected = collect($categoryScores)
+            ->sortBy('score')
+            ->filter(fn ($category) => $category['score'] <= 3)
+            ->map(fn ($category) => $recommendations[$category['label']] ?? 'Clarify the business problem, owner, data inputs, and measurable outcome before selecting an AI or automation tool.')
+            ->unique()
+            ->take(4)
+            ->values()
+            ->all();
+
+        if (count($selected) >= 2) {
+            return $selected;
+        }
+
+        return collect($selected)
+            ->merge([
+                'Review the strongest workflow area and use it as the template for your first pilot project.',
+                'Keep the first initiative narrow enough to validate adoption and business value within one operating cycle.',
+            ])
+            ->unique()
+            ->take(4)
+            ->values()
+            ->all();
     }
 }

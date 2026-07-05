@@ -498,7 +498,8 @@ class Phase1FeatureTest extends TestCase
         $response->assertRedirect(route('assessment.result', $assessment));
 
         $this->assertSame(16, $assessment->score);
-        $this->assertSame('Ready to prioritize pilots', $assessment->result_tier);
+        $this->assertSame('Ready', $assessment->result_tier);
+        $this->assertSame('Workflow documentation', $assessment->category_scores[0]['label']);
         $this->assertDatabaseCount(AssessmentResponse::class, 4);
 
         foreach ($responses as $questionId => $score) {
@@ -512,8 +513,54 @@ class Phase1FeatureTest extends TestCase
         $this->get(route('assessment.result', $assessment))
             ->assertOk()
             ->assertSee('Your readiness result')
-            ->assertSee('Score: 16')
-            ->assertSee('Ready to prioritize pilots');
+            ->assertSee('Overall score: 16')
+            ->assertSee('Ready')
+            ->assertSee('Category breakdown')
+            ->assertSee('Workflow documentation')
+            ->assertSee('Data readiness')
+            ->assertSee('Recommendations')
+            ->assertSee('Recommended next steps');
+    }
+
+
+    public function test_low_scoring_assessment_shows_early_recommendations(): void
+    {
+        $questions = collect([
+            ['Workflow documentation', 'Do you have clearly documented workflows?'],
+            ['Data readiness', 'Is your operational data organized and accessible?'],
+            ['Pilot selection', 'Can your team define measurable success for an AI or automation pilot?'],
+            ['Stakeholder alignment', 'Do process owners have time to support implementation?'],
+        ])->map(fn (array $question, int $index) => AssessmentQuestion::create([
+            'category' => $question[0],
+            'question' => $question[1],
+            'help_text' => 'Use your current operating reality, not an ideal future state.',
+            'sort_order' => $index + 1,
+        ]));
+
+        $this->post('/ai-readiness-assessment', [
+            'responses' => [
+                $questions[0]->id => 1,
+                $questions[1]->id => 1,
+                $questions[2]->id => 2,
+                $questions[3]->id => 2,
+            ],
+        ])->assertRedirect();
+
+        $assessment = Assessment::query()->sole();
+
+        $this->assertSame(6, $assessment->score);
+        $this->assertSame('Early', $assessment->result_tier);
+        $this->assertCount(4, $assessment->category_scores);
+
+        $this->get(route('assessment.result', $assessment))
+            ->assertOk()
+            ->assertSee('Overall score: 6')
+            ->assertSee('Early')
+            ->assertSee('Category breakdown')
+            ->assertSee('Create a simple workflow map')
+            ->assertSee('Inventory the data sources')
+            ->assertSee('Choose one automation candidate')
+            ->assertSee('Confirm the process owner');
     }
 
     public function test_database_seeder_populates_content_library_and_atlas_examples(): void

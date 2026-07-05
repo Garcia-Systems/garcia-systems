@@ -26,6 +26,9 @@
             <input class="rounded bg-white/10 p-3" name="company" placeholder="Company" value="{{ old('company') }}">
             @foreach($questions as $q)
                 <x-card>
+                    @if($q->category)
+                        <p class="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">{{ $q->category }}</p>
+                    @endif
                     <label class="font-semibold" for="q{{ $q->id }}">{{ $q->question }}</label>
                     <p class="text-slate-300">{{ $q->help_text }}</p>
                     <select id="q{{ $q->id }}" class="mt-3 rounded bg-slate-900 p-3 @error('responses.'.$q->id) ring-2 ring-rose-400 @enderror" name="responses[{{ $q->id }}]" required>
