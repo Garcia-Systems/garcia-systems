@@ -24,6 +24,11 @@
 
         <form class="mt-8 grid gap-4" method="post" action="{{ route('contact.submit') }}" novalidate>
             @csrf
+            <div class="hidden" aria-hidden="true">
+                <label>Website
+                    <input tabindex="-1" autocomplete="off" name="website" value="{{ old('website') }}">
+                </label>
+            </div>
             <label class="grid gap-2">Name
                 <input class="rounded bg-white/10 p-3 @error('name') ring-2 ring-rose-400 @enderror" name="name" placeholder="Name" value="{{ old('name') }}" required>
                 @error('name')<span class="text-sm text-rose-300">{{ $message }}</span>@enderror

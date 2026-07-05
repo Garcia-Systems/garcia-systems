@@ -7,7 +7,11 @@ use App\Models\AssessmentQuestion;
 use App\Models\ContactSubmission;
 use App\Models\Lead;
 use App\Models\User;
+use App\Notifications\AssessmentSubmitted;
+use App\Notifications\LeadSubmitted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class LeadTrackingTest extends TestCase
@@ -39,6 +43,69 @@ class LeadTrackingTest extends TestCase
         $this->assertSame(5, $lead->assessment_score);
         $this->assertSame('Early readiness', $lead->assessment_tier);
         $this->assertSame($lead->id, $assessment->lead_id);
+    }
+
+
+    public function test_contact_form_sends_admin_notification(): void
+    {
+        Mail::fake();
+        Notification::fake();
+        config(['mail.lead_notification_email' => 'admin@example.com']);
+
+        $this->post('/contact', [
+            'name' => 'Notify Lead',
+            'email' => 'notify@example.com',
+            'company' => 'Notify Co',
+            'message' => 'Please follow up.',
+        ])->assertSessionHas('status');
+
+        Notification::assertSentOnDemand(LeadSubmitted::class, function (LeadSubmitted $notification, array $channels, object $notifiable) {
+            return in_array('mail', $channels, true)
+                && $notifiable->routes['mail'] === 'admin@example.com'
+                && $notification->lead->email === 'notify@example.com'
+                && $notification->submission->message === 'Please follow up.';
+        });
+    }
+
+    public function test_assessment_submission_sends_admin_notification_with_score_and_tier(): void
+    {
+        Mail::fake();
+        Notification::fake();
+        config(['mail.lead_notification_email' => 'admin@example.com']);
+
+        $question = AssessmentQuestion::create(['question' => 'Ready?', 'sort_order' => 1]);
+
+        $this->post('/ai-readiness-assessment', [
+            'name' => 'Assess Lead',
+            'email' => 'assess@example.com',
+            'company' => 'Assess Co',
+            'responses' => [$question->id => 5],
+        ])->assertRedirect();
+
+        Notification::assertSentOnDemand(AssessmentSubmitted::class, function (AssessmentSubmitted $notification, array $channels, object $notifiable) {
+            return in_array('mail', $channels, true)
+                && $notifiable->routes['mail'] === 'admin@example.com'
+                && $notification->assessment->score === 5
+                && $notification->assessment->result_tier === 'Early readiness'
+                && $notification->lead?->email === 'assess@example.com';
+        });
+    }
+
+    public function test_contact_honeypot_blocks_spam_without_persisting_or_notifying(): void
+    {
+        Mail::fake();
+        Notification::fake();
+
+        $this->from('/contact')->post('/contact', [
+            'name' => 'Spam Lead',
+            'email' => 'spam@example.com',
+            'message' => 'Spam payload',
+            'website' => 'https://spam.example',
+        ])->assertRedirect('/contact');
+
+        $this->assertDatabaseMissing('leads', ['email' => 'spam@example.com']);
+        $this->assertDatabaseMissing('contact_submissions', ['email' => 'spam@example.com']);
+        Notification::assertNothingSent();
     }
 
     public function test_admin_leads_index_requires_auth(): void

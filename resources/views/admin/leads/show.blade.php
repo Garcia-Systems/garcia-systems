@@ -6,8 +6,12 @@
                 <div><dt class="text-slate-400">Name</dt><dd>{{ $lead->name ?: '—' }}</dd></div>
                 <div><dt class="text-slate-400">Email</dt><dd>{{ $lead->email }}</dd></div>
                 <div><dt class="text-slate-400">Company</dt><dd>{{ $lead->company ?: '—' }}</dd></div>
+                <div><dt class="text-slate-400">Created date</dt><dd>{{ $lead->created_at?->format('M j, Y g:i A') ?: '—' }}</dd></div>
                 <div><dt class="text-slate-400">Source</dt><dd>{{ str($lead->source)->replace('_', ' ')->headline() }}</dd></div>
-                <div><dt class="text-slate-400">Assessment</dt><dd>@if($lead->assessment_score !== null){{ $lead->assessment_score }} · {{ $lead->assessment_tier }}@else — @endif</dd></div>
+                <div><dt class="text-slate-400">Assessment score</dt><dd>{{ $lead->assessment_score ?? '—' }}</dd></div>
+                <div><dt class="text-slate-400">Assessment tier</dt><dd>{{ $lead->assessment_tier ?: '—' }}</dd></div>
+                <div><dt class="text-slate-400">Next follow-up</dt><dd>{{ $lead->next_follow_up_at?->format('M j, Y g:i A') ?: '—' }}</dd></div>
+                <div><dt class="text-slate-400">Last contacted</dt><dd>{{ $lead->last_contacted_at?->format('M j, Y g:i A') ?: '—' }}</dd></div>
                 <div><dt class="text-slate-400">Latest activity</dt><dd>{{ $lead->latest_activity_at?->format('M j, Y g:i A') ?: '—' }}</dd></div>
             </dl>
         </section>
@@ -15,6 +19,8 @@
             @csrf @method('put')
             <h2 class="font-semibold text-white">Update lead</h2>
             <label class="mt-4 block text-sm">Status<select class="mt-1 w-full rounded px-3 py-2 text-slate-900" name="status">@foreach($statuses as $status)<option value="{{ $status }}" @selected(old('status', $lead->status) === $status)>{{ str($status)->headline() }}</option>@endforeach</select></label>
+            <label class="mt-4 block text-sm">Last contacted<input class="mt-1 w-full rounded px-3 py-2 text-slate-900" name="last_contacted_at" type="datetime-local" value="{{ old('last_contacted_at', $lead->last_contacted_at?->format('Y-m-d\\TH:i')) }}"></label>
+            <label class="mt-4 block text-sm">Next follow-up<input class="mt-1 w-full rounded px-3 py-2 text-slate-900" name="next_follow_up_at" type="datetime-local" value="{{ old('next_follow_up_at', $lead->next_follow_up_at?->format('Y-m-d\\TH:i')) }}"></label>
             <label class="mt-4 block text-sm">Notes<textarea class="mt-1 w-full rounded px-3 py-2 text-slate-900" name="notes" rows="6">{{ old('notes', $lead->notes) }}</textarea></label>
             <button class="mt-4 rounded bg-cyan-400 px-4 py-2 font-semibold text-slate-950">Save lead</button>
         </form>

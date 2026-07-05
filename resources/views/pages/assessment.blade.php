@@ -16,6 +16,11 @@
 
         <form class="mt-8 grid gap-6" method="post" action="{{ route('assessment.submit') }}" novalidate>
             @csrf
+            <div class="hidden" aria-hidden="true">
+                <label>Website
+                    <input tabindex="-1" autocomplete="off" name="website" value="{{ old('website') }}">
+                </label>
+            </div>
             <input class="rounded bg-white/10 p-3" name="name" placeholder="Name" value="{{ old('name') }}">
             <input class="rounded bg-white/10 p-3" name="email" type="email" placeholder="Email" value="{{ old('email') }}">
             <input class="rounded bg-white/10 p-3" name="company" placeholder="Company" value="{{ old('company') }}">

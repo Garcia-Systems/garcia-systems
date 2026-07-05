@@ -16,7 +16,10 @@ use App\Models\Lead;
 use App\Models\SolutionPattern;
 use App\Models\Video;
 use App\Models\Workflow;
+use App\Notifications\AssessmentSubmitted;
+use App\Notifications\LeadSubmitted;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -143,6 +146,7 @@ class PageController extends Controller
             'company' => ['nullable', 'string', 'max:180'],
             'service_interest' => ['nullable', 'string', 'max:180'],
             'message' => ['required', 'string', 'max:5000'],
+            'website' => ['nullable', 'prohibited'],
         ]);
 
         if ($validator->fails()) {
@@ -155,8 +159,13 @@ class PageController extends Controller
 
         $data = $validator->validated();
 
+        unset($data['website']);
+
         $submission = ContactSubmission::create($data);
-        Lead::createOrUpdateFromContactSubmission($submission);
+        $lead = Lead::createOrUpdateFromContactSubmission($submission);
+
+        Notification::route('mail', config('mail.lead_notification_email'))
+            ->notify(new LeadSubmitted($lead, $submission));
 
         return back()->with('status', 'Thanks — your message has been saved.');
     }
@@ -176,6 +185,7 @@ class PageController extends Controller
             'company' => ['nullable', 'string', 'max:180'],
             'responses' => ['required', 'array', 'size:'.count($questionIds)],
             'responses.*' => ['required', 'integer', Rule::in([1, 2, 3, 4, 5])],
+            'website' => ['nullable', 'prohibited'],
         ]);
 
         $validator->after(function ($validator) use ($request, $questionIds) {
@@ -195,6 +205,8 @@ class PageController extends Controller
         });
 
         $data = $validator->validate();
+        unset($data['website']);
+
         $score = $this->calculateAssessmentScore($data['responses']);
         [$tier, $summary] = $this->assessmentResultForScore($score);
 
@@ -207,7 +219,10 @@ class PageController extends Controller
             'summary' => $summary,
         ]);
 
-        Lead::createOrUpdateFromAssessment($assessment);
+        $lead = Lead::createOrUpdateFromAssessment($assessment);
+
+        Notification::route('mail', config('mail.lead_notification_email'))
+            ->notify(new AssessmentSubmitted($assessment, $lead));
 
         foreach ($data['responses'] as $qid => $value) {
             AssessmentResponse::create([
