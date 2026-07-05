@@ -172,7 +172,7 @@ class PageController extends Controller
             'name' => ['nullable', 'string', 'max:120'],
             'email' => ['nullable', 'email', 'max:180'],
             'company' => ['nullable', 'string', 'max:180'],
-            'responses' => ['required', 'array', 'size:'.count($questionIds)],
+            'responses' => ['required', 'array'],
             'responses.*' => ['required', 'integer', Rule::in([1, 2, 3, 4, 5])],
         ]);
 
