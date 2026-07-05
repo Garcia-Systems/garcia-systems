@@ -149,12 +149,13 @@ class PageController extends Controller
 
     public function assessment()
     {
-        return view('pages.assessment', ['questions' => AssessmentQuestion::orderBy('sort_order')->get()]);
+        return view('pages.assessment', ['questions' => AssessmentQuestion::where('is_active', true)->orderBy('sort_order')->orderBy('id')->get()]);
     }
 
     public function submitAssessment(Request $request)
     {
-        $questionIds = AssessmentQuestion::query()->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $questions = AssessmentQuestion::query()->where('is_active', true)->get();
+        $questionIds = $questions->pluck('id')->map(fn ($id) => (string) $id)->all();
 
         $validator = Validator::make($request->all(), [
             'name' => ['nullable', 'string', 'max:120'],
@@ -181,7 +182,7 @@ class PageController extends Controller
         });
 
         $data = $validator->validate();
-        $score = $this->calculateAssessmentScore($data['responses']);
+        $score = $this->calculateAssessmentScore($data['responses'], $questions->keyBy('id'));
         [$tier, $summary] = $this->assessmentResultForScore($score);
 
         $assessment = Assessment::create([
@@ -209,9 +210,13 @@ class PageController extends Controller
         return view('pages.assessment-result', ['assessment' => $assessment]);
     }
 
-    private function calculateAssessmentScore(array $responses): int
+    private function calculateAssessmentScore(array $responses, $questions): int
     {
-        return collect($responses)->map(fn ($value) => (int) $value)->sum();
+        return (int) round(collect($responses)->sum(function ($value, $questionId) use ($questions) {
+            $weight = (float) ($questions->get((int) $questionId)?->weight ?? 1);
+
+            return (int) $value * $weight;
+        }));
     }
 
     private function assessmentResultForScore(int $score): array

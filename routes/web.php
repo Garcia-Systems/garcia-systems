@@ -3,6 +3,8 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AtlasDetailController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
+use App\Http\Controllers\Admin\AssessmentQuestionController as AdminAssessmentQuestionController;
+use App\Http\Controllers\Admin\AssessmentSubmissionController as AdminAssessmentSubmissionController;
 use App\Http\Controllers\Admin\AtlasController as AdminAtlasController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -20,6 +22,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('videos', AdminVideoController::class)->except(['show', 'destroy']);
     Route::resource('categories', AdminCategoryController::class)->only(['index', 'store']);
     Route::resource('tags', AdminTagController::class)->only(['index', 'store']);
+    Route::patch('/assessment-questions/reorder', [AdminAssessmentQuestionController::class, 'reorder'])->name('assessment-questions.reorder');
+    Route::resource('assessment-questions', AdminAssessmentQuestionController::class)->except(['show']);
+    Route::resource('assessment-submissions', AdminAssessmentSubmissionController::class)->only(['index', 'show']);
     Route::get('/atlas/{resource}', [AdminAtlasController::class, 'index'])->name('atlas.index');
     Route::get('/atlas/{resource}/create', [AdminAtlasController::class, 'create'])->name('atlas.create');
     Route::post('/atlas/{resource}', [AdminAtlasController::class, 'store'])->name('atlas.store');
