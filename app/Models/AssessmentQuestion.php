@@ -32,10 +32,7 @@ class AssessmentQuestion extends Model
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where(function (Builder $query): void {
-            $query->where('is_active', true)
-                ->orWhereNull('is_active');
-        });
+        return $query->where('is_active', true);
     }
 
     public function responses()
