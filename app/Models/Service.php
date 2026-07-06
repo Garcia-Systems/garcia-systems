@@ -17,6 +17,6 @@ class Service extends Model
 
     public function workflows()
     {
-        return $this->belongsToMany(Workflow::class);
+        return $this->belongsToMany(Workflow::class, 'service_workflow');
     }
 }

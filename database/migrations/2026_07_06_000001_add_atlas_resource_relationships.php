@@ -20,33 +20,33 @@ return new class extends Migration
             $table->string('assessment_path')->nullable()->after('description');
         });
 
-        Schema::create('workflow_article', function (Blueprint $table) {
+        Schema::create('article_workflow', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('workflow_id')->constrained()->cascadeOnDelete();
             $table->foreignId('article_id')->constrained()->cascadeOnDelete();
-            $table->unique(['workflow_id', 'article_id']);
+            $table->foreignId('workflow_id')->constrained()->cascadeOnDelete();
+            $table->unique(['article_id', 'workflow_id']);
         });
 
-        Schema::create('workflow_video', function (Blueprint $table) {
+        Schema::create('video_workflow', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('workflow_id')->constrained()->cascadeOnDelete();
             $table->foreignId('video_id')->constrained()->cascadeOnDelete();
-            $table->unique(['workflow_id', 'video_id']);
+            $table->foreignId('workflow_id')->constrained()->cascadeOnDelete();
+            $table->unique(['video_id', 'workflow_id']);
         });
 
-        Schema::create('workflow_service', function (Blueprint $table) {
+        Schema::create('service_workflow', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('workflow_id')->constrained()->cascadeOnDelete();
             $table->foreignId('service_id')->constrained()->cascadeOnDelete();
-            $table->unique(['workflow_id', 'service_id']);
+            $table->foreignId('workflow_id')->constrained()->cascadeOnDelete();
+            $table->unique(['service_id', 'workflow_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('workflow_service');
-        Schema::dropIfExists('workflow_video');
-        Schema::dropIfExists('workflow_article');
+        Schema::dropIfExists('service_workflow');
+        Schema::dropIfExists('video_workflow');
+        Schema::dropIfExists('article_workflow');
 
         Schema::table('workflows', function (Blueprint $table) {
             $table->dropColumn('assessment_path');

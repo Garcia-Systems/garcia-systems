@@ -36,7 +36,7 @@ class Video extends Model
 
     public function workflows()
     {
-        return $this->belongsToMany(Workflow::class);
+        return $this->belongsToMany(Workflow::class, 'video_workflow');
     }
 
     public function scopePublished(Builder $query): Builder

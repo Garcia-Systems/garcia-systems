@@ -64,6 +64,6 @@ class Article extends Model
 
     public function workflows()
     {
-        return $this->belongsToMany(Workflow::class);
+        return $this->belongsToMany(Workflow::class, 'article_workflow');
     }
 }

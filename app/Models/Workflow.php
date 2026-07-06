@@ -42,16 +42,16 @@ class Workflow extends Model
 
     public function articles()
     {
-        return $this->belongsToMany(Article::class);
+        return $this->belongsToMany(Article::class, 'article_workflow');
     }
 
     public function videos()
     {
-        return $this->belongsToMany(Video::class);
+        return $this->belongsToMany(Video::class, 'video_workflow');
     }
 
     public function services()
     {
-        return $this->belongsToMany(Service::class);
+        return $this->belongsToMany(Service::class, 'service_workflow');
     }
 }
