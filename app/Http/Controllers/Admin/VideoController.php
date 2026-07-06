@@ -17,7 +17,10 @@ class VideoController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
 
+        $status = $request->query('status') === 'archived' ? 'archived' : 'active';
+
         $videos = Video::with('article')
+            ->when($status === 'archived', fn ($query) => $query->onlyTrashed())
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('title', 'like', "%{$search}%")
@@ -30,7 +33,7 @@ class VideoController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.videos.index', ['videos' => $videos, 'search' => $search]);
+        return view('admin.videos.index', ['videos' => $videos, 'search' => $search, 'status' => $status]);
     }
     public function create(): View { return view('admin.videos.create', $this->formData(new Video(['is_published' => false]))); }
     public function store(Request $request): RedirectResponse
@@ -56,6 +59,21 @@ class VideoController extends Controller
     {
         $video->update(['is_published' => ! $video->is_published]);
         return back()->with('status', 'Video publication status updated.');
+    }
+
+    public function destroy(Video $video): RedirectResponse
+    {
+        $video->delete();
+
+        return redirect()->route('admin.videos.index')->with('status', 'Video archived.');
+    }
+
+    public function restore(int $video): RedirectResponse
+    {
+        $video = Video::onlyTrashed()->findOrFail($video);
+        $video->restore();
+
+        return redirect()->route('admin.videos.edit', $video)->with('status', 'Video restored.');
     }
     private function validated(Request $request, ?Video $video = null): array
     {
