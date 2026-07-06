@@ -16,14 +16,14 @@
         ];
     @endphp
 
-    <section class="relative mx-auto max-w-6xl px-6 py-20 md:py-24">
+    <section class="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
         <div class="max-w-5xl">
             <p class="font-semibold text-cyan-300">Business-first systems consulting</p>
             <h1 class="mt-4 text-5xl font-bold tracking-tight md:text-7xl">Turning Business Problems Into Products, Systems, and Intelligent Workflows</h1>
             <p class="mt-6 max-w-3xl text-lg leading-8 text-slate-300">Garcia Systems helps teams understand operational friction, prioritize technology opportunities, and ship focused improvements that are practical enough to adopt and specific enough to measure.</p>
-            <div class="mt-8 flex flex-wrap gap-3">
-                <a class="rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950" href="{{ route('contact') }}">Start a conversation</a>
-                <a class="rounded-full border border-white/15 px-6 py-3 font-semibold text-slate-100" href="{{ route('services') }}">Explore services</a>
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <a class="inline-flex justify-center rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950 shadow-lg shadow-cyan-950/40 transition hover:bg-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950" href="{{ route('contact') }}">Start a conversation</a>
+                <a class="inline-flex justify-center rounded-full border border-white/15 px-6 py-3 font-semibold text-slate-100 transition hover:border-cyan-300/50 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950" href="{{ route('services') }}">Explore services</a>
             </div>
         </div>
         <div class="mt-10 grid gap-4 md:grid-cols-3">
@@ -33,7 +33,7 @@
         </div>
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-12">
+    <section class="mx-auto max-w-6xl px-6 py-14 md:py-16">
         <x-section-heading eyebrow="How I work" title="How Garcia Systems Works" description="A practical consulting rhythm for moving from ambiguous friction to decisions, plans, and execution." />
         <div class="mt-8 grid gap-4 md:grid-cols-4">
             @foreach($process as $index => [$step, $description])
@@ -42,7 +42,7 @@
         </div>
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-12">
+    <section class="mx-auto max-w-6xl px-6 py-14 md:py-16">
         <x-section-heading eyebrow="Services summary" title="Focused consulting paths for product, workflow, AI, and execution work." description="Use Garcia Systems when the business problem is real, the path is unclear, and the team needs practical analysis and delivery structure." />
         <div class="mt-8 grid gap-5 md:grid-cols-3">
             @foreach($services as [$title, $description])
@@ -51,7 +51,7 @@
         </div>
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-12">
+    <section class="mx-auto max-w-6xl px-6 py-14 md:py-16">
         <div class="grid gap-8 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
             <x-section-heading eyebrow="Opportunity Atlas" title="Preview common friction points before choosing a solution." description="The Opportunity Atlas connects industries, workflows, friction points, and solution patterns so technology decisions can start from observable business problems." />
             <div class="grid gap-5">
@@ -71,7 +71,7 @@
 
     <x-cta-banner class="py-12" title="Explore AI Readiness" description="Use the assessment to evaluate workflow clarity, data quality, ownership, and risk before selecting an AI or automation pilot." :href="route('assessment')" linkText="Take the assessment" />
 
-    <section class="mx-auto max-w-6xl px-6 py-12">
+    <section class="mx-auto max-w-6xl px-6 py-14 md:py-16">
         <x-section-heading eyebrow="Latest Thinking" title="Featured articles" description="Practical writing on automation, workflow clarity, product decisions, and AI readiness." />
         <div class="mt-8 grid gap-5 md:grid-cols-3">
             @forelse($articles as $article)
@@ -82,7 +82,7 @@
         </div>
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-12">
+    <section class="mx-auto max-w-6xl px-6 py-14 md:py-16">
         <x-section-heading eyebrow="Featured videos" title="Short explainers for operational and automation decisions." />
         <div class="mt-8 grid gap-5 md:grid-cols-3">
             @forelse($videos as $video)
