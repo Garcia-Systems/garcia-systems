@@ -16,6 +16,7 @@ class Workflow extends Model
         'name',
         'slug',
         'description',
+        'assessment_path',
 
     ];
 
@@ -37,5 +38,20 @@ class Workflow extends Model
     public function frictionPoints()
     {
         return $this->hasMany(FrictionPoint::class);
+    }
+
+    public function articles()
+    {
+        return $this->belongsToMany(Article::class);
+    }
+
+    public function videos()
+    {
+        return $this->belongsToMany(Video::class);
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class);
     }
 }

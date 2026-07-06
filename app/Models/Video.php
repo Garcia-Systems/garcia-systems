@@ -34,6 +34,11 @@ class Video extends Model
         return $this->belongsTo(Article::class);
     }
 
+    public function workflows()
+    {
+        return $this->belongsToMany(Workflow::class);
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_published', true);

@@ -75,6 +75,9 @@ class PageController extends Controller
                 'frictionPoints.solutionPatterns.capabilities' => function ($query) use ($filters) {
                     $query->when($filters['capability'] ?? null, fn ($query, $slug) => $query->where('slug', $slug));
                 },
+                'articles' => fn ($query) => $query->published()->latest('published_at'),
+                'videos' => fn ($query) => $query->published()->latest(),
+                'services',
             ])
             ->when($filters['industry'] ?? null, fn ($query, $slug) => $query->whereHas('industry', fn ($query) => $query->where('slug', $slug)))
             ->when($filters['company_type'] ?? null, fn ($query, $slug) => $query->whereHas('companyType', fn ($query) => $query->where('slug', $slug)))
@@ -96,19 +99,17 @@ class PageController extends Controller
                         ->orWhereHas('frictionPoints.solutionPatterns.capabilities', fn ($query) => $query->where('name', 'like', "%{$keyword}%")->orWhere('description', 'like', "%{$keyword}%"));
                 });
             })
+            ->withCount([
+                'articles' => fn ($query) => $query->published(),
+                'videos' => fn ($query) => $query->published(),
+                'services',
+            ])
             ->orderBy('name')
             ->get();
 
-        $articles = Article::published()->latest('published_at')->get();
-        $videos = Video::published()->latest()->get();
-        $services = collect([
-            'Product Discovery',
-            'Solutions Engineering',
-            'Workflow Modernization',
-            'Technical Liaison Services',
-            'AI Opportunity Assessment',
-            'Product Execution Support',
-        ]);
+        $articles = $workflows->pluck('articles')->flatten()->unique('id')->values();
+        $videos = $workflows->pluck('videos')->flatten()->unique('id')->values();
+        $services = $workflows->pluck('services')->flatten()->unique('id')->values();
 
         return view('pages.atlas', [
             'workflows' => $workflows,

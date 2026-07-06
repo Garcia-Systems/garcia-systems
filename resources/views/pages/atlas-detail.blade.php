@@ -61,7 +61,7 @@
         @endforeach
 
         <x-card>
-            <h2 class="text-2xl font-bold">Related articles</h2>
+            <h2 class="text-2xl font-bold">Recommended articles</h2>
             <div class="mt-4 space-y-3">
                 @forelse($articles as $article)
                     <a href="{{ route('articles.show', $article->slug) }}" class="block rounded-2xl border border-white/10 bg-slate-950/60 p-4 hover:border-cyan-300/50">
@@ -75,7 +75,7 @@
         </x-card>
 
         <x-card>
-            <h2 class="text-2xl font-bold">Related videos</h2>
+            <h2 class="text-2xl font-bold">Recommended videos</h2>
             <div class="mt-4 space-y-3">
                 @forelse($videos as $video)
                     <a href="{{ $video->url }}" class="block rounded-2xl border border-white/10 bg-slate-950/60 p-4 hover:border-cyan-300/50">
@@ -85,6 +85,43 @@
                 @empty
                     <p class="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-slate-400">No related videos are published yet.</p>
                 @endforelse
+            </div>
+        </x-card>
+
+        <x-card>
+            <h2 class="text-2xl font-bold">Suggested services</h2>
+            <div class="mt-4 space-y-3">
+                @forelse($services as $service)
+                    <div class="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+                        <span class="font-semibold text-cyan-200">{{ $service->name }}</span>
+                        <p class="mt-1 text-sm text-slate-300">{{ $service->description }}</p>
+                    </div>
+                @empty
+                    <p class="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-slate-400">No suggested services are connected yet.</p>
+                @endforelse
+            </div>
+        </x-card>
+
+        <x-card>
+            <h2 class="text-2xl font-bold">Suggested assessment path</h2>
+            <div class="mt-4 space-y-3">
+                @forelse($assessmentPaths as $path)
+                    <p class="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-300">{{ $path }}</p>
+                @empty
+                    <p class="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-slate-400">Start with the AI readiness assessment to identify workflow, data, and stakeholder gaps.</p>
+                @endforelse
+            </div>
+            <a href="{{ route('assessment') }}" class="mt-5 inline-flex rounded-full bg-cyan-400 px-5 py-2 font-semibold text-slate-950">Assess readiness</a>
+        </x-card>
+
+        <x-card class="lg:col-span-2">
+            <h2 class="text-2xl font-bold">Next step</h2>
+            <p class="mt-3 text-slate-300">Use these connected resources to move from atlas discovery into a focused conversation about practical modernization options.</p>
+            <div class="mt-5 flex flex-wrap gap-3">
+                <a href="{{ route('articles.index') }}" class="rounded-full border border-white/15 px-5 py-2 font-semibold text-slate-100">Explore related articles</a>
+                <a href="{{ route('videos') }}" class="rounded-full border border-white/15 px-5 py-2 font-semibold text-slate-100">Watch videos</a>
+                <a href="{{ route('assessment') }}" class="rounded-full border border-white/15 px-5 py-2 font-semibold text-slate-100">Assess readiness</a>
+                <a href="{{ route('contact') }}" class="rounded-full bg-cyan-400 px-5 py-2 font-semibold text-slate-950">Contact Garcia Systems</a>
             </div>
         </x-card>
     </section>

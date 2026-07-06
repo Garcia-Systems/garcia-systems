@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\{Article,AssessmentQuestion,Capability,Category,Department,FrictionPoint,Industry,SolutionPattern,Tag,User,Video,Workflow,CompanyType};
+use App\Models\{Article,AssessmentQuestion,Capability,Category,Department,FrictionPoint,Industry,SolutionPattern,Tag,User,Video,Workflow,CompanyType,Service};
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -80,9 +80,11 @@ class DatabaseSeeder extends Seeder
                 'published_at' => Carbon::parse($date),
             ]);
             $article->tags()->sync(collect($tagSlugs)->map(fn ($slug) => $tags[$slug]->id));
+            $article->load('tags');
+            $articleModels[] = $article;
         }
 
-        $industries = collect(['Healthcare','Education','Logistics','Retail','Manufacturing','Government','Professional Services'])
+        $industries = collect(['Healthcare','Education','Logistics','Retail','Manufacturing','Public Sector','Professional Services'])
             ->mapWithKeys(fn ($name) => [Str::slug($name) => Industry::create(['name' => $name, 'slug' => Str::slug($name), 'description' => 'Opportunity mapping context for '.$name.' organizations improving products, systems, and intelligent workflows.'])]);
         $companyTypes = collect(['Small business','Growing mid-market team','Multi-location operator','Public agency','Enterprise division','Professional practice','Regional service provider'])
             ->mapWithKeys(fn ($name) => [Str::slug($name) => CompanyType::create(['name' => $name, 'slug' => Str::slug($name), 'description' => 'Common organization type for Garcia Systems discovery.'])]);
@@ -107,6 +109,21 @@ class DatabaseSeeder extends Seeder
             return [$pattern->slug => $pattern];
         });
 
+
+
+        $services = collect([
+            ['Product Discovery', 'Frame the workflow problem, users, constraints, and measurable outcomes before selecting a build path.'],
+            ['Solutions Engineering', 'Design lightweight systems, integrations, and internal tools that reduce repeatable operational friction.'],
+            ['Workflow Modernization', 'Map handoffs, exceptions, ownership, and data needs so teams can improve the way work moves.'],
+            ['Technical Liaison Services', 'Translate between operational teams, vendors, and technical stakeholders during systems change.'],
+            ['AI Opportunity Assessment', 'Evaluate where AI support is practical based on workflow stability, data readiness, risk, and adoption needs.'],
+            ['Product Execution Support', 'Turn validated workflow opportunities into a focused backlog, delivery plan, and adoption loop.'],
+        ])->mapWithKeys(fn ($service) => [Str::slug($service[0]) => Service::create([
+            'name' => $service[0],
+            'slug' => Str::slug($service[0]),
+            'description' => $service[1],
+        ])]);
+
         $examples = [
             ['Healthcare','Growing mid-market team','Clinical Operations','Patient intake follow-up','Customer intake bottlenecks','customer-intake-bottlenecks','Structured intake and routing'],
             ['Healthcare','Multi-location operator','Compliance','Records reconciliation','Records reconciliation','records-reconciliation','Data cleanup workflow'],
@@ -118,8 +135,8 @@ class DatabaseSeeder extends Seeder
             ['Retail','Multi-location operator','Customer Support','Return request intake','Duplicate work','duplicate-work','Structured intake and routing'],
             ['Manufacturing','Enterprise division','Finance','Production reporting','Manual reporting','manual-reporting','Operational dashboard'],
             ['Manufacturing','Regional service provider','Operations','Quality issue tracking','Data quality','data-quality','Data cleanup workflow'],
-            ['Government','Public agency','Customer Support','Permit request review','Legacy system dependency','legacy-system-dependency','System-of-record clarification'],
-            ['Government','Public agency','Administration','Board packet preparation','Manual reporting','manual-reporting-government','Operational dashboard'],
+            ['Public Sector','Public agency','Customer Support','Permit request review','Legacy system dependency','legacy-system-dependency','System-of-record clarification'],
+            ['Public Sector','Public agency','Administration','Board packet preparation','Manual reporting','manual-reporting-government','Operational dashboard'],
             ['Professional Services','Professional practice','Sales','Client intake and qualification','Customer intake bottlenecks','customer-intake-bottlenecks-professional-services','Structured intake and routing'],
             ['Professional Services','Growing mid-market team','IT','Internal request triage','Disconnected systems','disconnected-systems-professional-services','Cross-system status layer'],
         ];
@@ -132,6 +149,7 @@ class DatabaseSeeder extends Seeder
                 'name' => $workflowName,
                 'slug' => Str::slug($workflowName),
                 'description' => 'A practical '.$workflowName.' workflow where Garcia Systems can map friction, clarify requirements, and shape useful systems improvements.',
+                'assessment_path' => 'Start with the AI readiness assessment, then review workflow documentation, data readiness, pilot selection, and stakeholder alignment for this workflow.',
             ]);
             $friction = FrictionPoint::create([
                 'workflow_id' => $workflow->id,
@@ -141,6 +159,28 @@ class DatabaseSeeder extends Seeder
                 'impact' => 'Slower decisions, duplicated effort, avoidable handoffs, and harder coordination.',
             ]);
             $friction->solutionPatterns()->attach($patterns[Str::slug($patternName)]->id);
+
+            $tagSlugs = collect($patterns[Str::slug($patternName)]->capabilities)->pluck('slug')
+                ->merge([Str::slug($frictionName), Str::slug($workflowName)])
+                ->unique();
+            $workflow->articles()->attach(collect($articleModels ?? [])->filter(function ($article) use ($tagSlugs) {
+                return $article->tags->pluck('slug')->intersect($tagSlugs)->isNotEmpty();
+            })->take(3)->pluck('id'));
+
+            $videoMatches = collect($videoModels ?? [])->filter(function ($video) use ($workflowName, $frictionName, $patternName) {
+                $haystack = Str::lower($video->title.' '.$video->description);
+                return str($workflowName.' '.$frictionName.' '.$patternName)->explode(' ')->filter(fn ($word) => strlen($word) > 5)->contains(fn ($word) => str_contains($haystack, Str::lower($word)));
+            })->take(2);
+            $workflow->videos()->attach($videoMatches->pluck('id'));
+
+            $serviceSlugs = str_contains(Str::lower($patternName), 'intake') ? ['product-discovery', 'workflow-modernization'] : ['workflow-modernization', 'solutions-engineering'];
+            if (str_contains(Str::lower($patternName), 'system') || str_contains(Str::lower($patternName), 'status')) {
+                $serviceSlugs = ['solutions-engineering', 'technical-liaison-services'];
+            }
+            if (str_contains(Str::lower($patternName), 'knowledge') || str_contains(Str::lower($patternName), 'approval')) {
+                $serviceSlugs = ['workflow-modernization', 'ai-opportunity-assessment'];
+            }
+            $workflow->services()->attach(collect($serviceSlugs)->map(fn ($slug) => $services[$slug]->id));
         }
 
         $assessmentQuestions = [
@@ -153,24 +193,38 @@ class DatabaseSeeder extends Seeder
         foreach($assessmentQuestions as $i=>$question) AssessmentQuestion::create(['category'=>$question[0],'question'=>$question[1],'help_text'=>'Use your current operating reality, not an ideal future state.','sort_order'=>$i+1]);
 
         $videos = [
-            ['Mapping Workflow Friction', 'A short placeholder summary for identifying repeated handoffs, manual reporting, and disconnected systems before proposing a product or automation path.'],
-            ['AI Readiness in Plain English', 'A short placeholder summary for separating useful AI pilots from vague experimentation by checking data, workflow, risk, and ownership conditions.'],
-            ['Inventory Visibility Walkthrough', 'A short placeholder summary for improving inventory visibility with focused dashboards, exception handling, and clearer update ownership.'],
-            ['Records Reconciliation Patterns', 'A short placeholder summary for converting reconciliation work into an auditable workflow with matching rules, exception queues, and useful reporting.'],
-            ['Vendor Coordination Hub Overview', 'A short placeholder summary for replacing scattered vendor email threads with structured requests, status visibility, and repeatable follow-up.'],
-            ['Approval Delay Diagnostic', 'A short placeholder summary for finding where approvals stall because of missing context, unclear routing, or unnecessary escalation.'],
-            ['Customer Intake Bottleneck Map', 'A short placeholder summary for mapping request channels, qualification steps, routing rules, and follow-up expectations.'],
-            ['Knowledge Silos to Shared Systems', 'A short placeholder summary for connecting knowledge bases to real workflows so information stays useful and current.'],
+            ['Mapping Workflow Friction', 'identifying repeated handoffs, manual reporting, and disconnected systems before proposing a product or automation path.'],
+            ['AI Readiness in Plain English', 'separating useful AI pilots from vague experimentation by checking data, workflow, risk, and ownership conditions.'],
+            ['Inventory Visibility Walkthrough', 'improving inventory visibility with focused dashboards, exception handling, and clearer update ownership.'],
+            ['Records Reconciliation Patterns', 'converting reconciliation work into an auditable workflow with matching rules, exception queues, and useful reporting.'],
+            ['Vendor Coordination Hub Overview', 'replacing scattered vendor email threads with structured requests, status visibility, and repeatable follow-up.'],
+            ['Approval Delay Diagnostic', 'finding where approvals stall because of missing context, unclear routing, or unnecessary escalation.'],
+            ['Customer Intake Bottleneck Map', 'mapping request channels, qualification steps, routing rules, and follow-up expectations.'],
+            ['Knowledge Silos to Shared Systems', 'connecting knowledge bases to real workflows so information stays useful and current.'],
         ];
 
         foreach ($videos as [$title, $description]) {
-            Video::create([
+            $video = Video::create([
                 'title' => $title,
                 'slug' => Str::slug($title),
                 'url' => 'https://www.youtube.com/watch?v=ysz5S6PUM-U',
                 'description' => $description,
                 'is_published' => true,
             ]);
+            $videoModels[] = $video;
         }
+
+        Workflow::with('frictionPoints.solutionPatterns')->get()->each(function ($workflow) use ($videoModels) {
+            $context = Str::lower($workflow->name.' '.$workflow->frictionPoints->pluck('name')->join(' ').' '.$workflow->frictionPoints->pluck('solutionPatterns')->flatten()->pluck('name')->join(' '));
+            $matches = collect($videoModels)->filter(function ($video) use ($context) {
+                return str($video->title.' '.$video->description)->lower()->explode(' ')->filter(fn ($word) => strlen($word) > 5)->contains(fn ($word) => str_contains($context, Str::lower($word)));
+            })->take(2);
+
+            if ($matches->isEmpty()) {
+                $matches = collect($videoModels)->take(1);
+            }
+
+            $workflow->videos()->syncWithoutDetaching($matches->pluck('id'));
+        });
     }
 }

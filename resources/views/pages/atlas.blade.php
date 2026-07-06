@@ -109,9 +109,9 @@
                         </div>
 
                         <div class="mt-5 grid gap-3 text-sm md:grid-cols-3">
-                            <div class="rounded-2xl bg-white/5 p-4"><strong>Associated Articles ({{ $articles->count() }})</strong><p class="mt-2 text-slate-300">{{ $articles->pluck('title')->take(2)->join(', ') ?: 'None published yet' }}</p></div>
-                            <div class="rounded-2xl bg-white/5 p-4"><strong>Associated Videos ({{ $videos->count() }})</strong><p class="mt-2 text-slate-300">{{ $videos->pluck('title')->take(2)->join(', ') ?: 'None published yet' }}</p></div>
-                            <div class="rounded-2xl bg-white/5 p-4"><strong>Associated Services ({{ $services->count() }})</strong><p class="mt-2 text-slate-300">{{ $services->take(2)->join(', ') }}</p></div>
+                            <div class="rounded-2xl bg-white/5 p-4"><strong>Related Articles ({{ $workflow->articles_count }})</strong><p class="mt-2 text-slate-300">{{ $workflow->articles->pluck('title')->take(2)->join(', ') ?: 'None connected yet' }}</p></div>
+                            <div class="rounded-2xl bg-white/5 p-4"><strong>Related Videos ({{ $workflow->videos_count }})</strong><p class="mt-2 text-slate-300">{{ $workflow->videos->pluck('title')->take(2)->join(', ') ?: 'None connected yet' }}</p></div>
+                            <div class="rounded-2xl bg-white/5 p-4"><strong>Related Services ({{ $workflow->services_count }})</strong><p class="mt-2 text-slate-300">{{ $workflow->services->pluck('name')->take(2)->join(', ') ?: 'None connected yet' }}</p></div>
                         </div>
                     </x-card>
                 @endforeach

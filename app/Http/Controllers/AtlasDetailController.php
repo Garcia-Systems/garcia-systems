@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Article;
 use App\Models\Capability;
 use App\Models\CompanyType;
 use App\Models\Department;
 use App\Models\FrictionPoint;
 use App\Models\Industry;
 use App\Models\SolutionPattern;
-use App\Models\Video;
 use App\Models\Workflow;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
@@ -51,7 +49,7 @@ class AtlasDetailController extends Controller
 
     public function workflow(Workflow $workflow)
     {
-        $workflow->load('industry', 'companyType', 'department', 'frictionPoints.solutionPatterns.capabilities');
+        $workflow->load('industry', 'companyType', 'department', 'frictionPoints.solutionPatterns.capabilities', 'articles', 'videos', 'services');
 
         return $this->show('Workflow', $workflow, [
             'parents' => collect([$workflow->industry, $workflow->companyType, $workflow->department])->filter()->values(),
@@ -104,6 +102,11 @@ class AtlasDetailController extends Controller
     private function show(string $type, object $record, array $related)
     {
         $workflows = $this->toCollection($related['workflows'] ?? collect())->unique('id')->values();
+        $workflows->loadMissing([
+            'articles' => fn ($query) => $query->published()->latest('published_at'),
+            'videos' => fn ($query) => $query->published()->latest(),
+            'services',
+        ]);
         $frictionPoints = $this->toCollection($related['frictionPoints'] ?? $workflows->pluck('frictionPoints')->flatten())->unique('id')->values();
         $solutionPatterns = $this->toCollection($related['solutionPatterns'] ?? $frictionPoints->pluck('solutionPatterns')->flatten())->unique('id')->values();
         $capabilities = $this->toCollection($related['capabilities'] ?? $solutionPatterns->pluck('capabilities')->flatten())->unique('id')->values();
@@ -117,8 +120,10 @@ class AtlasDetailController extends Controller
             'frictionPoints' => $frictionPoints,
             'solutionPatterns' => $solutionPatterns,
             'capabilities' => $capabilities,
-            'articles' => Article::published()->latest('published_at')->take(6)->get(),
-            'videos' => Video::published()->latest()->take(6)->get(),
+            'articles' => $workflows->pluck('articles')->flatten()->unique('id')->take(6)->values(),
+            'videos' => $workflows->pluck('videos')->flatten()->unique('id')->take(6)->values(),
+            'services' => $workflows->pluck('services')->flatten()->unique('id')->take(6)->values(),
+            'assessmentPaths' => $workflows->pluck('assessment_path')->filter()->unique()->values(),
         ]);
     }
 
