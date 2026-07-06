@@ -19,9 +19,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', AdminDashboardController::class)->name('index');
     Route::resource('leads', AdminLeadController::class)->only(['index', 'show', 'update']);
     Route::patch('/articles/{article}/publish', [AdminArticleController::class, 'togglePublish'])->name('articles.publish');
-    Route::resource('articles', AdminArticleController::class)->except(['show', 'destroy']);
+    Route::patch('/articles/{article}/restore', [AdminArticleController::class, 'restore'])->name('articles.restore');
+    Route::resource('articles', AdminArticleController::class)->except(['show']);
     Route::patch('/videos/{video}/publish', [AdminVideoController::class, 'togglePublish'])->name('videos.publish');
-    Route::resource('videos', AdminVideoController::class)->except(['show', 'destroy']);
+    Route::patch('/videos/{video}/restore', [AdminVideoController::class, 'restore'])->name('videos.restore');
+    Route::resource('videos', AdminVideoController::class)->except(['show']);
     Route::resource('categories', AdminCategoryController::class)->except(['show', 'create']);
     Route::resource('tags', AdminTagController::class)->except(['show', 'create']);
     Route::get('/atlas/{resource}', [AdminAtlasController::class, 'index'])->name('atlas.index');

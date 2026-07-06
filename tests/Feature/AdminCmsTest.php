@@ -199,4 +199,69 @@ class AdminCmsTest extends TestCase
         $this->assertDatabaseMissing('tags', ['id' => $tag->id]);
     }
 
+    public function test_admin_can_archive_article_and_restore_it(): void
+    {
+        $user = User::factory()->create();
+        $article = Article::create(['title' => 'Archive Me', 'slug' => 'archive-me', 'excerpt' => 'Excerpt', 'body' => 'Body', 'is_published' => true, 'published_at' => now()]);
+
+        $this->actingAs($user)->delete(route('admin.articles.destroy', $article))
+            ->assertRedirect(route('admin.articles.index'))
+            ->assertSessionHas('status', 'Article archived.');
+
+        $this->assertSoftDeleted('articles', ['id' => $article->id]);
+        $this->get(route('articles.index'))->assertDontSee('Archive Me');
+        $this->get(route('articles.show', $article))->assertNotFound();
+
+        $this->actingAs($user)->get(route('admin.articles.index', ['status' => 'archived']))
+            ->assertOk()
+            ->assertSee('Archive Me')
+            ->assertSee('Restore');
+
+        $this->actingAs($user)->patch(route('admin.articles.restore', $article->id))
+            ->assertRedirect(route('admin.articles.edit', $article))
+            ->assertSessionHas('status', 'Article restored.');
+
+        $this->assertFalse($article->fresh()->trashed());
+        $this->get(route('articles.index'))->assertSee('Archive Me');
+    }
+
+    public function test_admin_can_archive_video_and_restore_it(): void
+    {
+        $user = User::factory()->create();
+        $video = Video::create(['title' => 'Archive Video', 'slug' => 'archive-video', 'url' => 'https://example.com/video', 'description' => 'Description', 'is_published' => true]);
+
+        $this->actingAs($user)->delete(route('admin.videos.destroy', $video))
+            ->assertRedirect(route('admin.videos.index'))
+            ->assertSessionHas('status', 'Video archived.');
+
+        $this->assertSoftDeleted('videos', ['id' => $video->id]);
+        $this->get(route('videos'))->assertDontSee('Archive Video');
+
+        $this->actingAs($user)->get(route('admin.videos.index', ['status' => 'archived']))
+            ->assertOk()
+            ->assertSee('Archive Video')
+            ->assertSee('Restore');
+
+        $this->actingAs($user)->patch(route('admin.videos.restore', $video->id))
+            ->assertRedirect(route('admin.videos.edit', $video))
+            ->assertSessionHas('status', 'Video restored.');
+
+        $this->assertFalse($video->fresh()->trashed());
+        $this->get(route('videos'))->assertSee('Archive Video');
+    }
+
+    public function test_unauthenticated_users_cannot_archive_or_restore_articles_and_videos(): void
+    {
+        $article = Article::create(['title' => 'Protected Article', 'slug' => 'protected-article', 'excerpt' => 'Excerpt', 'body' => 'Body']);
+        $video = Video::create(['title' => 'Protected Video', 'slug' => 'protected-video', 'url' => 'https://example.com/video', 'description' => 'Description']);
+
+        $this->delete(route('admin.articles.destroy', $article))->assertRedirect('/login');
+        $this->patch(route('admin.articles.restore', $article->id))->assertRedirect('/login');
+        $this->delete(route('admin.videos.destroy', $video))->assertRedirect('/login');
+        $this->patch(route('admin.videos.restore', $video->id))->assertRedirect('/login');
+
+        $this->assertDatabaseHas('articles', ['id' => $article->id, 'deleted_at' => null]);
+        $this->assertDatabaseHas('videos', ['id' => $video->id, 'deleted_at' => null]);
+    }
+
 }

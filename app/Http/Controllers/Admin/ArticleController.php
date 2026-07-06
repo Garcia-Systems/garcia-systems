@@ -18,7 +18,10 @@ class ArticleController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
 
+        $status = $request->query('status') === 'archived' ? 'archived' : 'active';
+
         $articles = Article::with('category', 'tags')
+            ->when($status === 'archived', fn ($query) => $query->onlyTrashed())
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('title', 'like', "%{$search}%")
@@ -31,7 +34,7 @@ class ArticleController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.articles.index', ['articles' => $articles, 'search' => $search]);
+        return view('admin.articles.index', ['articles' => $articles, 'search' => $search, 'status' => $status]);
     }
 
     public function create(): View
@@ -75,6 +78,21 @@ class ArticleController extends Controller
     {
         $article->update(['is_published' => ! $article->is_published, 'published_at' => $article->is_published ? null : now()]);
         return back()->with('status', 'Article publication status updated.');
+    }
+
+    public function destroy(Article $article): RedirectResponse
+    {
+        $article->delete();
+
+        return redirect()->route('admin.articles.index')->with('status', 'Article archived.');
+    }
+
+    public function restore(int $article): RedirectResponse
+    {
+        $article = Article::onlyTrashed()->findOrFail($article);
+        $article->restore();
+
+        return redirect()->route('admin.articles.edit', $article)->with('status', 'Article restored.');
     }
 
     private function validated(Request $request, ?Article $article = null): array
