@@ -11,8 +11,11 @@ use App\Notifications\AssessmentSubmitted;
 use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class LeadTrackingTest extends TestCase
@@ -166,6 +169,118 @@ class LeadTrackingTest extends TestCase
                 && $notification->assessment->result_tier === 'Early'
                 && $notification->lead?->email === 'assess@example.com';
         });
+    }
+
+    public function test_contact_mail_diagnostic_logging_records_success_events(): void
+    {
+        Notification::fake();
+        Log::spy();
+        config([
+            'mail.default' => 'smtp',
+            'queue.default' => 'sync',
+            'mail.lead_notification_email' => 'admin@example.com',
+        ]);
+
+        $this->post('/contact', [
+            'name' => 'Diagnostic Lead',
+            'email' => 'diagnostic@example.com',
+            'message' => 'Please follow up.',
+        ])->assertSessionHas('status');
+
+        $submission = ContactSubmission::sole();
+        $lead = Lead::sole();
+
+        Log::shouldHaveReceived('info')->with('contact.mail.internal.start', \Mockery::on(fn (array $context) =>
+            $context['contact_submission_id'] === $submission->id
+            && $context['lead_id'] === $lead->id
+            && $context['internal_notification_recipient'] === 'admin@example.com'
+            && $context['visitor_confirmation_recipient'] === 'diagnostic@example.com'
+            && $context['mailer'] === 'smtp'
+            && $context['queue_connection'] === 'sync'
+        ));
+        Log::shouldHaveReceived('info')->with('contact.mail.internal.sent', \Mockery::type('array'));
+        Log::shouldHaveReceived('info')->with('contact.mail.confirmation.start', \Mockery::type('array'));
+        Log::shouldHaveReceived('info')->with('contact.mail.confirmation.sent', \Mockery::type('array'));
+    }
+
+    public function test_contact_mail_diagnostic_logging_records_failure_events_when_transport_throws(): void
+    {
+        Log::spy();
+        config(['mail.lead_notification_email' => 'admin@example.com']);
+
+        Mail::shouldReceive('mailer')
+            ->twice()
+            ->andReturn(new class {
+                public function send(mixed ...$arguments): void
+                {
+                    throw new \RuntimeException('Transport unavailable for diagnostics');
+                }
+            });
+
+        $this->post('/contact', [
+            'name' => 'Failure Lead',
+            'email' => 'failure@example.com',
+            'message' => 'Please follow up.',
+        ])->assertSessionHas('status');
+
+        $submission = ContactSubmission::sole();
+
+        Log::shouldHaveReceived('error')->with('contact.mail.internal.failed', \Mockery::on(fn (array $context) =>
+            $context['contact_submission_id'] === $submission->id
+            && $context['exception_class'] === \RuntimeException::class
+            && $context['exception_message'] === 'Transport unavailable for diagnostics'
+        ));
+        Log::shouldHaveReceived('error')->with('contact.mail.confirmation.failed', \Mockery::on(fn (array $context) =>
+            $context['contact_submission_id'] === $submission->id
+            && $context['exception_class'] === \RuntimeException::class
+            && $context['exception_message'] === 'Transport unavailable for diagnostics'
+        ));
+    }
+
+    public function test_contact_mail_diagnostics_command_masks_secrets_and_reports_latest_submission(): void
+    {
+        Notification::fake();
+
+        config([
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.host' => 'smtp.example.test',
+            'mail.mailers.smtp.port' => 587,
+            'mail.mailers.smtp.encryption' => 'tls',
+            'mail.mailers.smtp.password' => 'seeded-super-secret-password',
+            'mail.from.address' => 'hello@example.test',
+            'mail.lead_notification_email' => 'diagnostics@garciasystems.org',
+        ]);
+
+        $this->post('/contact', [
+            'name' => 'Command Lead',
+            'email' => 'command@example.com',
+            'message' => 'Please follow up.',
+        ])->assertSessionHas('status');
+
+        $exitCode = Artisan::call('contact:mail-diagnostics');
+        $output = Artisan::output();
+
+        $this->assertSame(0, $exitCode);
+        $this->assertStringContainsString('mail.default: smtp', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Mail host: smtp.example.test', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Mail port: 587', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Mail encryption: tls', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Configured from address: hello@example.test', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Masked internal recipient: d***@garciasystems.org', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('App\\Notifications\\LeadSubmitted', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('App\\Notifications\\ContactSubmissionReceived', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringNotContainsString('seeded-super-secret-password', $output, "Actual diagnostics output:\n{$output}");
+    }
+
+    public function test_contact_mail_diagnostics_command_succeeds_without_submissions_or_queue_tables(): void
+    {
+        Schema::dropIfExists('jobs');
+        Schema::dropIfExists('failed_jobs');
+
+        $this->artisan('contact:mail-diagnostics')
+            ->assertExitCode(0)
+            ->expectsOutputToContain('table missing')
+            ->expectsOutputToContain('(none)');
     }
 
     public function test_contact_honeypot_blocks_spam_without_persisting_or_notifying(): void

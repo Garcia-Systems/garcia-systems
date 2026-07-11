@@ -20,6 +20,7 @@ use App\Notifications\AssessmentSubmitted;
 use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -165,13 +166,58 @@ class PageController extends Controller
         $submission = ContactSubmission::create($data);
         $lead = Lead::createOrUpdateFromContactSubmission($submission);
 
-        Notification::route('mail', config('mail.lead_notification_email'))
-            ->notify(new LeadSubmitted($lead, $submission));
-
-        Notification::route('mail', [$submission->email => $submission->name])
-            ->notify(new ContactSubmissionReceived($submission));
+        $this->sendContactMailNotifications($submission, $lead);
 
         return back()->with('status', 'Thanks — your message has been saved.');
+    }
+
+    private function sendContactMailNotifications(ContactSubmission $submission, Lead $lead): void
+    {
+        $baseContext = [
+            'contact_submission_id' => $submission->id,
+            'lead_id' => $lead->id,
+            'mailer' => config('mail.default'),
+            'queue_connection' => config('queue.default'),
+        ];
+
+        $internalRecipient = config('mail.lead_notification_email');
+        $confirmationRecipient = $submission->email;
+
+        $this->sendContactMailNotification(
+            'contact.mail.internal',
+            $baseContext + [
+                'internal_notification_recipient' => $internalRecipient,
+                'visitor_confirmation_recipient' => $confirmationRecipient,
+            ],
+            fn () => Notification::route('mail', $internalRecipient)
+                ->notify(new LeadSubmitted($lead, $submission))
+        );
+
+        $this->sendContactMailNotification(
+            'contact.mail.confirmation',
+            $baseContext + [
+                'internal_notification_recipient' => $internalRecipient,
+                'visitor_confirmation_recipient' => $confirmationRecipient,
+            ],
+            fn () => Notification::route('mail', [$confirmationRecipient => $submission->name])
+                ->notify(new ContactSubmissionReceived($submission))
+        );
+    }
+
+    private function sendContactMailNotification(string $eventNamespace, array $context, callable $send): void
+    {
+        Log::info($eventNamespace.'.start', $context);
+
+        try {
+            $send();
+
+            Log::info($eventNamespace.'.sent', $context);
+        } catch (\Throwable $exception) {
+            Log::error($eventNamespace.'.failed', $context + [
+                'exception_class' => $exception::class,
+                'exception_message' => $exception->getMessage(),
+            ]);
+        }
     }
 
     public function assessment()
