@@ -11,6 +11,7 @@ use App\Notifications\AssessmentSubmitted;
 use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -256,17 +257,19 @@ class LeadTrackingTest extends TestCase
             'message' => 'Please follow up.',
         ])->assertSessionHas('status');
 
-        $this->artisan('contact:mail-diagnostics')
-            ->assertExitCode(0)
-            ->expectsOutputToContain('smtp')
-            ->expectsOutputToContain('smtp.example.test')
-            ->expectsOutputToContain('587')
-            ->expectsOutputToContain('tls')
-            ->expectsOutputToContain('hello@example.test')
-            ->expectsOutputToContain('d***@garciasystems.org')
-            ->expectsOutputToContain('App\\Notifications\\LeadSubmitted')
-            ->expectsOutputToContain('App\\Notifications\\ContactSubmissionReceived')
-            ->doesntExpectOutputToContain('seeded-super-secret-password');
+        $exitCode = Artisan::call('contact:mail-diagnostics');
+        $output = Artisan::output();
+
+        $this->assertSame(0, $exitCode);
+        $this->assertStringContainsString('mail.default: smtp', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Mail host: smtp.example.test', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Mail port: 587', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Mail encryption: tls', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Configured from address: hello@example.test', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('Masked internal recipient: d***@garciasystems.org', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('App\\Notifications\\LeadSubmitted', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringContainsString('App\\Notifications\\ContactSubmissionReceived', $output, "Actual diagnostics output:\n{$output}");
+        $this->assertStringNotContainsString('seeded-super-secret-password', $output, "Actual diagnostics output:\n{$output}");
     }
 
     public function test_contact_mail_diagnostics_command_succeeds_without_submissions_or_queue_tables(): void
