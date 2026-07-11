@@ -34,21 +34,25 @@ Artisan::command('contact:mail-diagnostics', function () {
         return (string) \Illuminate\Support\Facades\DB::table($table)->count();
     };
 
-    $this->components->twoColumnDetail('mail.default', (string) $mailer);
-    $this->components->twoColumnDetail('queue.default', (string) config('queue.default'));
-    $this->components->twoColumnDetail('mail host', (string) (config("mail.mailers.{$mailer}.host") ?: '(not configured)'));
-    $this->components->twoColumnDetail('mail port', (string) (config("mail.mailers.{$mailer}.port") ?: '(not configured)'));
-    $this->components->twoColumnDetail('mail encryption', (string) (config("mail.mailers.{$mailer}.encryption") ?: '(not configured)'));
-    $this->components->twoColumnDetail('configured from address', (string) config('mail.from.address'));
-    $this->components->twoColumnDetail('LEAD_NOTIFICATION_EMAIL configured', filled($internalRecipient) ? 'yes' : 'no');
-    $this->components->twoColumnDetail('masked internal recipient', $maskEmail($internalRecipient));
-    $this->components->twoColumnDetail('jobs table count', $tableCount('jobs'));
-    $this->components->twoColumnDetail('failed_jobs table count', $tableCount('failed_jobs'));
-    $this->components->twoColumnDetail('latest contact submission ID', $latestSubmission?->id ? (string) $latestSubmission->id : '(none)');
-    $this->components->twoColumnDetail('latest contact submission created_at', $latestSubmission?->created_at?->toDateTimeString() ?? '(none)');
-    $this->components->twoColumnDetail('latest lead ID', $latestSubmission?->lead?->id ? (string) $latestSubmission->lead->id : '(none)');
-    $this->components->twoColumnDetail('internal contact mail notification', \App\Notifications\LeadSubmitted::class);
-    $this->components->twoColumnDetail('confirmation contact mail notification', \App\Notifications\ContactSubmissionReceived::class);
+    $host = config("mail.mailers.{$mailer}.host") ?: '(not configured)';
+    $port = config("mail.mailers.{$mailer}.port") ?: '(not configured)';
+    $encryption = config("mail.mailers.{$mailer}.encryption") ?: '(not configured)';
+
+    $this->line('mail.default: '.(string) $mailer);
+    $this->line('queue.default: '.(string) config('queue.default'));
+    $this->line('Mail host: '.(string) $host);
+    $this->line('Mail port: '.(string) $port);
+    $this->line('Mail encryption: '.(string) $encryption);
+    $this->line('Configured from address: '.(string) config('mail.from.address'));
+    $this->line('LEAD_NOTIFICATION_EMAIL configured: '.(filled($internalRecipient) ? 'yes' : 'no'));
+    $this->line('Masked internal recipient: '.$maskEmail($internalRecipient));
+    $this->line('Jobs table count: '.$tableCount('jobs'));
+    $this->line('Failed jobs table count: '.$tableCount('failed_jobs'));
+    $this->line('Latest contact submission ID: '.($latestSubmission?->id ? (string) $latestSubmission->id : '(none)'));
+    $this->line('Latest contact submission created_at: '.($latestSubmission?->created_at?->toDateTimeString() ?? '(none)'));
+    $this->line('Latest lead ID: '.($latestSubmission?->lead?->id ? (string) $latestSubmission->lead->id : '(none)'));
+    $this->line('Internal contact mail notification: '.\App\Notifications\LeadSubmitted::class);
+    $this->line('Confirmation contact mail notification: '.\App\Notifications\ContactSubmissionReceived::class);
 
     return self::SUCCESS;
 })->purpose('Display safe contact mail workflow diagnostics without sending email');
