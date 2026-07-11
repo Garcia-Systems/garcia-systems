@@ -35,3 +35,17 @@ php artisan test
 ## Product Direction
 
 Garcia Systems helps teams turn operational friction into focused software, automation, and intelligent workflow improvements. Future phases may add richer Atlas functionality, admin workflows, authentication, and deeper implementation tooling after the public foundation is stable.
+
+## Database Seeding
+
+The default `DatabaseSeeder` is safe to run repeatedly for local development: it bootstraps the administrator only when needed, refreshes lookup/reference data, and loads starter public content idempotently.
+
+For production, run seeders intentionally:
+
+```bash
+# One-time administrator bootstrap; requires ADMIN_EMAIL and ADMIN_PASSWORD only when the account does not already exist.
+./vendor/bin/sail artisan db:seed --class=Database\\Seeders\\AdministratorSeeder --force
+
+# Optional starter content and reference data.
+./vendor/bin/sail artisan db:seed --class=Database\\Seeders\\StarterPublicContentSeeder --force
+```
