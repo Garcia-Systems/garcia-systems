@@ -32,8 +32,17 @@
         <section>
             <h2 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-200">Social</h2>
             <div class="mt-4 flex gap-3">
-                <a class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-sm font-bold text-slate-300 hover:border-cyan-300 hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="#" aria-label="Garcia Systems on LinkedIn placeholder">in</a>
-                <a class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-sm font-bold text-slate-300 hover:border-cyan-300 hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="#" aria-label="Garcia Systems social profile placeholder">GS</a>
+                <a class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-sm font-bold text-slate-300 hover:border-cyan-300 hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="https://www.linkedin.com/company/garcia-systems-lcc" target="_blank" rel="noopener noreferrer" aria-label="Garcia Systems on LinkedIn">in</a>
+                <a class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-sm font-bold text-slate-300 hover:border-cyan-300 hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="https://www.youtube.com/@GarciaSystems" target="_blank" rel="noopener noreferrer" aria-label="Garcia Systems on YouTube">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M21.58 7.19a2.73 2.73 0 0 0-1.92-1.93C17.96 4.8 12 4.8 12 4.8s-5.96 0-7.66.46a2.73 2.73 0 0 0-1.92 1.93A28.55 28.55 0 0 0 2 12a28.55 28.55 0 0 0 .42 4.81 2.73 2.73 0 0 0 1.92 1.93c1.7.46 7.66.46 7.66.46s5.96 0 7.66-.46a2.73 2.73 0 0 0 1.92-1.93A28.55 28.55 0 0 0 22 12a28.55 28.55 0 0 0-.42-4.81ZM10 15.27V8.73L15.45 12 10 15.27Z" />
+                    </svg>
+                </a>
+                <a class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-sm font-bold text-slate-300 hover:border-cyan-300 hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="https://substack.com/@garciasystems" target="_blank" rel="noopener noreferrer" aria-label="Garcia Systems on Substack">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M5 4h14v2H5V4Zm0 4h14v2H5V8Zm0 4h14v8l-7-3.5L5 20v-8Z" />
+                    </svg>
+                </a>
             </div>
             <p class="mt-6 text-sm text-slate-500">© {{ date('Y') }} Garcia Systems. All rights reserved.</p>
         </section>
