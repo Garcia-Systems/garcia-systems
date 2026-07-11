@@ -241,14 +241,14 @@ class LeadTrackingTest extends TestCase
         Notification::fake();
 
         config([
+            'mail.default' => 'smtp',
             'mail.mailers.smtp.host' => 'smtp.example.test',
             'mail.mailers.smtp.port' => 2525,
             'mail.mailers.smtp.encryption' => 'tls',
+            'mail.mailers.smtp.password' => 'seeded-super-secret-password',
             'mail.from.address' => 'hello@example.test',
             'mail.lead_notification_email' => 'diagnostics@garciasystems.org',
         ]);
-        $_ENV['LEAD_NOTIFICATION_EMAIL'] = 'diagnostics@garciasystems.org';
-        $_ENV['MAIL_PASSWORD'] = 'seeded-super-secret-password';
 
         $this->post('/contact', [
             'name' => 'Command Lead',
@@ -258,7 +258,11 @@ class LeadTrackingTest extends TestCase
 
         $this->artisan('contact:mail-diagnostics')
             ->assertExitCode(0)
+            ->expectsOutputToContain('smtp')
             ->expectsOutputToContain('smtp.example.test')
+            ->expectsOutputToContain('2525')
+            ->expectsOutputToContain('tls')
+            ->expectsOutputToContain('hello@example.test')
             ->expectsOutputToContain('d***@garciasystems.org')
             ->expectsOutputToContain('App\\Notifications\\LeadSubmitted')
             ->expectsOutputToContain('App\\Notifications\\ContactSubmissionReceived')
