@@ -6,13 +6,13 @@ This guide documents the recommended Laravel Cloud deployment process for `Garci
 
 Laravel Sail is for local development only. This repository uses Sail to provide containerized PHP, Composer, Node, MySQL, Redis, Mailpit, Meilisearch, Selenium, and Vite tooling on developer machines where PHP is not installed directly.
 
-Laravel Cloud should deploy the Laravel application from the GitHub repository, not from `compose.yaml`. The `compose.yaml` stack is a local development convenience and should not be treated as the production topology.
+Laravel Cloud should deploy the Laravel application from the GitHub repository with its native GitHub integration after CI passes, not from `compose.yaml` or a repository-defined deployment workflow. The `compose.yaml` stack is a local development convenience and should not be treated as the production topology.
 
 Recommended production components:
 
 - **Laravel web runtime**: serves the Laravel 12 application and compiled Vite/Tailwind assets.
 - **Managed MySQL database**: recommended for production data, database-backed sessions, database-backed cache, and database-backed queue tables if queues are enabled.
-- **Optional queue worker**: required only when `QUEUE_CONNECTION=database` or another asynchronous queue driver is selected. See [Queue configuration](#10-queue-configuration).
+- **Optional queue worker**: not required for the first staging deployment when `QUEUE_CONNECTION=sync`; required only if an asynchronous queue driver is selected and queued work is introduced. See [Queue configuration](#10-queue-configuration).
 - **External mail provider**: required for outbound lead and AI readiness assessment notifications.
 - **Custom domain and HTTPS**: attach the chosen production domain in Laravel Cloud, verify DNS, and confirm HTTPS.
 
@@ -103,40 +103,35 @@ Platform-specific details in this section must be verified in the Laravel Cloud 
 
 ## 6. Build commands
 
-Verify Laravel Cloud's detected build pipeline in the dashboard. Laravel Cloud may automatically install PHP dependencies for Laravel applications; if it does, do not duplicate that install step. Configure only missing explicit commands.
+Set the Laravel Cloud PHP runtime to **PHP 8.3**. `composer.json` requires `^8.3`, Composer's platform is pinned to `8.3.0`, CI runs PHP 8.3, and Sail currently uses the `sail-8.5/app` local development image. PHP 8.3 is the narrowest runtime that matches the locked production dependency platform.
 
 Repository-appropriate build commands:
 
 ```bash
-# Composer production install, when not already handled by Laravel Cloud.
 composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
-
-# Node dependency installation for reproducible Vite builds.
 npm ci
-
-# Vite/Tailwind production build.
 npm run build
-
-# Laravel optimization after dependencies and environment variables are available.
 php artisan optimize
 ```
+
+Keep frontend build dependencies in `devDependencies`; Laravel Cloud must install Node dependencies with `npm ci` before pruning or discarding build-time packages because Vite, Tailwind, and the Laravel Vite plugin are build-time dependencies.
 
 Notes:
 
 - Do not run `composer update` during deployment.
 - Do not run starter-content seeders during the build phase.
 - Do not run `php artisan key:generate` in production. Generate or provide `APP_KEY` securely in environment settings.
-- If Laravel Cloud already runs Composer install automatically, configure `npm ci`, `npm run build`, and `php artisan optimize` only where the dashboard requires explicit build steps.
+- Do not add a GitHub Actions deployment job for the first staging deployment; use Laravel Cloud's GitHub integration/deploy hook settings after CI passes unless the dashboard configuration later requires custom CI/CD orchestration.
 
 ## 7. Deployment commands
 
-Recommended deployment command sequence after a successful build:
+Recommended deploy/release command after a successful build:
 
 ```bash
 php artisan migrate --force
-php artisan config:clear
-php artisan optimize
 ```
+
+Run cache clearing before optimization during the build phase, not after migrations during the deploy phase. If Laravel Cloud exposes separate build commands, keep `php artisan optimize` in build commands after dependencies and environment variables are available.
 
 Full starter-content seeding must **not** run automatically on every deployment. `DatabaseSeeder` calls administrator bootstrap, lookup/reference data, and starter public content; do not wire `php artisan db:seed` into routine deploys.
 
@@ -412,7 +407,7 @@ Recommended sequence for later deployments:
 5. Confirm `git status --short` is clean.
 6. Deploy to staging from the configured staging branch.
 7. Let Laravel Cloud run automated build steps. Verify whether Composer install is automatic in the dashboard; configure only missing build commands.
-8. Run deployment commands: `php artisan migrate --force`, then `php artisan config:clear`, then `php artisan optimize`.
+8. Run the deployment command: `php artisan migrate --force`. Keep `php artisan optimize` in the build phase.
 9. Restart queue workers only if a worker is provisioned.
 10. Smoke-test staging, including forms and `/up`.
 11. Promote or merge the approved code to the production deployment branch.
@@ -449,7 +444,7 @@ Symptoms: app uses old mail, database, session, or URL values after environment 
 Fix:
 
 ```bash
-php artisan config:clear
+php artisan optimize:clear
 php artisan optimize
 ```
 

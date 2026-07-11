@@ -10,9 +10,9 @@ class AdministratorSeeder extends Seeder
 {
     public function run(): void
     {
-        $adminEmail = config('services.admin.email') ?: env('ADMIN_EMAIL');
-        $adminPassword = config('services.admin.password') ?: env('ADMIN_PASSWORD');
-        $adminName = config('services.admin.name') ?: env('ADMIN_NAME', 'Garcia Systems Admin');
+        $adminEmail = config('services.admin.email');
+        $adminPassword = config('services.admin.password');
+        $adminName = config('services.admin.name', 'Garcia Systems Admin');
 
         if (blank($adminEmail)) {
             $this->command?->warn('Administrator bootstrap skipped: ADMIN_EMAIL is not configured.');
