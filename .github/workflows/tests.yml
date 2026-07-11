@@ -4,23 +4,19 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_DATABASE: garcia_systems_test
-          MYSQL_ROOT_PASSWORD: password
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -ppassword"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+    timeout-minutes: 15
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -30,36 +26,68 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, dom, fileinfo, mysql, pdo_mysql
+          extensions: mbstring, dom, fileinfo, pdo_sqlite
           coverage: xdebug
 
-      - name: Copy environment file
-        run: cp .env.example .env
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
-      - name: Install composer dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-      - name: Generate app key
-        run: php artisan key:generate
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --no-ansi
 
-      - name: Configure database
+      - name: Prepare application environment
         run: |
-          php -r "file_put_contents('.env', str_replace('DB_CONNECTION=sqlite', 'DB_CONNECTION=mysql', file_get_contents('.env')));"
-          php -r "file_put_contents('.env', str_replace('# DB_HOST=127.0.0.1', 'DB_HOST=127.0.0.1', file_get_contents('.env')));"
-          php -r "file_put_contents('.env', str_replace('# DB_PORT=3306', 'DB_PORT=3306', file_get_contents('.env')));"
-          php -r "file_put_contents('.env', str_replace('# DB_DATABASE=laravel', 'DB_DATABASE=garcia_systems_test', file_get_contents('.env')));"
-          php -r "file_put_contents('.env', str_replace('# DB_USERNAME=root', 'DB_USERNAME=root', file_get_contents('.env')));"
-          php -r "file_put_contents('.env', str_replace('# DB_PASSWORD=', 'DB_PASSWORD=password', file_get_contents('.env')));"
+          cp .env.example .env
+          touch database/database.sqlite
+          php artisan key:generate --ansi
 
-      - name: Run migrations
-        run: php artisan migrate --force
+      - name: Run database migrations
+        run: php artisan migrate --force --no-interaction
 
       - name: Run tests with coverage
         run: php artisan test --coverage-clover=coverage.xml
 
-      - name: Upload coverage
-        uses: codecov/codecov-action@v5
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          name: coverage-clover
+          path: coverage.xml
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        with:
+          token: ${{ env.CODECOV_TOKEN }}
           files: coverage.xml
           fail_ci_if_error: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build production assets
+        run: npm run build
+
+      - name: Upload production asset artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-assets
+          path: public/build
+          if-no-files-found: error
+          retention-days: 14
