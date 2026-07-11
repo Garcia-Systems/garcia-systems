@@ -17,6 +17,7 @@ use App\Models\SolutionPattern;
 use App\Models\Video;
 use App\Models\Workflow;
 use App\Notifications\AssessmentSubmitted;
+use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
@@ -166,6 +167,9 @@ class PageController extends Controller
 
         Notification::route('mail', config('mail.lead_notification_email'))
             ->notify(new LeadSubmitted($lead, $submission));
+
+        Notification::route('mail', [$submission->email => $submission->name])
+            ->notify(new ContactSubmissionReceived($submission));
 
         return back()->with('status', 'Thanks — your message has been saved.');
     }

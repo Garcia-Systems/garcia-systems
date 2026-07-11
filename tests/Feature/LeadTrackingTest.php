@@ -8,6 +8,7 @@ use App\Models\ContactSubmission;
 use App\Models\Lead;
 use App\Models\User;
 use App\Notifications\AssessmentSubmitted;
+use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -45,25 +46,67 @@ class LeadTrackingTest extends TestCase
         $this->assertSame($lead->id, $assessment->lead_id);
     }
 
-
-    public function test_contact_form_sends_admin_notification(): void
+    public function test_contact_form_sends_internal_and_visitor_notifications(): void
     {
         Mail::fake();
         Notification::fake();
-        config(['mail.lead_notification_email' => 'admin@example.com']);
+        config([
+            'app.url' => 'https://example.test',
+            'mail.from.address' => 'hello@example.test',
+            'mail.from.name' => 'Garcia Systems',
+            'mail.lead_notification_email' => 'admin@example.com',
+        ]);
 
         $this->post('/contact', [
             'name' => 'Notify Lead',
             'email' => 'notify@example.com',
             'company' => 'Notify Co',
+            'service_interest' => 'Workflow automation',
             'message' => 'Please follow up.',
         ])->assertSessionHas('status');
 
-        Notification::assertSentOnDemand(LeadSubmitted::class, function (LeadSubmitted $notification, array $channels, object $notifiable) {
+        $submission = ContactSubmission::sole();
+        $lead = Lead::sole();
+        $adminUrl = route('admin.leads.show', $lead);
+
+        $this->assertSame($lead->id, $submission->lead_id);
+        $this->assertDatabaseHas('leads', [
+            'email' => 'notify@example.com',
+            'name' => 'Notify Lead',
+            'company' => 'Notify Co',
+            'source' => 'contact_form',
+            'status' => 'new',
+        ]);
+
+        Notification::assertSentOnDemand(LeadSubmitted::class, function (LeadSubmitted $notification, array $channels, object $notifiable) use ($lead, $submission, $adminUrl) {
+            $mail = $notification->toMail($notifiable);
+            $html = view($mail->view, $mail->viewData)->render();
+
             return in_array('mail', $channels, true)
                 && $notifiable->routes['mail'] === 'admin@example.com'
-                && $notification->lead->email === 'notify@example.com'
-                && $notification->submission->message === 'Please follow up.';
+                && $notification->lead->is($lead)
+                && $notification->submission->is($submission)
+                && $mail->subject === 'New Garcia Systems inquiry from Notify Lead'
+                && $mail->replyTo[0]['address'] === 'notify@example.com'
+                && $mail->replyTo[0]['name'] === 'Notify Lead'
+                && str_contains($html, (string) $lead->id)
+                && str_contains($html, $adminUrl);
+        });
+
+        Notification::assertSentOnDemand(ContactSubmissionReceived::class, function (ContactSubmissionReceived $notification, array $channels, object $notifiable) use ($lead, $adminUrl) {
+            $mail = $notification->toMail($notifiable);
+            $html = view($mail->view, $mail->viewData)->render();
+
+            return in_array('mail', $channels, true)
+                && $notifiable->routes['mail'] === ['notify@example.com' => 'Notify Lead']
+                && $mail->subject === 'We received your Garcia Systems inquiry'
+                && $mail->replyTo[0]['address'] === 'admin@example.com'
+                && $mail->replyTo[0]['name'] === 'Garcia Systems'
+                && str_contains($html, 'Notify Co')
+                && str_contains($html, 'Workflow automation')
+                && str_contains($html, 'Please follow up.')
+                && ! str_contains($html, (string) $lead->id)
+                && ! str_contains($html, $adminUrl);
         });
     }
 
