@@ -207,10 +207,10 @@ class LeadTrackingTest extends TestCase
         Log::spy();
         config(['mail.lead_notification_email' => 'admin@example.com']);
 
-        Notification::shouldReceive('route')
+        Mail::shouldReceive('mailer')
             ->twice()
             ->andReturn(new class {
-                public function notify(object $notification): void
+                public function send(mixed ...$arguments): void
                 {
                     throw new \RuntimeException('Transport unavailable for diagnostics');
                 }
@@ -243,7 +243,7 @@ class LeadTrackingTest extends TestCase
         config([
             'mail.default' => 'smtp',
             'mail.mailers.smtp.host' => 'smtp.example.test',
-            'mail.mailers.smtp.port' => 2525,
+            'mail.mailers.smtp.port' => 587,
             'mail.mailers.smtp.encryption' => 'tls',
             'mail.mailers.smtp.password' => 'seeded-super-secret-password',
             'mail.from.address' => 'hello@example.test',
@@ -260,7 +260,7 @@ class LeadTrackingTest extends TestCase
             ->assertExitCode(0)
             ->expectsOutputToContain('smtp')
             ->expectsOutputToContain('smtp.example.test')
-            ->expectsOutputToContain('2525')
+            ->expectsOutputToContain('587')
             ->expectsOutputToContain('tls')
             ->expectsOutputToContain('hello@example.test')
             ->expectsOutputToContain('d***@garciasystems.org')

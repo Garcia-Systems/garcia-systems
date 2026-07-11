@@ -10,7 +10,6 @@ Artisan::command('inspire', function () {
 
 Artisan::command('contact:mail-diagnostics', function () {
     $mailer = config('mail.default');
-    $mailerConfig = config("mail.mailers.{$mailer}", []);
     $internalRecipient = config('mail.lead_notification_email');
     $latestSubmission = \Illuminate\Support\Facades\Schema::hasTable('contact_submissions')
         ? \App\Models\ContactSubmission::query()->with('lead')->latest('id')->first()
@@ -37,9 +36,9 @@ Artisan::command('contact:mail-diagnostics', function () {
 
     $this->components->twoColumnDetail('mail.default', (string) $mailer);
     $this->components->twoColumnDetail('queue.default', (string) config('queue.default'));
-    $this->components->twoColumnDetail('mail host', (string) data_get($mailerConfig, 'host', '(not configured)'));
-    $this->components->twoColumnDetail('mail port', (string) data_get($mailerConfig, 'port', '(not configured)'));
-    $this->components->twoColumnDetail('mail encryption', (string) (data_get($mailerConfig, 'encryption') ?: '(not configured)'));
+    $this->components->twoColumnDetail('mail host', (string) (config("mail.mailers.{$mailer}.host") ?: '(not configured)'));
+    $this->components->twoColumnDetail('mail port', (string) (config("mail.mailers.{$mailer}.port") ?: '(not configured)'));
+    $this->components->twoColumnDetail('mail encryption', (string) (config("mail.mailers.{$mailer}.encryption") ?: '(not configured)'));
     $this->components->twoColumnDetail('configured from address', (string) config('mail.from.address'));
     $this->components->twoColumnDetail('LEAD_NOTIFICATION_EMAIL configured', filled($internalRecipient) ? 'yes' : 'no');
     $this->components->twoColumnDetail('masked internal recipient', $maskEmail($internalRecipient));
