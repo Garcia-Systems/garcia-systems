@@ -8,6 +8,7 @@ use App\Models\ContactSubmission;
 use App\Models\Lead;
 use App\Models\User;
 use App\Notifications\AssessmentSubmitted;
+use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -45,26 +46,102 @@ class LeadTrackingTest extends TestCase
         $this->assertSame($lead->id, $assessment->lead_id);
     }
 
-
-    public function test_contact_form_sends_admin_notification(): void
+    public function test_contact_form_sends_internal_and_visitor_notifications(): void
     {
         Mail::fake();
         Notification::fake();
-        config(['mail.lead_notification_email' => 'admin@example.com']);
+        config([
+            'app.url' => 'https://example.test',
+            'mail.from.address' => 'hello@example.test',
+            'mail.from.name' => 'Garcia Systems',
+            'mail.lead_notification_email' => 'admin@example.com',
+        ]);
 
         $this->post('/contact', [
             'name' => 'Notify Lead',
             'email' => 'notify@example.com',
             'company' => 'Notify Co',
+            'service_interest' => 'Workflow automation',
             'message' => 'Please follow up.',
         ])->assertSessionHas('status');
 
-        Notification::assertSentOnDemand(LeadSubmitted::class, function (LeadSubmitted $notification, array $channels, object $notifiable) {
-            return in_array('mail', $channels, true)
-                && $notifiable->routes['mail'] === 'admin@example.com'
-                && $notification->lead->email === 'notify@example.com'
-                && $notification->submission->message === 'Please follow up.';
+        $submission = ContactSubmission::sole();
+        $lead = Lead::sole();
+        $adminUrl = route('admin.leads.show', $lead);
+
+        $this->assertSame($lead->id, $submission->lead_id);
+        $this->assertDatabaseHas('leads', [
+            'email' => 'notify@example.com',
+            'name' => 'Notify Lead',
+            'company' => 'Notify Co',
+            'source' => 'contact_form',
+            'status' => 'new',
+        ]);
+
+        Notification::assertSentOnDemand(LeadSubmitted::class);
+        Notification::assertSentOnDemand(ContactSubmissionReceived::class);
+
+        $internalNotification = null;
+        $internalChannels = null;
+        $internalNotifiable = null;
+
+        Notification::assertSentOnDemand(LeadSubmitted::class, function (LeadSubmitted $notification, array $channels, object $notifiable) use (&$internalNotification, &$internalChannels, &$internalNotifiable) {
+            $internalNotification = $notification;
+            $internalChannels = $channels;
+            $internalNotifiable = $notifiable;
+
+            return true;
         });
+
+        $this->assertContains('mail', $internalChannels);
+        $this->assertSame('admin@example.com', $internalNotifiable->routes['mail']);
+        $this->assertTrue($internalNotification->lead->is($lead));
+        $this->assertTrue($internalNotification->submission->is($submission));
+
+        $internalMail = $internalNotification->toMail($internalNotifiable);
+        $internalHtml = view($internalMail->view, $internalMail->viewData)->render();
+
+        $this->assertSame('New Garcia Systems inquiry from Notify Lead', $internalMail->subject);
+        $this->assertSame('notify@example.com', data_get($internalMail->replyTo, '0.0'));
+        $this->assertSame('Notify Lead', data_get($internalMail->replyTo, '0.1'));
+        $this->assertStringContainsString('Lead ID', $internalHtml);
+        $this->assertStringContainsString((string) $lead->id, $internalHtml);
+        $this->assertStringContainsString($adminUrl, $internalHtml);
+
+        $visitorNotification = null;
+        $visitorChannels = null;
+        $visitorNotifiable = null;
+
+        Notification::assertSentOnDemand(ContactSubmissionReceived::class, function (ContactSubmissionReceived $notification, array $channels, object $notifiable) use (&$visitorNotification, &$visitorChannels, &$visitorNotifiable) {
+            $visitorNotification = $notification;
+            $visitorChannels = $channels;
+            $visitorNotifiable = $notifiable;
+
+            return true;
+        });
+
+        $this->assertContains('mail', $visitorChannels);
+
+        $visitorRoute = $visitorNotifiable->routes['mail'];
+        $visitorEmail = is_array($visitorRoute) ? array_key_first($visitorRoute) : $visitorRoute;
+
+        $this->assertSame('notify@example.com', $visitorEmail);
+
+        if (is_array($visitorRoute)) {
+            $this->assertSame('Notify Lead', $visitorRoute[$visitorEmail]);
+        }
+
+        $visitorMail = $visitorNotification->toMail($visitorNotifiable);
+        $visitorHtml = view($visitorMail->view, $visitorMail->viewData)->render();
+
+        $this->assertSame('We received your Garcia Systems inquiry', $visitorMail->subject);
+        $this->assertSame('admin@example.com', data_get($visitorMail->replyTo, '0.0'));
+        $this->assertSame('Garcia Systems', data_get($visitorMail->replyTo, '0.1'));
+        $this->assertStringContainsString('Notify Co', $visitorHtml);
+        $this->assertStringContainsString('Workflow automation', $visitorHtml);
+        $this->assertStringContainsString('Please follow up.', $visitorHtml);
+        $this->assertStringNotContainsString('Lead ID', $visitorHtml);
+        $this->assertStringNotContainsString($adminUrl, $visitorHtml);
     }
 
     public function test_assessment_submission_sends_admin_notification_with_score_and_tier(): void
