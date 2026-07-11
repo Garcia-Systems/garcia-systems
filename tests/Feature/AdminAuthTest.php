@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class AdminAuthTest extends TestCase
@@ -68,18 +69,14 @@ class AdminAuthTest extends TestCase
                 ]);
         }
 
-        $this->from('/login')->post('/login', [
+        $response = $this->from('/login')->post('/login', [
             'email' => 'throttle@example.com',
             'password' => 'wrong-password',
         ])->assertRedirect('/login')
-            ->assertSessionHasErrors([
-                'email' => trans('auth.throttle', [
-                    'seconds' => 60,
-                    'minutes' => 1,
-                ]),
-            ])
             ->assertSessionHasInput('email', 'throttle@example.com')
             ->assertSessionMissing('_old_input.password');
+
+        $this->assertThrottledEmailError($response);
 
         $this->assertGuest();
     }
@@ -133,17 +130,13 @@ class AdminAuthTest extends TestCase
                 ])->assertRedirect('/');
         }
 
-        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+        $response = $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
             ->from('/login')->post('/login', [
                 'email' => 'isolated@example.com',
                 'password' => 'wrong-password',
-            ])->assertRedirect('/login')
-            ->assertSessionHasErrors([
-                'email' => trans('auth.throttle', [
-                    'seconds' => 60,
-                    'minutes' => 1,
-                ]),
-            ]);
+            ])->assertRedirect('/login');
+
+        $this->assertThrottledEmailError($response);
 
         $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.11'])
             ->from('/login')->post('/login', [
@@ -187,6 +180,19 @@ class AdminAuthTest extends TestCase
         $unknownUserResponse->assertSessionHasErrors([
             'email' => __('auth.failed'),
         ]);
+    }
+
+    private function assertThrottledEmailError(TestResponse $response): void
+    {
+        $response->assertSessionHasErrors('email');
+
+        $messages = session('errors')->get('email');
+
+        $this->assertNotEmpty($messages);
+        $this->assertMatchesRegularExpression(
+            '/^Too many login attempts\. Please try again in \d+ seconds\.$/',
+            $messages[0],
+        );
     }
 
     public function test_valid_admin_can_log_in(): void
