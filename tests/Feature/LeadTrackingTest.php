@@ -87,8 +87,8 @@ class LeadTrackingTest extends TestCase
                 && $notification->lead->is($lead)
                 && $notification->submission->is($submission)
                 && $mail->subject === 'New Garcia Systems inquiry from Notify Lead'
-                && $mail->replyTo[0]['address'] === 'notify@example.com'
-                && $mail->replyTo[0]['name'] === 'Notify Lead'
+                && data_get($mail->replyTo, '0.0') === 'notify@example.com'
+                && data_get($mail->replyTo, '0.1') === 'Notify Lead'
                 && str_contains($html, (string) $lead->id)
                 && str_contains($html, $adminUrl);
         });
@@ -100,8 +100,8 @@ class LeadTrackingTest extends TestCase
             return in_array('mail', $channels, true)
                 && $notifiable->routes['mail'] === ['notify@example.com' => 'Notify Lead']
                 && $mail->subject === 'We received your Garcia Systems inquiry'
-                && $mail->replyTo[0]['address'] === 'admin@example.com'
-                && $mail->replyTo[0]['name'] === 'Garcia Systems'
+                && data_get($mail->replyTo, '0.0') === 'admin@example.com'
+                && data_get($mail->replyTo, '0.1') === 'Garcia Systems'
                 && str_contains($html, 'Notify Co')
                 && str_contains($html, 'Workflow automation')
                 && str_contains($html, 'Please follow up.')
