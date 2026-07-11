@@ -64,7 +64,15 @@ class PublicNavigationExperienceTest extends TestCase
             ->assertSee('Articles')
             ->assertSee('Contact')
             ->assertSee('Newsletter')
-            ->assertSee('Garcia Systems on LinkedIn placeholder')
+            ->assertSee('https://www.linkedin.com/company/garcia-systems-lcc', false)
+            ->assertSee('Garcia Systems on LinkedIn')
+            ->assertSee('https://www.youtube.com/@GarciaSystems', false)
+            ->assertSee('Garcia Systems on YouTube')
+            ->assertSee('https://substack.com/@garciasystems', false)
+            ->assertSee('Garcia Systems on Substack')
+            ->assertSee('target="_blank"', false)
+            ->assertSee('rel="noopener noreferrer"', false)
+            ->assertDontSee('href="#"', false)
             ->assertSee('© '.date('Y').' Garcia Systems');
     }
 
