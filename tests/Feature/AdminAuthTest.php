@@ -36,6 +36,159 @@ class AdminAuthTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_invalid_credentials_preserve_email_and_do_not_expose_password(): void
+    {
+        User::factory()->create([
+            'email' => 'preserve@example.com',
+            'password' => Hash::make('correct-password'),
+        ]);
+
+        $this->from('/login')->post('/login', [
+            'email' => 'preserve@example.com',
+            'password' => 'wrong-password',
+        ])->assertRedirect('/login')
+            ->assertSessionHasInput('email', 'preserve@example.com')
+            ->assertSessionMissing('_old_input.password');
+    }
+
+    public function test_repeated_failed_attempts_trigger_login_throttling(): void
+    {
+        User::factory()->create([
+            'email' => 'throttle@example.com',
+            'password' => Hash::make('correct-password'),
+        ]);
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->from('/login')->post('/login', [
+                'email' => 'throttle@example.com',
+                'password' => 'wrong-password',
+            ])->assertRedirect('/login')
+                ->assertSessionHasErrors([
+                    'email' => __('auth.failed'),
+                ]);
+        }
+
+        $this->from('/login')->post('/login', [
+            'email' => 'throttle@example.com',
+            'password' => 'wrong-password',
+        ])->assertRedirect('/login')
+            ->assertSessionHasErrors([
+                'email' => trans('auth.throttle', [
+                    'seconds' => 60,
+                    'minutes' => 1,
+                ]),
+            ])
+            ->assertSessionHasInput('email', 'throttle@example.com')
+            ->assertSessionMissing('_old_input.password');
+
+        $this->assertGuest();
+    }
+
+    public function test_successful_login_clears_previous_failed_attempts(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'clears@example.com',
+            'password' => Hash::make('correct-password'),
+        ]);
+
+        for ($attempt = 1; $attempt <= 4; $attempt++) {
+            $this->post('/login', [
+                'email' => 'clears@example.com',
+                'password' => 'wrong-password',
+            ])->assertRedirect('/');
+        }
+
+        $this->post('/login', [
+            'email' => 'clears@example.com',
+            'password' => 'correct-password',
+        ])->assertRedirect('/admin');
+
+        $this->assertAuthenticatedAs($user);
+
+        $this->post('/logout')->assertRedirect('/login');
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->from('/login')->post('/login', [
+                'email' => 'clears@example.com',
+                'password' => 'wrong-password',
+            ])->assertRedirect('/login')
+                ->assertSessionHasErrors([
+                    'email' => __('auth.failed'),
+                ]);
+        }
+    }
+
+    public function test_login_throttling_is_isolated_by_email_and_ip_address(): void
+    {
+        User::factory()->create([
+            'email' => 'isolated@example.com',
+            'password' => Hash::make('correct-password'),
+        ]);
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+                ->post('/login', [
+                    'email' => 'isolated@example.com',
+                    'password' => 'wrong-password',
+                ])->assertRedirect('/');
+        }
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->from('/login')->post('/login', [
+                'email' => 'isolated@example.com',
+                'password' => 'wrong-password',
+            ])->assertRedirect('/login')
+            ->assertSessionHasErrors([
+                'email' => trans('auth.throttle', [
+                    'seconds' => 60,
+                    'minutes' => 1,
+                ]),
+            ]);
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.11'])
+            ->from('/login')->post('/login', [
+                'email' => 'isolated@example.com',
+                'password' => 'wrong-password',
+            ])->assertRedirect('/login')
+            ->assertSessionHasErrors([
+                'email' => __('auth.failed'),
+            ]);
+
+        $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.10'])
+            ->from('/login')->post('/login', [
+                'email' => 'other@example.com',
+                'password' => 'wrong-password',
+            ])->assertRedirect('/login')
+            ->assertSessionHasErrors([
+                'email' => __('auth.failed'),
+            ]);
+    }
+
+    public function test_login_errors_do_not_enumerate_users(): void
+    {
+        User::factory()->create([
+            'email' => 'known@example.com',
+            'password' => Hash::make('correct-password'),
+        ]);
+
+        $knownUserResponse = $this->from('/login')->post('/login', [
+            'email' => 'known@example.com',
+            'password' => 'wrong-password',
+        ]);
+
+        $unknownUserResponse = $this->from('/login')->post('/login', [
+            'email' => 'unknown@example.com',
+            'password' => 'wrong-password',
+        ]);
+
+        $knownUserResponse->assertSessionHasErrors([
+            'email' => __('auth.failed'),
+        ]);
+        $unknownUserResponse->assertSessionHasErrors([
+            'email' => __('auth.failed'),
+        ]);
+    }
+
     public function test_valid_admin_can_log_in(): void
     {
         $user = User::factory()->create([
