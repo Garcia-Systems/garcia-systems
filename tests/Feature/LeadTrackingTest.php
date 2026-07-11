@@ -57,7 +57,7 @@ class LeadTrackingTest extends TestCase
             'app.url' => 'https://example.test',
             'mail.from.address' => 'hello@example.test',
             'mail.from.name' => 'Garcia Systems',
-            'mail.lead_notification_email' => 'admin@example.com',
+            'mail.lead_notification_email' => 'private-notifications@example.test',
         ]);
 
         $this->post('/contact', [
@@ -97,7 +97,7 @@ class LeadTrackingTest extends TestCase
         });
 
         $this->assertContains('mail', $internalChannels);
-        $this->assertSame('admin@example.com', $internalNotifiable->routes['mail']);
+        $this->assertSame('private-notifications@example.test', $internalNotifiable->routes['mail']);
         $this->assertTrue($internalNotification->lead->is($lead));
         $this->assertTrue($internalNotification->submission->is($submission));
 
@@ -138,8 +138,13 @@ class LeadTrackingTest extends TestCase
         $visitorHtml = view($visitorMail->view, $visitorMail->viewData)->render();
 
         $this->assertSame('We received your Garcia Systems inquiry', $visitorMail->subject);
-        $this->assertSame('admin@example.com', data_get($visitorMail->replyTo, '0.0'));
+        $this->assertSame('hello@example.test', data_get($visitorMail->replyTo, '0.0'));
         $this->assertSame('Garcia Systems', data_get($visitorMail->replyTo, '0.1'));
+        $this->assertNotSame(config('mail.lead_notification_email'), data_get($visitorMail->replyTo, '0.0'));
+        $this->assertStringNotContainsString('private-notifications@example.test', $visitorMail->subject);
+        $this->assertStringNotContainsString('private-notifications@example.test', data_get($visitorMail->replyTo, '0.0', ''));
+        $this->assertStringNotContainsString('private-notifications@example.test', data_get($visitorMail->replyTo, '0.1', ''));
+        $this->assertStringNotContainsString('private-notifications@example.test', $visitorHtml);
         $this->assertStringContainsString('Notify Co', $visitorHtml);
         $this->assertStringContainsString('Workflow automation', $visitorHtml);
         $this->assertStringContainsString('Please follow up.', $visitorHtml);

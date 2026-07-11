@@ -24,7 +24,7 @@ class ContactSubmissionReceived extends Notification
     {
         return (new MailMessage)
             ->subject('We received your Garcia Systems inquiry')
-            ->replyTo(config('mail.lead_notification_email'), config('mail.from.name'))
+            ->replyTo(config('mail.from.address'), config('mail.from.name'))
             ->view('mail.leads.contact-confirmation', [
                 'submission' => $this->submission,
                 'displayName' => $this->displayName(),
