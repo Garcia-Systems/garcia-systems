@@ -58,7 +58,7 @@ class AdminCmsTest extends TestCase
         $article = Article::create(['title' => 'Related', 'slug' => 'related', 'excerpt' => 'Excerpt', 'body' => 'Body']);
 
         $response = $this->actingAs($user)->post('/admin/videos', [
-            'title' => 'CMS Video', 'slug' => '', 'youtube_url' => 'https://www.youtube.com/watch?v=abc123',
+            'title' => 'CMS Video', 'slug' => '', 'youtube_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
             'description' => 'Video description', 'transcript' => 'Video transcript', 'article_id' => $article->id, 'is_published' => '1',
         ]);
 
@@ -66,7 +66,7 @@ class AdminCmsTest extends TestCase
         $response->assertRedirect(route('admin.videos.edit', $video));
 
         $this->actingAs($user)->put(route('admin.videos.update', $video), [
-            'title' => 'Updated CMS Video', 'slug' => 'updated-cms-video', 'youtube_url' => 'https://youtu.be/xyz987',
+            'title' => 'Updated CMS Video', 'slug' => 'updated-cms-video', 'youtube_url' => 'https://youtu.be/9bZkp7q19f0',
             'description' => 'Updated description', 'transcript' => 'Updated transcript', 'article_id' => $article->id,
         ])->assertRedirect();
 
@@ -77,7 +77,7 @@ class AdminCmsTest extends TestCase
     {
         $user = User::factory()->create();
         $article = Article::create(['title' => 'Draft', 'slug' => 'draft', 'excerpt' => 'Excerpt', 'body' => 'Body', 'is_published' => false]);
-        $video = Video::create(['title' => 'Draft Video', 'slug' => 'draft-video', 'url' => 'https://youtu.be/abc', 'description' => 'Description', 'is_published' => false]);
+        $video = Video::create(['title' => 'Draft Video', 'slug' => 'draft-video', 'url' => 'https://youtu.be/dQw4w9WgXcQ', 'description' => 'Description', 'is_published' => false]);
 
         $this->actingAs($user)->patch(route('admin.articles.publish', $article))->assertRedirect();
         $this->assertTrue($article->fresh()->is_published);

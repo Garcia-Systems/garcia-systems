@@ -79,7 +79,7 @@ class VideoController extends Controller
     {
         return $request->validate([
             'title' => ['required', 'string', 'max:255'], 'slug' => ['nullable', 'string', 'max:255', Rule::unique('videos', 'slug')->ignore($video)],
-            'youtube_url' => ['required', 'url', 'max:2048'], 'description' => ['required', 'string'], 'transcript' => ['nullable', 'string'],
+            'youtube_url' => ['required', 'url', 'max:2048', function ($attribute, $value, $fail) { if (! Video::parseYoutubeVideoId($value)) $fail('Enter a valid YouTube video URL.'); }], 'description' => ['required', 'string'], 'transcript' => ['nullable', 'string'],
             'article_id' => ['nullable', 'exists:articles,id'], 'is_published' => ['nullable', 'boolean'],
         ]);
     }

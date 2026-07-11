@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Tag;
+use App\Support\SubstackEmbed;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use InvalidArgumentException;
 
 class ArticleController extends Controller
 {
@@ -47,6 +49,11 @@ class ArticleController extends Controller
         $data = $this->validated($request);
         $data['slug'] = $this->slug($data['slug'] ?? null, $data['title']);
         $data['is_published'] = $request->boolean('is_published');
+        try {
+            $data['substack_embed_code'] = SubstackEmbed::sanitize($data['substack_embed_code'] ?? null);
+        } catch (InvalidArgumentException $exception) {
+            return back()->withErrors(['substack_embed_code' => $exception->getMessage()])->withInput();
+        }
         $data['published_at'] = $data['is_published'] ? now() : null;
         $tagIds = $data['tag_ids'] ?? [];
         unset($data['tag_ids']);
@@ -66,6 +73,11 @@ class ArticleController extends Controller
         $data = $this->validated($request, $article);
         $data['slug'] = $this->slug($data['slug'] ?? null, $data['title']);
         $data['is_published'] = $request->boolean('is_published');
+        try {
+            $data['substack_embed_code'] = SubstackEmbed::sanitize($data['substack_embed_code'] ?? null);
+        } catch (InvalidArgumentException $exception) {
+            return back()->withErrors(['substack_embed_code' => $exception->getMessage()])->withInput();
+        }
         $data['published_at'] = $data['is_published'] ? ($article->published_at ?? now()) : null;
         $tagIds = $data['tag_ids'] ?? [];
         unset($data['tag_ids']);
@@ -107,7 +119,8 @@ class ArticleController extends Controller
             'tag_ids.*' => ['exists:tags,id'],
             'featured_image_url' => ['nullable', 'url', 'max:2048'],
             'excerpt' => ['required', 'string', 'max:1000'],
-            'body' => ['required', 'string'],
+            'body' => ['nullable', 'string'],
+            'substack_embed_code' => ['nullable', 'string', 'max:20000'],
             'is_published' => ['nullable', 'boolean'],
         ]);
     }
