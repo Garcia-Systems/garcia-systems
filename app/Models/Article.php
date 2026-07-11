@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\SubstackEmbed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,7 @@ class Article extends Model
         'featured_image_url',
         'excerpt',
         'body',
+        'substack_embed_code',
         'is_published',
         'published_at',
     ];
@@ -45,6 +47,21 @@ class Article extends Model
         $words = str_word_count(strip_tags($this->body ?? ''));
 
         return max(1, (int) ceil($words / 200));
+    }
+
+    public function getSubstackUrlAttribute(): ?string
+    {
+        return SubstackEmbed::extractUrl($this->substack_embed_code);
+    }
+
+    public function getSubstackEmbedHtmlAttribute(): ?string
+    {
+        return SubstackEmbed::bodyWithoutScript($this->substack_embed_code);
+    }
+
+    public function getNeedsSubstackScriptAttribute(): bool
+    {
+        return SubstackEmbed::hasScript($this->substack_embed_code);
     }
 
     public function getAuthorNameAttribute(): string

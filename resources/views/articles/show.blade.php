@@ -42,7 +42,18 @@
             <img class="mt-10 h-[22rem] w-full rounded-3xl border border-white/10 object-cover shadow-2xl shadow-slate-950/50" src="{{ $article->featured_image_url }}" alt="Featured image for {{ $article->title }}">
         @endif
 
-        <div class="prose prose-invert prose-lg mt-12 max-w-none prose-headings:tracking-tight prose-a:text-cyan-300 prose-strong:text-white whitespace-pre-line text-slate-200">{{ $article->body }}</div>
+        @if($article->substack_embed_html)
+            <div class="substack-embed-shell mt-12 rounded-3xl border border-white/10 bg-white p-4 text-slate-950 shadow-2xl shadow-slate-950/30 md:p-6">
+                {!! $article->substack_embed_html !!}
+            </div>
+            @if($article->substack_url)
+                <p class="mt-4 text-center"><a class="font-semibold text-cyan-300 underline decoration-cyan-300/50 underline-offset-4" href="{{ $article->substack_url }}" target="_blank" rel="noopener noreferrer">Read on Substack →</a></p>
+            @endif
+        @endif
+
+        @if($article->body)
+            <div class="prose prose-invert prose-lg mt-12 max-w-none prose-headings:tracking-tight prose-a:text-cyan-300 prose-strong:text-white whitespace-pre-line text-slate-200">{{ $article->body }}</div>
+        @endif
     </article>
 
     <section class="mx-auto max-w-6xl px-6 py-8">
@@ -85,5 +96,10 @@
                 @endforeach
             </div>
         </section>
+    @endif
+@if($article->needs_substack_script)
+        @once
+            <script async src="https://substack.com/embedjs/embed.js" charset="utf-8"></script>
+        @endonce
     @endif
 </x-layouts.app>
