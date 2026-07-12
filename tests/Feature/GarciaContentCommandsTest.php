@@ -1,6 +1,10 @@
 <?php
 
+namespace Tests\Feature;
+
+use App\Models\Assessment;
 use App\Models\AssessmentQuestion;
+use App\Models\AssessmentResponse;
 use App\Models\ContentInstallationItem;
 use App\Models\ContentInstallationRun;
 use App\Models\FrictionPoint;
@@ -8,82 +12,99 @@ use App\Models\Industry;
 use App\Models\Workflow;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+class GarciaContentCommandsTest extends TestCase
+{
+    use RefreshDatabase;
 
-it('installs assessment questions with a completed manifest and rolls them back', function () {
-    $this->artisan('garcia:content install --dataset=assessment')->assertExitCode(0);
+    public function test_it_installs_assessment_questions_with_a_completed_manifest_and_rolls_them_back(): void
+    {
+        $this->artisan('garcia:content', ['action' => 'install', '--dataset' => 'assessment'])->assertExitCode(0);
 
-    $run = ContentInstallationRun::first();
-    expect($run->status)->toBe('completed')
-        ->and(AssessmentQuestion::where('is_active', true)->count())->toBe(4)
-        ->and(ContentInstallationItem::where('action', 'created')->count())->toBe(4);
+        $run = ContentInstallationRun::first();
 
-    $this->artisan('garcia:content rollback --run='.$run->uuid)->assertExitCode(0);
+        $this->assertSame('completed', $run->status);
+        $this->assertSame(4, AssessmentQuestion::where('is_active', true)->count());
+        $this->assertSame(4, ContentInstallationItem::where('action', 'created')->count());
 
-    expect(AssessmentQuestion::count())->toBe(0)
-        ->and($run->fresh()->status)->toBe('rolled_back');
-});
+        $this->artisan('garcia:content', ['action' => 'rollback', '--run' => $run->uuid])->assertExitCode(0);
 
-it('is idempotent and records reused assessment questions without overwriting edits', function () {
-    $this->artisan('garcia:content install --dataset=assessment')->assertExitCode(0);
-    AssessmentQuestion::where('key', 'data_readiness')->first()->update(['question' => 'Admin edited question?']);
+        $this->assertSame(0, AssessmentQuestion::count());
+        $this->assertSame('rolled_back', $run->fresh()->status);
+    }
 
-    $this->artisan('garcia:content install --dataset=assessment')->assertExitCode(0);
+    public function test_it_is_idempotent_and_records_reused_assessment_questions_without_overwriting_edits(): void
+    {
+        $this->artisan('garcia:content', ['action' => 'install', '--dataset' => 'assessment'])->assertExitCode(0);
 
-    expect(AssessmentQuestion::count())->toBe(4)
-        ->and(AssessmentQuestion::where('key', 'data_readiness')->first()->question)->toBe('Admin edited question?')
-        ->and(ContentInstallationItem::where('action', 'reused')->count())->toBeGreaterThanOrEqual(4);
-});
+        AssessmentQuestion::where('key', 'data_readiness')->first()->update(['question' => 'Admin edited question?']);
 
-it('dry-runs without creating runs or content', function () {
-    $this->artisan('garcia:content install --dataset=assessment --dry-run')
-        ->expectsOutputToContain('Dry run only')
-        ->assertExitCode(0);
+        $this->artisan('garcia:content', ['action' => 'install', '--dataset' => 'assessment'])->assertExitCode(0);
 
-    expect(ContentInstallationRun::count())->toBe(0)
-        ->and(AssessmentQuestion::count())->toBe(0);
-});
+        $this->assertSame(4, AssessmentQuestion::count());
+        $this->assertSame('Admin edited question?', AssessmentQuestion::where('key', 'data_readiness')->first()->question);
+        $this->assertGreaterThanOrEqual(4, ContentInstallationItem::where('action', 'reused')->count());
+    }
 
-it('installs atlas examples and rollback preserves reused lookup records', function () {
-    $industry = Industry::create(['slug' => 'e-commerce', 'name' => 'Edited commerce', 'description' => 'Manual']);
+    public function test_dry_run_does_not_create_runs_or_content(): void
+    {
+        $this->artisan('garcia:content', ['action' => 'install', '--dataset' => 'assessment', '--dry-run' => true])
+            ->expectsOutputToContain('Dry run only')
+            ->assertExitCode(0);
 
-    $this->artisan('garcia:content install --dataset=atlas')->assertExitCode(0);
+        $this->assertSame(0, ContentInstallationRun::count());
+        $this->assertSame(0, AssessmentQuestion::count());
+    }
 
-    $run = ContentInstallationRun::first();
-    expect($run->status)->toBe('completed')
-        ->and(Industry::where('slug', 'e-commerce')->first()->id)->toBe($industry->id)
-        ->and(Workflow::count())->toBe(12)
-        ->and(FrictionPoint::count())->toBe(12)
-        ->and(ContentInstallationItem::where('action', 'attached')->count())->toBeGreaterThan(0);
+    public function test_it_installs_atlas_examples_and_rollback_preserves_reused_lookup_records(): void
+    {
+        $industry = Industry::create(['slug' => 'e-commerce', 'name' => 'Edited commerce', 'description' => 'Manual']);
 
-    $this->artisan('garcia:content rollback --run='.$run->uuid)->assertExitCode(0);
+        $this->artisan('garcia:content', ['action' => 'install', '--dataset' => 'atlas'])->assertExitCode(0);
 
-    expect(Industry::where('slug', 'e-commerce')->exists())->toBeTrue()
-        ->and(Workflow::count())->toBe(0);
-});
+        $run = ContentInstallationRun::first();
 
+        $this->assertSame('completed', $run->status);
+        $this->assertSame($industry->id, Industry::where('slug', 'e-commerce')->first()->id);
+        $this->assertSame(12, Workflow::count());
+        $this->assertSame(12, FrictionPoint::count());
+        $this->assertGreaterThan(0, ContentInstallationItem::where('action', 'attached')->count());
 
+        $this->artisan('garcia:content', ['action' => 'rollback', '--run' => $run->uuid])->assertExitCode(0);
 
-it('deactivates referenced installed assessment questions instead of deleting history', function () {
-    $this->artisan('garcia:content install --dataset=assessment')->assertExitCode(0);
-    $run = ContentInstallationRun::first();
-    $question = AssessmentQuestion::first();
-    $assessment = \App\Models\Assessment::create(['score' => 4, 'result_tier' => 'Early']);
-    \App\Models\AssessmentResponse::create(['assessment_id' => $assessment->id, 'assessment_question_id' => $question->id, 'score' => 4]);
+        $this->assertTrue(Industry::where('slug', 'e-commerce')->exists());
+        $this->assertSame(0, Workflow::count());
+    }
 
-    $this->artisan('garcia:content rollback --latest')->assertExitCode(0);
+    public function test_it_deactivates_referenced_installed_assessment_questions_instead_of_deleting_history(): void
+    {
+        $this->artisan('garcia:content', ['action' => 'install', '--dataset' => 'assessment'])->assertExitCode(0);
 
-    expect($question->fresh()->is_active)->toBeFalse()
-        ->and(\App\Models\AssessmentResponse::where('assessment_question_id', $question->id)->exists())->toBeTrue()
-        ->and($run->fresh()->status)->toBe('rolled_back');
-});
+        $run = ContentInstallationRun::first();
+        $question = AssessmentQuestion::first();
+        $assessment = Assessment::create(['score' => 4, 'result_tier' => 'Early']);
 
-it('hides disabled public features from navigation and routes', function () {
-    Config::set('garcia.features.ai_assessment', false);
-    Config::set('garcia.features.opportunity_atlas', false);
+        AssessmentResponse::create([
+            'assessment_id' => $assessment->id,
+            'assessment_question_id' => $question->id,
+            'score' => 4,
+        ]);
 
-    $this->get('/tools')->assertOk()->assertDontSee('Open tool')->assertDontSee('Explore');
-    $this->get('/ai-readiness-assessment')->assertNotFound();
-    $this->get('/opportunity-atlas')->assertNotFound();
-});
+        $this->artisan('garcia:content', ['action' => 'rollback', '--latest' => true])->assertExitCode(0);
+
+        $this->assertFalse($question->fresh()->is_active);
+        $this->assertTrue(AssessmentResponse::where('assessment_question_id', $question->id)->exists());
+        $this->assertSame('rolled_back', $run->fresh()->status);
+    }
+
+    public function test_it_hides_disabled_public_features_from_navigation_and_routes(): void
+    {
+        Config::set('garcia.features.ai_assessment', false);
+        Config::set('garcia.features.opportunity_atlas', false);
+
+        $this->get('/tools')->assertOk()->assertDontSee('Open tool')->assertDontSee('Explore');
+        $this->get('/ai-readiness-assessment')->assertNotFound();
+        $this->get('/opportunity-atlas')->assertNotFound();
+    }
+}
