@@ -5,7 +5,7 @@
         '@type' => 'Article',
         'headline' => $article->seo_title ?: $article->title,
         'description' => $description,
-        'image' => $article->featured_image_url,
+        'image' => $article->preview_image_url,
         'datePublished' => optional($article->published_at)->toAtomString(),
         'dateModified' => $article->updated_at->toAtomString(),
         'author' => ['@type' => 'Organization', 'name' => $article->author_name],
@@ -17,7 +17,7 @@
 <x-layouts.app
     :page-title="$article->seo_title ?: $article->title"
     :page-description="$description"
-    :page-image="$article->featured_image_url"
+    :page-image="$article->preview_image_url"
     :canonical-url="route('articles.show', $article)"
     og-type="article"
     :structured-data="$schema"
@@ -38,20 +38,33 @@
             <p class="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 text-left text-xl leading-8 text-slate-200 md:text-center">{{ $article->excerpt }}</p>
         </div>
 
-        @if($article->featured_image_url)
+        @if($article->is_external)
+            <section class="mt-12 overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl shadow-slate-950/40">
+                @if($article->preview_image_url)
+                    <img class="aspect-[16/9] w-full object-cover" src="{{ $article->preview_image_url }}" alt="Preview image for {{ $article->title }}">
+                @else
+                    <div class="flex aspect-[16/9] w-full items-center justify-center bg-gradient-to-br from-slate-800 via-slate-900 to-cyan-950 text-sm font-semibold uppercase tracking-[0.25em] text-cyan-200">Garcia Systems Article Preview</div>
+                @endif
+                <div class="p-6 md:p-8">
+                    <div class="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+                        <span class="rounded-full bg-white/10 px-3 py-1 text-slate-200">Substack</span>
+                        @if($article->category)<span class="rounded-full bg-cyan-400/10 px-3 py-1 text-cyan-300">{{ $article->category->name }}</span>@endif
+                        @if($article->published_at)<time datetime="{{ $article->published_at->toDateString() }}">{{ $article->published_at->format('F j, Y') }}</time>@endif
+                    </div>
+                    <h2 class="mt-5 text-3xl font-bold tracking-tight">{{ $article->title }}</h2>
+                    <p class="mt-4 text-lg leading-8 text-slate-200">{{ $article->excerpt }}</p>
+                    @if($article->tags->count())
+                        <div class="mt-5 flex flex-wrap gap-2">@foreach($article->tags as $tag)<span class="rounded-full border border-white/10 px-3 py-1 text-sm text-slate-300">{{ $tag->name }}</span>@endforeach</div>
+                    @endif
+                    <p class="mt-6 text-sm text-slate-400">The full article is published on Substack. Garcia Systems keeps this preview here so you can decide before opening the external post.</p>
+                    <a class="mt-6 inline-flex rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 hover:bg-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-200" href="{{ $article->external_url }}" target="_blank" rel="noopener noreferrer">Read the full article on Substack →</a>
+                </div>
+            </section>
+        @elseif($article->featured_image_url)
             <img class="mt-10 h-[22rem] w-full rounded-3xl border border-white/10 object-cover shadow-2xl shadow-slate-950/50" src="{{ $article->featured_image_url }}" alt="Featured image for {{ $article->title }}">
         @endif
 
-        @if($article->substack_embed_html)
-            <div class="substack-embed-shell mt-12 rounded-3xl border border-white/10 bg-white p-4 text-slate-950 shadow-2xl shadow-slate-950/30 md:p-6">
-                {!! $article->substack_embed_html !!}
-            </div>
-            @if($article->substack_url)
-                <p class="mt-4 text-center"><a class="font-semibold text-cyan-300 underline decoration-cyan-300/50 underline-offset-4" href="{{ $article->substack_url }}" target="_blank" rel="noopener noreferrer">Read on Substack →</a></p>
-            @endif
-        @endif
-
-        @if($article->body)
+        @if(! $article->is_external && $article->body)
             <div class="prose prose-invert prose-lg mt-12 max-w-none prose-headings:tracking-tight prose-a:text-cyan-300 prose-strong:text-white whitespace-pre-line text-slate-200">{{ $article->body }}</div>
         @endif
     </article>
@@ -96,10 +109,5 @@
                 @endforeach
             </div>
         </section>
-    @endif
-@if($article->needs_substack_script)
-        @once
-            <script async src="https://substack.com/embedjs/embed.js" charset="utf-8"></script>
-        @endonce
     @endif
 </x-layouts.app>

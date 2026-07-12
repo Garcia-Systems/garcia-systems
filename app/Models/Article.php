@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Support\SubstackEmbed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +21,8 @@ class Article extends Model
         'excerpt',
         'body',
         'substack_embed_code',
+        'external_url',
+        'external_preview_image_url',
         'is_published',
         'published_at',
     ];
@@ -49,19 +50,14 @@ class Article extends Model
         return max(1, (int) ceil($words / 200));
     }
 
-    public function getSubstackUrlAttribute(): ?string
+    public function getIsExternalAttribute(): bool
     {
-        return SubstackEmbed::extractUrl($this->substack_embed_code);
+        return filled($this->external_url);
     }
 
-    public function getSubstackEmbedHtmlAttribute(): ?string
+    public function getPreviewImageUrlAttribute(): ?string
     {
-        return SubstackEmbed::bodyWithoutScript($this->substack_embed_code);
-    }
-
-    public function getNeedsSubstackScriptAttribute(): bool
-    {
-        return SubstackEmbed::hasScript($this->substack_embed_code);
+        return $this->featured_image_url ?: $this->external_preview_image_url;
     }
 
     public function getAuthorNameAttribute(): string

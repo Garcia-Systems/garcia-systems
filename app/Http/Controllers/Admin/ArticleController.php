@@ -6,13 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Tag;
-use App\Support\SubstackEmbed;
+use App\Support\SubstackMetadataFetcher;
+use App\Support\SubstackUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-use InvalidArgumentException;
 
 class ArticleController extends Controller
 {
@@ -49,11 +49,7 @@ class ArticleController extends Controller
         $data = $this->validated($request);
         $data['slug'] = $this->slug($data['slug'] ?? null, $data['title']);
         $data['is_published'] = $request->boolean('is_published');
-        try {
-            $data['substack_embed_code'] = SubstackEmbed::sanitize($data['substack_embed_code'] ?? null);
-        } catch (InvalidArgumentException $exception) {
-            return back()->withErrors(['substack_embed_code' => $exception->getMessage()])->withInput();
-        }
+        $data = $this->prepareExternalArticleData($data);
         $data['published_at'] = $data['is_published'] ? now() : null;
         $tagIds = $data['tag_ids'] ?? [];
         unset($data['tag_ids']);
@@ -73,11 +69,7 @@ class ArticleController extends Controller
         $data = $this->validated($request, $article);
         $data['slug'] = $this->slug($data['slug'] ?? null, $data['title']);
         $data['is_published'] = $request->boolean('is_published');
-        try {
-            $data['substack_embed_code'] = SubstackEmbed::sanitize($data['substack_embed_code'] ?? null);
-        } catch (InvalidArgumentException $exception) {
-            return back()->withErrors(['substack_embed_code' => $exception->getMessage()])->withInput();
-        }
+        $data = $this->prepareExternalArticleData($data, $article);
         $data['published_at'] = $data['is_published'] ? ($article->published_at ?? now()) : null;
         $tagIds = $data['tag_ids'] ?? [];
         unset($data['tag_ids']);
@@ -120,9 +112,25 @@ class ArticleController extends Controller
             'featured_image_url' => ['nullable', 'url', 'max:2048'],
             'excerpt' => ['required', 'string', 'max:1000'],
             'body' => ['nullable', 'string'],
-            'substack_embed_code' => ['nullable', 'string', 'max:20000'],
+            'external_url' => ['nullable', 'url', 'max:2048', function ($attribute, $value, $fail) { if (filled($value) && ! SubstackUrl::isAllowed($value)) $fail('Enter an HTTPS Substack URL.'); }],
             'is_published' => ['nullable', 'boolean'],
         ]);
+    }
+
+    private function prepareExternalArticleData(array $data, ?Article $article = null): array
+    {
+        $data['external_url'] = blank($data['external_url'] ?? null) ? null : trim($data['external_url']);
+        $data['substack_embed_code'] = $article?->substack_embed_code;
+
+        if (! $data['external_url']) {
+            $data['external_preview_image_url'] = null;
+            return $data;
+        }
+
+        $metadata = app(SubstackMetadataFetcher::class)->fetch($data['external_url']);
+        $data['external_preview_image_url'] = $metadata['image'] ?? $article?->external_preview_image_url;
+
+        return $data;
     }
 
     private function formData(Article $article): array
