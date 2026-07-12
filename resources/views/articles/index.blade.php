@@ -38,20 +38,25 @@
         @if($articles->count())
             <div class="mt-8 grid gap-6 md:grid-cols-3">
                 @foreach($articles as $article)
-                    <x-card class="overflow-hidden p-0">
-                        @if($article->featured_image_url)
-                            <img class="h-48 w-full object-cover" src="{{ $article->featured_image_url }}" alt="Featured image for {{ $article->title }}">
-                        @endif
-                        <div class="p-6">
-                            <div class="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
-                                @if($article->category)<span class="rounded-full bg-cyan-400/10 px-3 py-1 text-cyan-300">{{ $article->category->name }}</span>@endif
-                                @if($article->published_at)<time datetime="{{ $article->published_at->toDateString() }}">{{ $article->published_at->format('M j, Y') }}</time>@endif
+                    @php($href = $article->is_external ? $article->external_url : route('articles.show',$article))
+                    <x-card class="group overflow-hidden p-0 transition hover:-translate-y-1 hover:border-cyan-300/40">
+                        <a href="{{ $href }}" @if($article->is_external) target="_blank" rel="noopener noreferrer" @endif class="block focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950">
+                            @if($article->preview_image_url)
+                                <img class="aspect-[16/9] w-full object-cover" src="{{ $article->preview_image_url }}" alt="Featured image for {{ $article->title }}">
+                            @else
+                                <div class="flex aspect-[16/9] w-full items-center justify-center bg-gradient-to-br from-slate-800 via-slate-900 to-cyan-950 text-sm font-semibold uppercase tracking-[0.25em] text-cyan-200">Garcia Systems</div>
+                            @endif
+                            <div class="p-6">
+                                <div class="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+                                    @if($article->is_external)<span class="rounded-full bg-white/10 px-3 py-1 text-slate-200">Substack</span>@endif
+                                    @if($article->category)<span class="rounded-full bg-cyan-400/10 px-3 py-1 text-cyan-300">{{ $article->category->name }}</span>@endif
+                                    @if($article->published_at)<time datetime="{{ $article->published_at->toDateString() }}">{{ $article->published_at->format('M j, Y') }}</time>@endif
+                                </div>
+                                <h2 class="mt-4 text-xl font-semibold leading-tight group-hover:text-cyan-200">{{ $article->title }}</h2>
+                                <p class="mt-3 text-slate-300">{{ Str::limit($article->excerpt, 170) }}</p>
+                                <span class="mt-5 inline-block font-semibold text-cyan-300">{{ $article->is_external ? 'Read on Substack →' : 'Read article →' }}</span>
                             </div>
-                            <h2 class="mt-4 text-xl font-semibold leading-tight">{{ $article->title }}</h2>
-                            <p class="mt-3 text-sm text-slate-400">By {{ $article->author_name }}</p>
-                            <p class="mt-3 text-slate-300">{{ $article->excerpt }}</p>
-                            <a class="mt-5 inline-block font-semibold text-cyan-300" href="{{ route('articles.show',$article) }}">Read article →</a>
-                        </div>
+                        </a>
                     </x-card>
                 @endforeach
             </div>
