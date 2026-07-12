@@ -3,6 +3,10 @@
         <h1 class="text-4xl font-bold">AI Readiness Assessment</h1>
         <p class="mt-4 text-slate-300">Score each area from 1 (early) to 5 (strong).</p>
 
+        @if(session('assessment_unavailable') || $questions->isEmpty())
+            <x-card class="mt-8"><p class="text-slate-300">{{ session('assessment_unavailable', 'The AI Readiness Assessment is temporarily unavailable while the question set is being reviewed.') }}</p></x-card>
+        @else
+
         @if($errors->any())
             <div class="mt-6 rounded border border-rose-400/40 bg-rose-500/20 p-4 text-rose-100" role="alert">
                 <p class="font-semibold">Please complete the assessment with valid scores.</p>
@@ -42,5 +46,6 @@
             @endforeach
             <button class="rounded bg-cyan-400 px-5 py-3 font-semibold text-slate-950">See result</button>
         </form>
+        @endif
     </section>
 </x-layouts.app>

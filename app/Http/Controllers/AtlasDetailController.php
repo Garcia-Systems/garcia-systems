@@ -103,6 +103,7 @@ class AtlasDetailController extends Controller
 
     private function show(string $type, object $record, array $related)
     {
+        abort_unless(config('garcia.features.opportunity_atlas'), 404);
         $workflows = $this->toCollection($related['workflows'] ?? collect())->unique('id')->values();
         $frictionPoints = $this->toCollection($related['frictionPoints'] ?? $workflows->pluck('frictionPoints')->flatten())->unique('id')->values();
         $solutionPatterns = $this->toCollection($related['solutionPatterns'] ?? $frictionPoints->pluck('solutionPatterns')->flatten())->unique('id')->values();
