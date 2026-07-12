@@ -47,6 +47,7 @@ class PageController extends Controller
 
     public function atlas(Request $request)
     {
+        abort_unless(config('garcia.features.opportunity_atlas'), 404);
         $filters = collect($request->only([
             'industry',
             'company_type',
@@ -222,12 +223,20 @@ class PageController extends Controller
 
     public function assessment()
     {
-        return view('pages.assessment', ['questions' => AssessmentQuestion::orderBy('sort_order')->get()]);
+        abort_unless(config('garcia.features.ai_assessment'), 404);
+
+        return view('pages.assessment', ['questions' => AssessmentQuestion::where('is_active', true)->orderBy('sort_order')->get()]);
     }
 
     public function submitAssessment(Request $request)
     {
-        $questionIds = AssessmentQuestion::query()->pluck('id')->map(fn ($id) => (string) $id)->all();
+        abort_unless(config('garcia.features.ai_assessment'), 404);
+
+        $questionIds = AssessmentQuestion::query()->where('is_active', true)->pluck('id')->map(fn ($id) => (string) $id)->all();
+
+        if (count($questionIds) === 0) {
+            return redirect()->route('assessment')->with('assessment_unavailable', 'The AI Readiness Assessment is temporarily unavailable while the question set is being reviewed.');
+        }
 
         $validator = Validator::make($request->all(), [
             'name' => ['nullable', 'string', 'max:120'],
