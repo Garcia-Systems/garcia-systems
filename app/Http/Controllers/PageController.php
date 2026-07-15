@@ -16,6 +16,7 @@ use App\Models\Lead;
 use App\Models\SolutionPattern;
 use App\Models\Video;
 use App\Models\Workflow;
+use App\Notifications\AssessmentReceived;
 use App\Notifications\AssessmentSubmitted;
 use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
@@ -286,8 +287,7 @@ class PageController extends Controller
 
         $lead = Lead::createOrUpdateFromAssessment($assessment);
 
-        Notification::route('mail', config('mail.lead_notification_email'))
-            ->notify(new AssessmentSubmitted($assessment, $lead));
+        $this->sendAssessmentMailNotifications($assessment, $lead);
 
         foreach ($data['responses'] as $qid => $value) {
             AssessmentResponse::create([
@@ -298,6 +298,19 @@ class PageController extends Controller
         }
 
         return redirect()->route('assessment.result', $assessment);
+    }
+
+    private function sendAssessmentMailNotifications(Assessment $assessment, ?Lead $lead): void
+    {
+        Notification::route('mail', config('mail.lead_notification_email'))
+            ->notify(new AssessmentSubmitted($assessment, $lead));
+
+        if (blank($assessment->email)) {
+            return;
+        }
+
+        Notification::route('mail', [$assessment->email => $assessment->name ?: $assessment->email])
+            ->notify(new AssessmentReceived($assessment));
     }
 
     public function assessmentResult(Assessment $assessment)
