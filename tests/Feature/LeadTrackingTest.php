@@ -7,6 +7,7 @@ use App\Models\AssessmentQuestion;
 use App\Models\ContactSubmission;
 use App\Models\Lead;
 use App\Models\User;
+use App\Notifications\AssessmentReceived;
 use App\Notifications\AssessmentSubmitted;
 use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
@@ -156,7 +157,12 @@ class LeadTrackingTest extends TestCase
     {
         Mail::fake();
         Notification::fake();
-        config(['mail.lead_notification_email' => 'admin@example.com']);
+        config([
+            'app.url' => 'https://example.test',
+            'mail.from.address' => 'hello@example.test',
+            'mail.from.name' => 'Garcia Systems',
+            'mail.lead_notification_email' => 'admin@example.com',
+        ]);
 
         $question = AssessmentQuestion::create(['question' => 'Ready?', 'sort_order' => 1]);
 
@@ -173,6 +179,22 @@ class LeadTrackingTest extends TestCase
                 && $notification->assessment->score === 5
                 && $notification->assessment->result_tier === 'Early'
                 && $notification->lead?->email === 'assess@example.com';
+        });
+
+        Notification::assertSentOnDemand(AssessmentReceived::class, function (AssessmentReceived $notification, array $channels, object $notifiable) {
+            $route = $notifiable->routes['mail'];
+            $email = is_array($route) ? array_key_first($route) : $route;
+            $mail = $notification->toMail($notifiable);
+            $html = view($mail->view, $mail->viewData)->render();
+
+            return in_array('mail', $channels, true)
+                && $email === 'assess@example.com'
+                && $notification->assessment->score === 5
+                && $mail->subject === 'We received your Garcia Systems AI assessment'
+                && data_get($mail->replyTo, '0.0') === 'hello@example.test'
+                && str_contains($html, 'Assess Co')
+                && str_contains($html, 'Early')
+                && ! str_contains($html, 'admin@example.com');
         });
     }
 
