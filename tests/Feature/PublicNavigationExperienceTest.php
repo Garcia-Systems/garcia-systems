@@ -70,6 +70,8 @@ class PublicNavigationExperienceTest extends TestCase
             ->assertSee('Garcia Systems on YouTube')
             ->assertSee('https://substack.com/@garciasystems', false)
             ->assertSee('Garcia Systems on Substack')
+            ->assertSee('https://github.com/Garcia-Systems', false)
+            ->assertSee('Garcia Systems on GitHub')
             ->assertSee('target="_blank"', false)
             ->assertSee('rel="noopener noreferrer"', false)
             ->assertDontSee('href="#"', false)
