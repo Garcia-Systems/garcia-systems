@@ -361,11 +361,12 @@ class LeadTrackingTest extends TestCase
 
         for ($submission = 1; $submission <= 5; $submission++) {
             $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.10'])
+                ->from(route('contact'))
                 ->post('/contact', [
                     'name' => "Rate Limit Lead {$submission}",
                     'email' => "rate-limit-{$submission}@example.com",
                     'message' => 'A legitimate contact message.',
-                ])->assertRedirect('/contact');
+                ])->assertRedirectToRoute('contact');
         }
 
         $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.10'])
