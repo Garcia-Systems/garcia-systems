@@ -25,11 +25,11 @@ class LeadTrackingTest extends TestCase
 
     public function test_contact_form_creates_and_updates_lead(): void
     {
-        $this->post('/contact', ['name' => 'Avery Garcia', 'email' => 'avery@example.com', 'company' => 'First Co', 'message' => 'Hello']);
+        $this->post('/contact', ['name' => 'Avery Garcia', 'email' => 'avery@example.com', 'company' => 'First Co', 'message' => 'Hello there']);
         $this->assertDatabaseHas('leads', ['email' => 'avery@example.com', 'name' => 'Avery Garcia', 'company' => 'First Co', 'source' => 'contact_form', 'status' => 'new']);
         $this->assertSame(Lead::first()->id, ContactSubmission::first()->lead_id);
 
-        $this->post('/contact', ['name' => 'Avery Updated', 'email' => 'avery@example.com', 'company' => 'Second Co', 'message' => 'Again']);
+        $this->post('/contact', ['name' => 'Avery Updated', 'email' => 'avery@example.com', 'company' => 'Second Co', 'message' => 'Hello again']);
         $this->assertDatabaseCount('leads', 1);
         $this->assertDatabaseHas('leads', ['email' => 'avery@example.com', 'name' => 'Avery Updated', 'company' => 'Second Co']);
     }
@@ -84,6 +84,8 @@ class LeadTrackingTest extends TestCase
 
         Notification::assertSentOnDemand(LeadSubmitted::class);
         Notification::assertSentOnDemand(ContactSubmissionReceived::class);
+        Notification::assertSentOnDemandTimes(LeadSubmitted::class, 1);
+        Notification::assertSentOnDemandTimes(ContactSubmissionReceived::class, 1);
 
         $internalNotification = null;
         $internalChannels = null;
@@ -320,11 +322,61 @@ class LeadTrackingTest extends TestCase
             'email' => 'spam@example.com',
             'message' => 'Spam payload',
             'website' => 'https://spam.example',
-        ])->assertRedirect('/contact');
+        ])->assertRedirect('/contact')
+            ->assertSessionHas('status', 'Thanks — your message has been saved.')
+            ->assertSessionHasNoErrors();
 
         $this->assertDatabaseMissing('leads', ['email' => 'spam@example.com']);
         $this->assertDatabaseMissing('contact_submissions', ['email' => 'spam@example.com']);
         Notification::assertNothingSent();
+    }
+
+    public function test_contact_form_rejects_invalid_email_and_message_lengths(): void
+    {
+        Notification::fake();
+
+        $this->from('/contact')->post('/contact', [
+            'name' => 'Validation Lead',
+            'email' => 'invalid-email',
+            'message' => 'Too short',
+        ])->assertRedirect('/contact')
+            ->assertSessionHasErrors(['email', 'message'])
+            ->assertSessionHasInput('name', 'Validation Lead');
+
+        $this->from('/contact')->post('/contact', [
+            'name' => 'Validation Lead',
+            'email' => 'valid@example.com',
+            'message' => str_repeat('a', 5001),
+        ])->assertRedirect('/contact')
+            ->assertSessionHasErrors(['message']);
+
+        $this->assertDatabaseCount('contact_submissions', 0);
+        $this->assertDatabaseCount('leads', 0);
+        Notification::assertNothingSent();
+    }
+
+    public function test_contact_form_rate_limit_allows_five_submissions_then_rejects_the_next(): void
+    {
+        Notification::fake();
+
+        for ($submission = 1; $submission <= 5; $submission++) {
+            $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.10'])
+                ->from(route('contact'))
+                ->post('/contact', [
+                    'name' => "Rate Limit Lead {$submission}",
+                    'email' => "rate-limit-{$submission}@example.com",
+                    'message' => 'A legitimate contact message.',
+                ])->assertRedirectToRoute('contact');
+        }
+
+        $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.10'])
+            ->post('/contact', [
+                'name' => 'Blocked Rate Limit Lead',
+                'email' => 'rate-limit-blocked@example.com',
+                'message' => 'A legitimate contact message.',
+            ])->assertTooManyRequests();
+
+        $this->assertDatabaseCount('contact_submissions', 5);
     }
 
     public function test_admin_leads_index_requires_auth(): void

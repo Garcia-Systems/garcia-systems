@@ -144,13 +144,18 @@ class PageController extends Controller
     public function contact() { return view('pages.contact'); }
     public function submitContact(Request $request)
     {
+        // Give bots the normal success response without allowing any submission side effects.
+        if ($request->input('website') !== null && $request->input('website') !== '') {
+            return back()->with('status', 'Thanks — your message has been saved.');
+        }
+
         $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'max:180'],
-            'company' => ['nullable', 'string', 'max:180'],
-            'service_interest' => ['nullable', 'string', 'max:180'],
-            'message' => ['required', 'string', 'max:5000'],
-            'website' => ['nullable', 'prohibited'],
+            'name' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email', 'max:255'],
+            'company' => ['nullable', 'string', 'max:150'],
+            'service_interest' => ['nullable', 'string', 'max:150'],
+            'message' => ['required', 'string', 'min:10', 'max:5000'],
+            'website' => ['nullable', 'string'],
         ]);
 
         if ($validator->fails()) {
