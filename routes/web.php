@@ -49,7 +49,7 @@ Route::get('/opportunity-atlas/friction-points/{frictionPoint:slug}', [AtlasDeta
 Route::get('/opportunity-atlas/solution-patterns/{solutionPattern:slug}', [AtlasDetailController::class, 'solutionPattern'])->name('atlas.solution-patterns.show');
 Route::get('/opportunity-atlas/capabilities/{capability:slug}', [AtlasDetailController::class, 'capability'])->name('atlas.capabilities.show');
 Route::get('/contact', [PageController::class,'contact'])->name('contact');
-Route::post('/contact', [PageController::class,'submitContact'])->name('contact.submit');
+Route::post('/contact', [PageController::class,'submitContact'])->middleware('throttle:5,1')->name('contact.submit');
 Route::get('/ai-readiness-assessment', [PageController::class,'assessment'])->name('assessment');
 Route::post('/ai-readiness-assessment', [PageController::class,'submitAssessment'])->name('assessment.submit');
 Route::get('/ai-readiness-assessment/{assessment}', [PageController::class,'assessmentResult'])->name('assessment.result');
