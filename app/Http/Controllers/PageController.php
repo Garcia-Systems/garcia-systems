@@ -20,6 +20,7 @@ use App\Notifications\AssessmentReceived;
 use App\Notifications\AssessmentSubmitted;
 use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
+use App\Services\TurnstileVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -142,7 +143,7 @@ class PageController extends Controller
         ]);
     }
     public function contact() { return view('pages.contact'); }
-    public function submitContact(Request $request)
+    public function submitContact(Request $request, TurnstileVerifier $turnstile)
     {
         // Give bots the normal success response without allowing any submission side effects.
         if ($request->input('website') !== null && $request->input('website') !== '') {
@@ -167,6 +168,12 @@ class PageController extends Controller
         }
 
         $data = $validator->validated();
+
+        if (! $turnstile->verify($request->input('cf-turnstile-response'), $request->ip())) {
+            return back()
+                ->withErrors(['contact' => 'We could not verify your submission. Please try again.'])
+                ->withInput();
+        }
 
         unset($data['website']);
 

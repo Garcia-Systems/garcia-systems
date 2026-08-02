@@ -13,6 +13,7 @@ use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -23,13 +24,23 @@ class LeadTrackingTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.turnstile.secret_key' => 'test-secret']);
+        Http::fake([
+            'challenges.cloudflare.com/turnstile/v0/siteverify' => Http::response(['success' => true]),
+        ]);
+    }
+
     public function test_contact_form_creates_and_updates_lead(): void
     {
-        $this->post('/contact', ['name' => 'Avery Garcia', 'email' => 'avery@example.com', 'company' => 'First Co', 'message' => 'Hello there']);
+        $this->post('/contact', ['name' => 'Avery Garcia', 'email' => 'avery@example.com', 'company' => 'First Co', 'message' => 'Hello there', 'cf-turnstile-response' => 'test-token']);
         $this->assertDatabaseHas('leads', ['email' => 'avery@example.com', 'name' => 'Avery Garcia', 'company' => 'First Co', 'source' => 'contact_form', 'status' => 'new']);
         $this->assertSame(Lead::first()->id, ContactSubmission::first()->lead_id);
 
-        $this->post('/contact', ['name' => 'Avery Updated', 'email' => 'avery@example.com', 'company' => 'Second Co', 'message' => 'Hello again']);
+        $this->post('/contact', ['name' => 'Avery Updated', 'email' => 'avery@example.com', 'company' => 'Second Co', 'message' => 'Hello again', 'cf-turnstile-response' => 'test-token']);
         $this->assertDatabaseCount('leads', 1);
         $this->assertDatabaseHas('leads', ['email' => 'avery@example.com', 'name' => 'Avery Updated', 'company' => 'Second Co']);
     }
@@ -67,6 +78,7 @@ class LeadTrackingTest extends TestCase
             'company' => 'Notify Co',
             'service_interest' => 'Workflow automation',
             'message' => 'Please follow up.',
+            'cf-turnstile-response' => 'test-token',
         ])->assertSessionHas('status');
 
         $submission = ContactSubmission::sole();
@@ -214,6 +226,7 @@ class LeadTrackingTest extends TestCase
             'name' => 'Diagnostic Lead',
             'email' => 'diagnostic@example.com',
             'message' => 'Please follow up.',
+            'cf-turnstile-response' => 'test-token',
         ])->assertSessionHas('status');
 
         $submission = ContactSubmission::sole();
@@ -250,6 +263,7 @@ class LeadTrackingTest extends TestCase
             'name' => 'Failure Lead',
             'email' => 'failure@example.com',
             'message' => 'Please follow up.',
+            'cf-turnstile-response' => 'test-token',
         ])->assertSessionHas('status');
 
         $submission = ContactSubmission::sole();
@@ -284,6 +298,7 @@ class LeadTrackingTest extends TestCase
             'name' => 'Command Lead',
             'email' => 'command@example.com',
             'message' => 'Please follow up.',
+            'cf-turnstile-response' => 'test-token',
         ])->assertSessionHas('status');
 
         $exitCode = Artisan::call('contact:mail-diagnostics');
@@ -366,6 +381,7 @@ class LeadTrackingTest extends TestCase
                     'name' => "Rate Limit Lead {$submission}",
                     'email' => "rate-limit-{$submission}@example.com",
                     'message' => 'A legitimate contact message.',
+                    'cf-turnstile-response' => 'test-token',
                 ])->assertRedirectToRoute('contact');
         }
 
@@ -374,6 +390,7 @@ class LeadTrackingTest extends TestCase
                 'name' => 'Blocked Rate Limit Lead',
                 'email' => 'rate-limit-blocked@example.com',
                 'message' => 'A legitimate contact message.',
+                'cf-turnstile-response' => 'test-token',
             ])->assertTooManyRequests();
 
         $this->assertDatabaseCount('contact_submissions', 5);
