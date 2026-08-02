@@ -17,11 +17,22 @@ use App\Models\SolutionPattern;
 use App\Models\Video;
 use App\Models\Workflow;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class Phase1FeatureTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.turnstile.secret_key' => 'test-secret']);
+        Http::fake([
+            'challenges.cloudflare.com/turnstile/v0/siteverify' => Http::response(['success' => true]),
+        ]);
+    }
 
     public function test_homepage_returns_successfully_and_contains_positioning_text(): void
     {

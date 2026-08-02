@@ -13,6 +13,7 @@ use App\Notifications\ContactSubmissionReceived;
 use App\Notifications\LeadSubmitted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -22,6 +23,16 @@ use Tests\TestCase;
 class LeadTrackingTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['services.turnstile.secret_key' => 'test-secret']);
+        Http::fake([
+            'challenges.cloudflare.com/turnstile/v0/siteverify' => Http::response(['success' => true]),
+        ]);
+    }
 
     public function test_contact_form_creates_and_updates_lead(): void
     {

@@ -48,7 +48,21 @@
                 <textarea class="rounded bg-white/10 p-3 @error('message') ring-2 ring-rose-400 @enderror" name="message" rows="6" placeholder="What are you trying to improve?" required>{{ old('message') }}</textarea>
                 @error('message')<span class="text-sm text-rose-300">{{ $message }}</span>@enderror
             </label>
+            @if(config('services.turnstile.site_key'))
+                <div
+                    class="cf-turnstile"
+                    data-sitekey="{{ config('services.turnstile.site_key') }}">
+                </div>
+            @else
+                <div class="rounded border border-amber-400/40 bg-amber-500/20 p-4 text-amber-100" role="alert">
+                    The contact form verification service is not configured. Please try again later.
+                </div>
+            @endif
             <button class="rounded bg-cyan-400 px-5 py-3 font-semibold text-slate-950">Send message</button>
         </form>
     </section>
+
+    @if(config('services.turnstile.site_key'))
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
 </x-layouts.app>

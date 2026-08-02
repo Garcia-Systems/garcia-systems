@@ -130,6 +130,10 @@ Garcia Systems helps teams turn operational friction into focused software, auto
 
 Required and optional environment variables are documented in `.env.example`; use placeholder values only and configure real secrets in your local `.env` or deployment platform.
 
+### Contact form verification
+
+The public contact form uses Cloudflare Turnstile. Both production and local environments require valid credentials configured through `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`. Never commit the credentials to the repository.
+
 The default `DatabaseSeeder` is safe to run repeatedly for local development: it bootstraps the administrator only when needed, refreshes lookup/reference data, and loads starter public content idempotently.
 
 For production, run seeders intentionally:
