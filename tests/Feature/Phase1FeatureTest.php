@@ -408,13 +408,14 @@ class Phase1FeatureTest extends TestCase
             'company' => 'Garcia Demo Co',
             'service_interest' => 'Workflow automation MVP',
             'message' => 'We want to reduce manual intake and status chasing.',
+            'cf-turnstile-response' => 'test-token',
         ];
 
         $this->from('/contact')->post('/contact', $payload)
             ->assertRedirect('/contact')
             ->assertSessionHas('status', 'Thanks — your message has been saved.');
 
-        $this->assertDatabaseHas(ContactSubmission::class, $payload);
+        $this->assertDatabaseHas(ContactSubmission::class, collect($payload)->except('cf-turnstile-response')->all());
     }
 
 
