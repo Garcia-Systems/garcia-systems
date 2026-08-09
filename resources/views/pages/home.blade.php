@@ -52,13 +52,7 @@
         <x-section-heading eyebrow="Services summary" title="Focused consulting paths for product, workflow, AI, and execution work." description="Use Garcia Systems when the business problem is real, the path is unclear, and the team needs practical analysis and delivery structure." />
         <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             @foreach($services as $index => [$title, $description])
-                <x-feature-card :title="$title" :description="$description" :href="route('services')" linkText="View service" data-reveal>
-                    <div class="mb-7 flex h-14 items-end gap-1" aria-hidden="true">
-                        @foreach([35, 58, 43, 78, 62] as $bar)
-                            <span class="w-2 rounded-t-sm bg-gradient-to-t from-blue-500/20 to-cyan-300/60" style="height: {{ (($bar + $index * 7) % 55) + 25 }}%"></span>
-                        @endforeach
-                    </div>
-                </x-feature-card>
+                <x-service-system-card :title="$title" :description="$description" :href="route('services')" :index="$index" />
             @endforeach
         </div>
     </section>
@@ -66,18 +60,10 @@
     <section class="gs-shell gs-section">
         <div class="gs-panel overflow-hidden p-7 md:p-10">
             <div class="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_70%_45%,rgb(34_211_238/.16),transparent_30%)]" aria-hidden="true"></div>
-            <div class="relative grid gap-10 lg:grid-cols-[.85fr_1.15fr] lg:items-start">
-                <div><x-section-heading eyebrow="Opportunity Atlas" title="Preview common friction points before choosing a solution." description="The Opportunity Atlas connects industries, workflows, friction points, and solution patterns so technology decisions can start from observable business problems." />
-                    <div class="mt-8 flex flex-wrap items-center gap-2 text-xs text-slate-400" aria-hidden="true"><span>Industries</span><span class="text-cyan-300">→</span><span>Workflows</span><span class="text-cyan-300">→</span><span>Friction</span><span class="text-cyan-300">→</span><span>Solutions</span></div>
-                </div>
-                <div class="grid gap-4">
-                    @forelse($frictions as $f)
-                        <x-card class="shadow-none"><p class="gs-eyebrow">{{ $f->workflow?->industry?->name }} {{ $f->workflow ? '• '.$f->workflow->name : '' }}</p><h3 class="mt-2 text-xl font-semibold">{{ $f->name }}</h3><p class="mt-2 text-slate-300">{{ $f->description }}</p></x-card>
-                    @empty
-                        <x-card><h3 class="text-xl font-semibold">Workflow friction preview</h3><p class="mt-2 text-slate-300">Browse the atlas to connect business friction with practical solution patterns.</p></x-card>
-                    @endforelse
-                    <a class="gs-link gs-focus w-fit rounded-sm" href="{{ route('atlas') }}">Explore the Opportunity Atlas <span aria-hidden="true">→</span></a>
-                </div>
+            <div class="relative">
+                <div class="max-w-3xl"><x-section-heading eyebrow="Opportunity Atlas" title="Trace the work before choosing the technology." description="Start with what work is happening. Follow the workflow to observable friction, then shape a practical solution pattern around the real operating context." /></div>
+                <div class="mt-10"><x-opportunity-atlas-map :chains="$atlasChains" /></div>
+                <a class="gs-link gs-focus mt-8 inline-block rounded-sm" href="{{ route('atlas') }}">Explore the Opportunity Atlas <span aria-hidden="true">→</span></a>
             </div>
         </div>
     </section>
