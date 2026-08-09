@@ -69,10 +69,13 @@
     </section>
 
     <section class="gs-shell gs-section">
-        <div class="gs-panel grid gap-10 overflow-hidden border-cyan-300/30 p-8 md:grid-cols-[1fr_auto] md:items-center md:p-12">
-            <div><p class="gs-eyebrow">Technical assessment</p><h2 class="mt-3 text-3xl font-bold tracking-tight md:text-5xl">Explore AI Readiness</h2><p class="mt-4 max-w-3xl text-lg text-slate-300">Use the assessment to evaluate workflow clarity, data quality, ownership, and risk before selecting an AI or automation pilot.</p><x-glow-button class="mt-7" :href="route('assessment')">Take the assessment</x-glow-button></div>
-            <div class="relative mx-auto flex h-48 w-48 items-center justify-center rounded-full bg-[conic-gradient(from_220deg,#5ee7f7_0_62%,rgb(94_231_247/.08)_62%)] p-2 shadow-[0_0_55px_rgb(34_211_238/.12)]" role="img" aria-label="Readiness assessment gauge illustration"><div class="flex h-full w-full flex-col items-center justify-center rounded-full bg-[#06101e]"><span class="text-4xl font-bold text-cyan-200">4</span><span class="mt-1 text-xs uppercase tracking-[.2em] text-slate-400">dimensions</span></div></div>
-        </div>
+        <x-ai-readiness-preview :dimensions="$readinessDimensions" />
+    </section>
+
+    <section class="gs-shell gs-section" aria-labelledby="laboratories-title">
+        <div class="max-w-3xl"><p class="gs-eyebrow">Executable laboratories</p><h2 id="laboratories-title" class="mt-3 text-3xl font-bold tracking-tight md:text-5xl">Models you can run, not concepts you have to imagine.</h2><p class="mt-4 text-lg text-slate-300">Each exhibit is a working Garcia Systems capability. Its miniature architecture shows how information moves through the system.</p></div>
+        <div class="mt-10"><x-laboratory-showcases :laboratories="$featuredLaboratories" /></div>
+        <a class="gs-link gs-focus mt-8 inline-block rounded-sm" href="{{ route('tools') }}">Explore all tools <span aria-hidden="true">→</span></a>
     </section>
 
     @foreach([['Latest Thinking','Featured articles','Practical writing on automation, workflow clarity, product decisions, and AI readiness.','articles'], ['Featured videos','Short explainers for operational and automation decisions.',null,'videos']] as [$eyebrow,$heading,$description,$type])

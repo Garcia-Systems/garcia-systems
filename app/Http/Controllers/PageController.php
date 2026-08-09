@@ -31,6 +31,22 @@ class PageController extends Controller
 {
     public function home()
     {
+        $fallbackDimensions = collect([
+            ['label' => 'Workflow documentation', 'question' => 'Are the workflow, handoffs, and decision points clearly documented?'],
+            ['label' => 'Data readiness', 'question' => 'Is the operational data organized and accessible?'],
+            ['label' => 'Pilot selection', 'question' => 'Can success be measured for a focused pilot?'],
+            ['label' => 'Stakeholder alignment', 'question' => 'Can process owners support implementation?'],
+        ]);
+        $readinessDimensions = AssessmentQuestion::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get(['category', 'question', 'help_text'])
+            ->map(fn (AssessmentQuestion $question) => [
+                'label' => $question->category ?: 'Readiness area',
+                'question' => $question->question,
+                'help' => $question->help_text,
+            ]);
+
         $atlasChains = Workflow::query()
             ->with(['industry', 'frictionPoints.solutionPatterns'])
             ->whereHas('industry')
@@ -53,6 +69,8 @@ class PageController extends Controller
             'articles' => Article::published()->latest('published_at')->take(3)->get(),
             'videos' => Video::published()->latest()->take(3)->get(),
             'atlasChains' => $atlasChains,
+            'readinessDimensions' => $readinessDimensions->isNotEmpty() ? $readinessDimensions : $fallbackDimensions,
+            'featuredLaboratories' => collect(config('garcia.featured_laboratories', [])),
         ]);
     }
 

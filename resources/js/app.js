@@ -8,6 +8,14 @@ document.querySelectorAll('[data-atlas-map]').forEach((map) => {
         .then(({ initializeOpportunityAtlas }) => initializeOpportunityAtlas(map));
 });
 
+document.querySelectorAll('[data-ai-readiness]').forEach((instrument) => {
+    import('./visualizations/ai-readiness.js').then(({ initializeReadiness }) => initializeReadiness(instrument));
+});
+
+document.querySelectorAll('[data-laboratories]').forEach((laboratories) => {
+    import('./visualizations/laboratories.js').then(({ initializeLaboratories }) => initializeLaboratories(laboratories));
+});
+
 if (heroSystem && !reduceMotion) {
     const initializeHero = () => import('./visualizations/hero-system.js')
         .then(({ createHeroSystem }) => createHeroSystem(heroSystem))
