@@ -3,7 +3,7 @@
         <section>
             <h2 class="text-lg font-bold text-white">Garcia Systems</h2>
             <p class="mt-4 max-w-sm text-sm leading-6 text-slate-300">
-                Practical systems, automation, product, and AI readiness consulting for teams that need clearer workflows and measurable execution paths.
+                Making complex information systems understandable, executable, and improvable through models, engineering, and evidence.
             </p>
             <p class="mt-5 text-sm font-semibold text-cyan-300">Newsletter</p>
             <p class="mt-2 text-sm text-slate-400">Field notes on workflow modernization and practical AI readiness coming soon.</p>
@@ -13,6 +13,7 @@
             <h2 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-200">Navigate</h2>
             <ul class="mt-4 space-y-3 text-sm text-slate-400">
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('home') }}">Home</a></li>
+                <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('laboratories') }}">Laboratories</a></li>
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('about') }}">About</a></li>
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('articles.index') }}">Articles</a></li>
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('videos') }}">Videos</a></li>

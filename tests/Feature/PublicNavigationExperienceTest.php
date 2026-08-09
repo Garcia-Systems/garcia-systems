@@ -18,10 +18,10 @@ class PublicNavigationExperienceTest extends TestCase
             ->assertSee('Home')
             ->assertSee('About')
             ->assertSee('Services')
+            ->assertSee('Laboratories')
             ->assertSee('Atlas')
             ->assertSee('Assessment')
-            ->assertSee('Articles')
-            ->assertSee('Videos')
+            ->assertSee('Thinking')
             ->assertSee('Contact')
             ->assertSee('href="'.route('services').'"', false)
             ->assertSee('aria-current="page"', false)
@@ -55,7 +55,7 @@ class PublicNavigationExperienceTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('Garcia Systems')
-            ->assertSee('Practical systems, automation, product, and AI readiness consulting')
+            ->assertSee('Making complex information systems understandable, executable, and improvable')
             ->assertSee('Footer navigation')
             ->assertSee('Footer services navigation')
             ->assertSee('Consulting services')
@@ -82,8 +82,8 @@ class PublicNavigationExperienceTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('Turning Business Problems Into Products, Systems, and Intelligent Workflows')
-            ->assertSee('Start a conversation')
+            ->assertSee('Make Complex Systems')
+            ->assertSee('Explore laboratories')
             ->assertSee('Explore services');
     }
 }

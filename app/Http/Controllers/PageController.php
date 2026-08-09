@@ -53,6 +53,7 @@ class PageController extends Controller
             'articles' => Article::published()->latest('published_at')->take(3)->get(),
             'videos' => Video::published()->latest()->take(3)->get(),
             'atlasChains' => $atlasChains,
+            'laboratories' => collect(config('laboratories.items'))->where('featured', true)->take(4)->values(),
         ]);
     }
 
@@ -62,6 +63,7 @@ class PageController extends Controller
     }
 
     public function services() { return view('pages.services'); }
+    public function laboratories() { return view('pages.laboratories', ['laboratories' => collect(config('laboratories.items'))]); }
     public function videos() { return view('pages.videos', ['videos' => Video::published()->latest()->get()]); }
     public function tools() { return view('pages.tools'); }
 

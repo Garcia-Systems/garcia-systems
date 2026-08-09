@@ -1,26 +1,16 @@
-<x-layouts.app title="About Garcia Systems" page-description="Learn how Garcia Systems translates operational friction into scoped product, automation, systems, and AI readiness work.">
-    <section class="mx-auto max-w-5xl px-6 py-16">
-        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-300">About Garcia Systems</p>
-        <h1 class="mt-4 text-4xl font-bold text-white md:text-6xl">A solutions engineering platform for modernizing practical work.</h1>
-        <p class="mt-6 max-w-3xl text-lg text-slate-300">Garcia Systems helps teams translate operational friction into scoped product, automation, and systems work. The practice sits between business needs and technical execution so leaders can make grounded decisions before committing to heavier builds.</p>
-
-        <div class="mt-10 grid gap-6 md:grid-cols-2">
-            <div class="rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-                <h2 class="text-xl font-semibold text-white">Solutions engineering platform</h2>
-                <p class="mt-3 text-slate-300">We map business problems into solution options, implementation phases, and measurable outcomes.</p>
-            </div>
-            <div class="rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-                <h2 class="text-xl font-semibold text-white">Workflow modernization practice</h2>
-                <p class="mt-3 text-slate-300">We examine handoffs, data flow, tools, and recurring manual effort to identify where systems can reduce drag.</p>
-            </div>
-            <div class="rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-                <h2 class="text-xl font-semibold text-white">AI opportunity assessment lab</h2>
-                <p class="mt-3 text-slate-300">We evaluate whether AI-assisted workflows are useful, safe, and ready for focused pilots without overstating maturity.</p>
-            </div>
-            <div class="rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-                <h2 class="text-xl font-semibold text-white">Business/technology liaison</h2>
-                <p class="mt-3 text-slate-300">We help operators, stakeholders, and technical teams build shared language around scope, constraints, and decisions.</p>
-            </div>
+<x-layouts.app title="About Garcia Systems" page-description="Garcia Systems uses systems thinking, executable learning, deterministic models, software engineering, and reproducible evidence to understand and improve information systems.">
+    <section class="gs-shell gs-section">
+        <p class="gs-eyebrow">About Garcia Systems</p>
+        <h1 class="mt-4 max-w-5xl text-4xl font-bold text-white md:text-6xl">Understand the system. Make it executable. Improve it with evidence.</h1>
+        <p class="mt-6 max-w-3xl text-lg leading-8 text-slate-300">Garcia Systems studies how people, information, software, vendors, and workflows interact. The work connects systems thinking with software engineering so important behavior can be explained, inspected, tested, and improved.</p>
+        <div class="mt-12 grid gap-6 md:grid-cols-2">
+            @foreach([
+                ['Systems before solutions','Map actors, boundaries, information, dependencies, constraints, and friction before choosing technology.'],
+                ['Executable learning','Turn important concepts into deterministic models, scenarios, source code, and tests—not diagrams or claims alone.'],
+                ['Engineering and integration','Apply the model through focused software, interfaces, adapters, workflow modernization, and responsible automation.'],
+                ['Translation and verification','Give business and technical participants shared language, explicit assumptions, observable behavior, and reproducible evidence.'],
+            ] as [$title,$copy])<x-card><h2 class="text-xl font-semibold text-white">{{ $title }}</h2><p class="mt-3 leading-7 text-slate-300">{{ $copy }}</p></x-card>@endforeach
         </div>
     </section>
+    <section class="gs-shell pb-16"><div class="gs-panel p-8"><p class="gs-eyebrow">Working philosophy</p><p class="mt-4 max-w-4xl text-2xl font-semibold leading-9 text-white">Make assumptions explicit. Expose boundaries and dependencies. Prefer deterministic examples. Test claims. Improve based on what the system shows.</p><div class="mt-7 flex gap-3"><x-glow-button :href="route('laboratories')">See the laboratories</x-glow-button><x-glow-button :href="route('services')" variant="secondary">Explore services</x-glow-button></div></div></section>
 </x-layouts.app>

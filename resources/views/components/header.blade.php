@@ -1,12 +1,12 @@
 @php
     $navItems = [
         ['label' => 'Home', 'route' => 'home', 'patterns' => ['home']],
-        ['label' => 'About', 'route' => 'about', 'patterns' => ['about']],
         ['label' => 'Services', 'route' => 'services', 'patterns' => ['services']],
+        ['label' => 'Laboratories', 'route' => 'laboratories', 'patterns' => ['laboratories']],
         ...(config('garcia.features.opportunity_atlas') ? [['label' => 'Atlas', 'route' => 'atlas', 'patterns' => ['atlas*']]] : []),
         ...(config('garcia.features.ai_assessment') ? [['label' => 'Assessment', 'route' => 'assessment', 'patterns' => ['assessment*']]] : []),
-        ['label' => 'Articles', 'route' => 'articles.index', 'patterns' => ['articles*']],
-        ['label' => 'Videos', 'route' => 'videos', 'patterns' => ['videos']],
+        ['label' => 'Thinking', 'route' => 'articles.index', 'patterns' => ['articles*', 'videos']],
+        ['label' => 'About', 'route' => 'about', 'patterns' => ['about']],
         ['label' => 'Contact', 'route' => 'contact', 'patterns' => ['contact']],
     ];
 

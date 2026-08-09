@@ -41,9 +41,9 @@ class HomepageSystemsMapTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('Opportunity paths are being mapped.')
-            ->assertSee('Product Discovery')
-            ->assertSee('Solutions Engineering')
-            ->assertSee('Workflow Modernization')
+            ->assertSee('Systems Analysis &amp; Discovery', false)
+            ->assertSee('Software &amp; Integration Engineering', false)
+            ->assertSee('Executable Modeling &amp; Simulation', false)
             ->assertSee('data-reveal', false)
             ->assertSee('Explore the Opportunity Atlas');
     }

@@ -36,6 +36,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 Route::get('/', [PageController::class,'home'])->name('home');
 Route::get('/about', [PageController::class,'about'])->name('about');
 Route::get('/services', [PageController::class,'services'])->name('services');
+Route::get('/laboratories', [PageController::class,'laboratories'])->name('laboratories');
 Route::get('/articles', [ArticleController::class,'index'])->name('articles.index');
 Route::get('/articles/{article:slug}', [ArticleController::class,'show'])->name('articles.show');
 Route::get('/videos', [PageController::class,'videos'])->name('videos');
