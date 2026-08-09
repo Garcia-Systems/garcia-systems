@@ -156,6 +156,56 @@ body {
 
 @keyframes gs-pulse { 50% { opacity: .58; transform: scale(1.025); } }
 
+/* Service capabilities: compact, static system diagrams that activate on intent. */
+.gs-service-system-card { overflow: hidden; border: 1px solid rgb(148 163 184 / .18); border-radius: 1.25rem; background: linear-gradient(145deg, rgb(10 25 44 / .9), rgb(5 14 27 / .82)); box-shadow: inset 0 1px rgb(255 255 255 / .04); transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease; }
+.gs-service-system-card:hover, .gs-service-system-card:focus-within { border-color: rgb(94 231 247 / .38); transform: translateY(-3px); box-shadow: 0 18px 45px rgb(2 8 23 / .24), inset 0 1px rgb(255 255 255 / .06); }
+.gs-service-diagram { position: relative; height: 8.5rem; overflow: hidden; border-bottom: 1px solid rgb(148 163 184 / .12); background-color: rgb(3 12 24 / .7); background-image: linear-gradient(rgb(94 231 247 / .035) 1px, transparent 1px), linear-gradient(90deg, rgb(94 231 247 / .035) 1px, transparent 1px); background-size: 20px 20px; }
+.gs-service-diagram svg { position: absolute; inset: 1.5rem 1rem auto; width: calc(100% - 2rem); height: 5.25rem; fill: none; stroke: rgb(96 165 250 / .3); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.gs-service-diagram .gs-service-path-active { stroke: url(#none); stroke: var(--gs-cyan); stroke-dasharray: 80 400; stroke-dashoffset: 80; opacity: 0; transition: opacity 180ms ease, stroke-dashoffset 450ms ease; }
+.gs-service-system-card:hover .gs-service-path-active, .gs-service-system-card:focus-within .gs-service-path-active { opacity: .8; stroke-dashoffset: -280; }
+.gs-service-node { position: absolute; top: 2.7rem; display: grid; min-width: 4.5rem; justify-items: center; gap: .45rem; color: rgb(203 213 225); font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.gs-service-node:nth-of-type(1) { left: 5%; }.gs-service-node:nth-of-type(2) { left: 50%; top: 1.35rem; transform: translateX(-50%); }.gs-service-node:nth-of-type(3) { right: 4%; }
+.gs-service-diagram-2 .gs-service-node:nth-of-type(2) { top: 4.1rem; }.gs-service-diagram-3 .gs-service-node:nth-of-type(1) { top: 3.7rem; }.gs-service-diagram-3 .gs-service-node:nth-of-type(3) { top: 1.6rem; }
+.gs-service-node i { width: .7rem; height: .7rem; border: 2px solid rgb(94 231 247 / .8); border-radius: 50%; background: #071424; box-shadow: 0 0 0 4px rgb(94 231 247 / .06); transition: background 180ms ease, box-shadow 180ms ease; }
+.gs-service-system-card:hover .gs-service-node i, .gs-service-system-card:focus-within .gs-service-node i { background: var(--gs-cyan); box-shadow: 0 0 14px rgb(94 231 247 / .55); }
+
+/* Opportunity Atlas systems map. HTML carries meaning; responsive SVG only connects it. */
+.gs-atlas-map { --atlas-gap: clamp(2rem, 5vw, 5rem); position: relative; }
+.gs-motion-ready .gs-atlas-column, .gs-motion-ready .gs-atlas-connections { opacity: 0; transform: translateY(8px); }
+.gs-motion-ready .gs-atlas-map.is-visible .gs-atlas-column, .gs-motion-ready .gs-atlas-map.is-visible .gs-atlas-connections { opacity: 1; transform: none; transition: opacity 320ms ease, transform 320ms ease; }
+.gs-motion-ready .gs-atlas-map.is-visible .gs-atlas-column:nth-child(2) { transition-delay: 70ms; }.gs-motion-ready .gs-atlas-map.is-visible .gs-atlas-column:nth-child(3) { transition-delay: 140ms; }.gs-motion-ready .gs-atlas-map.is-visible .gs-atlas-column:nth-child(4) { transition-delay: 210ms; }.gs-motion-ready .gs-atlas-map.is-visible .gs-atlas-connections { transition-delay: 280ms; }
+.gs-atlas-desktop { position: relative; min-height: 34rem; padding: 1.25rem; border: 1px solid rgb(94 231 247 / .16); border-radius: 1.25rem; background-color: rgb(2 10 22 / .78); background-image: linear-gradient(rgb(94 231 247 / .035) 1px, transparent 1px), linear-gradient(90deg, rgb(94 231 247 / .035) 1px, transparent 1px); background-size: 28px 28px; }
+.gs-atlas-key { display: flex; align-items: center; gap: .7rem; margin-bottom: 1.4rem; color: rgb(148 163 184); font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; }
+.gs-atlas-key i { width: clamp(.5rem, 3vw, 3rem); height: 1px; background: linear-gradient(90deg, rgb(94 231 247 / .2), rgb(94 231 247 / .7)); }
+.gs-atlas-columns { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--atlas-gap); }
+.gs-atlas-column h3 { display: flex; align-items: center; gap: .6rem; min-height: 2.5rem; color: rgb(226 232 240); font-size: .7rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.gs-atlas-column h3 span { color: var(--gs-cyan); font-family: ui-monospace, monospace; }
+.gs-atlas-node-list { display: grid; align-content: space-around; min-height: 26rem; gap: .75rem; }
+.gs-atlas-node { position: relative; width: 100%; min-height: 4.5rem; padding: .75rem; border: 1px solid rgb(148 163 184 / .2); border-radius: .7rem; background: rgb(10 24 42 / .92); color: rgb(226 232 240); text-align: left; transition: opacity 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+.gs-atlas-node::after { content: ''; position: absolute; top: 50%; right: -.25rem; width: .42rem; height: .42rem; border-radius: 50%; background: rgb(96 165 250); box-shadow: 0 0 8px rgb(96 165 250 / .55); transform: translateY(-50%); }
+.gs-atlas-column:last-child .gs-atlas-node::after { right: auto; left: -.25rem; background: rgb(167 139 250); }
+.gs-atlas-node-type { display: block; margin-bottom: .32rem; color: rgb(103 232 249); font-size: .57rem; letter-spacing: .13em; text-transform: uppercase; }
+.gs-atlas-node strong { display: block; font-size: .78rem; line-height: 1.35; }
+.gs-atlas-node:focus-visible { outline: 2px solid var(--gs-cyan); outline-offset: 3px; }
+.gs-atlas-desktop.has-active-path .gs-atlas-node { opacity: .42; }.gs-atlas-desktop.has-active-path .gs-atlas-node.is-related { opacity: 1; border-color: rgb(94 231 247 / .6); box-shadow: 0 0 20px rgb(34 211 238 / .12); transform: translateY(-1px); }
+.gs-atlas-connections { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.gs-atlas-connections path { fill: none; stroke: rgb(96 165 250 / .24); stroke-width: 1.25; vector-effect: non-scaling-stroke; transition: opacity 160ms ease, stroke 160ms ease, stroke-width 160ms ease; }
+.gs-atlas-desktop.has-active-path .gs-atlas-connections path { opacity: .15; }.gs-atlas-connections path.is-related { opacity: 1 !important; stroke: var(--gs-cyan); stroke-width: 2; stroke-dasharray: 8 5; filter: drop-shadow(0 0 3px rgb(94 231 247 / .55)); }.gs-atlas-map.is-in-view .gs-atlas-connections path.is-related { animation: gs-atlas-signal 1.4s linear infinite; }
+.gs-atlas-reset { position: relative; z-index: 3; margin-top: .8rem; min-height: 2.75rem; color: rgb(103 232 249); font-size: .75rem; font-weight: 700; }
+.gs-atlas-mobile { display: none; }.gs-atlas-empty { padding: 3rem 1.5rem; border: 1px dashed rgb(94 231 247 / .25); border-radius: 1rem; text-align: center; }.gs-atlas-empty h3 { margin-top: .6rem; font-size: 1.25rem; font-weight: 700; }.gs-atlas-empty p:last-child { margin: .6rem auto 0; max-width: 35rem; color: rgb(203 213 225); }
+@keyframes gs-atlas-signal { to { stroke-dashoffset: -26; } }
+
+@media (max-width: 899px) {
+    .gs-atlas-desktop { display: none; }.gs-atlas-mobile { display: block; }
+    .gs-atlas-mobile-tabs { display: flex; gap: .5rem; overflow-x: auto; padding: .25rem .1rem .8rem; }
+    .gs-atlas-mobile-tabs button { flex: 0 0 2.75rem; min-height: 2.75rem; border: 1px solid rgb(148 163 184 / .22); border-radius: 50%; color: rgb(148 163 184); font: 700 .7rem ui-monospace, monospace; }
+    .gs-atlas-mobile-tabs button[aria-selected="true"] { border-color: var(--gs-cyan); background: rgb(34 211 238 / .1); color: var(--gs-cyan); }
+    .gs-atlas-mobile-path { display: grid; gap: 1.6rem; margin-top: .5rem; }
+    .gs-atlas-mobile-path li { position: relative; padding: 1rem; border: 1px solid rgb(94 231 247 / .2); border-radius: .8rem; background: rgb(7 20 37 / .85); }
+    .gs-atlas-mobile-path li:not(:last-child)::after { content: '↓'; position: absolute; left: 50%; bottom: -1.45rem; color: var(--gs-cyan); transform: translateX(-50%); }
+    .gs-atlas-mobile-path span { display: block; color: var(--gs-cyan); font-size: .63rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }.gs-atlas-mobile-path strong { display: block; margin-top: .35rem; color: rgb(241 245 249); }.gs-atlas-mobile-path p { margin-top: .45rem; color: rgb(203 213 225); font-size: .85rem; line-height: 1.55; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

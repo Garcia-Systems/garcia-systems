@@ -3,6 +3,11 @@ const reveals = document.querySelectorAll('[data-reveal]');
 const heroSystem = document.querySelector('[data-hero-system]');
 const scrollStories = document.querySelectorAll('[data-friction-system], [data-process-flow]');
 
+document.querySelectorAll('[data-atlas-map]').forEach((map) => {
+    import('./visualizations/opportunity-atlas.js')
+        .then(({ initializeOpportunityAtlas }) => initializeOpportunityAtlas(map));
+});
+
 if (heroSystem && !reduceMotion) {
     const initializeHero = () => import('./visualizations/hero-system.js')
         .then(({ createHeroSystem }) => createHeroSystem(heroSystem))

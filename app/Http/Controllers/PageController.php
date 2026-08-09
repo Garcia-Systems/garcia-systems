@@ -31,10 +31,28 @@ class PageController extends Controller
 {
     public function home()
     {
+        $atlasChains = Workflow::query()
+            ->with(['industry', 'frictionPoints.solutionPatterns'])
+            ->whereHas('industry')
+            ->whereHas('frictionPoints.solutionPatterns')
+            ->orderBy('name')
+            ->take(6)
+            ->get()
+            ->flatMap(fn (Workflow $workflow) => $workflow->frictionPoints->flatMap(
+                fn (FrictionPoint $friction) => $friction->solutionPatterns->map(fn (SolutionPattern $solution) => [
+                    'industry' => ['id' => $workflow->industry->id, 'name' => $workflow->industry->name],
+                    'workflow' => ['id' => $workflow->id, 'name' => $workflow->name, 'description' => $workflow->description],
+                    'friction' => ['id' => $friction->id, 'name' => $friction->name, 'description' => $friction->description],
+                    'solution' => ['id' => $solution->id, 'name' => $solution->name, 'description' => $solution->description],
+                ])
+            ))
+            ->take(5)
+            ->values();
+
         return view('pages.home', [
             'articles' => Article::published()->latest('published_at')->take(3)->get(),
             'videos' => Video::published()->latest()->take(3)->get(),
-            'frictions' => FrictionPoint::with('workflow.industry')->take(3)->get(),
+            'atlasChains' => $atlasChains,
         ]);
     }
 
