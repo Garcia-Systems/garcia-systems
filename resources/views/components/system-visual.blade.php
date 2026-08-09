@@ -50,3 +50,12 @@
         Garcia Systems brings business problems together with people, workflow, and data, organizes them into practical systems and automation, and produces measurable outcomes.
     </figcaption>
 </figure>
+
+<div class="gs-system-mobile-concepts" aria-hidden="true">
+    @foreach ($nodes as [$key, $label, $detail])
+        <div class="gs-system-mobile-concept gs-system-mobile-concept--{{ $key }}">
+            <strong>{{ $label }}</strong>
+            <span>{{ $detail }}</span>
+        </div>
+    @endforeach
+</div>
