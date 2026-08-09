@@ -66,10 +66,11 @@ body {
     .gs-link:hover { color: #b6f8ff; text-shadow: 0 0 18px rgb(94 231 247 / .35); }
     .gs-system-hero {
         position: relative; isolation: isolate; width: min(100%, 39rem); margin-inline: auto;
-        aspect-ratio: 1; overflow: hidden; contain: layout paint; border-radius: 42%;
+        aspect-ratio: 1; contain: layout; border-radius: 42%;
         background: radial-gradient(circle at 51% 48%, rgb(34 211 238 / .1), transparent 24%), radial-gradient(circle, rgb(69 148 255 / .045), transparent 65%);
     }
     .gs-system-canvas, .gs-system-fallback, .gs-system-labels { position: absolute; inset: 0; }
+    .gs-system-canvas, .gs-system-fallback { overflow: hidden; border-radius: inherit; }
     .gs-system-canvas { z-index: 2; opacity: 0; transition: opacity 700ms ease; }
     .gs-system-canvas canvas { display: block; width: 100%; height: 100%; }
     .gs-system-labels { z-index: 3; pointer-events: none; opacity: 0; transition: opacity 600ms 180ms ease; }
@@ -91,10 +92,10 @@ body {
     .gs-system-fallback-node--workflow { left: 9%; top: 52%; } .gs-system-fallback-node--data { left: 23%; top: 79%; }
     .gs-system-fallback-node--system { left: 83%; top: 23%; } .gs-system-fallback-node--automation { left: 91%; top: 51%; }
     .gs-system-fallback-node--outcome { left: 75%; top: 83%; }
-    .gs-system-label { left: 0; top: 0; display: flex; align-items: flex-start; gap: .65rem; width: max-content; min-width: 10rem; max-width: 13.5rem; padding: .7rem .85rem; pointer-events: auto; transform-origin: center; transition: border-color var(--gs-transition), background var(--gs-transition), box-shadow var(--gs-transition), opacity 160ms ease; will-change: transform; }
-    .gs-system-label strong { display: block; color: #f2fbff; font-size: 1rem; font-weight: 700; line-height: 1.2; letter-spacing: -.01em; }
-    .gs-system-label small { display: block; margin-top: .35rem; max-width: 11rem; color: #a9bdd2; font-size: .8125rem; line-height: 1.42; white-space: normal; }
-    .gs-system-label-dot { width: .45rem; height: .45rem; margin-top: .28rem; flex: none; border-radius: 50%; background: var(--gs-cyan); box-shadow: 0 0 12px var(--gs-cyan); }
+    .gs-system-label { left: 0; top: 0; display: flex; align-items: flex-start; gap: .5rem; width: max-content; min-width: 9rem; max-width: 12rem; padding: .56rem .72rem; border-radius: .7rem; background: rgb(3 13 26 / .91); box-shadow: 0 8px 24px rgb(0 4 14 / .38), inset 0 1px rgb(255 255 255 / .05); pointer-events: auto; transform-origin: center; transition: border-color var(--gs-transition), background var(--gs-transition), box-shadow var(--gs-transition), opacity 160ms ease; will-change: transform; }
+    .gs-system-label strong { display: block; color: #f2fbff; font-size: clamp(.875rem, 1vw, .9375rem); font-weight: 700; line-height: 1.2; letter-spacing: -.01em; }
+    .gs-system-label small { display: block; margin-top: .28rem; max-width: 9.75rem; color: #a9bdd2; font-size: clamp(.75rem, .82vw, .78125rem); line-height: 1.38; white-space: normal; }
+    .gs-system-label-dot { width: .38rem; height: .38rem; margin-top: .25rem; flex: none; border-radius: 50%; background: var(--gs-cyan); box-shadow: 0 0 10px var(--gs-cyan); }
     .gs-system-label--problem, .gs-system-label--outcome { border-color: rgb(154 130 255 / .38); }
     .gs-system-label:hover, .gs-system-label.is-highlighted { border-color: rgb(94 231 247 / .7); background: rgb(6 24 40 / .96); box-shadow: 0 8px 28px rgb(0 4 14 / .45), 0 0 22px rgb(94 231 247 / .15); }
     .gs-system-mobile-concepts { display: none; }
@@ -117,8 +118,8 @@ body {
 }
 
 @media (max-width: 899px) and (min-width: 640px) {
-    .gs-system-label { min-width: 9.5rem; max-width: 12rem; padding: .6rem .75rem; }
-    .gs-system-label strong { font-size: .9375rem; }
+    .gs-system-label { min-width: 8.5rem; max-width: 11rem; padding: .5rem .65rem; }
+    .gs-system-label strong { font-size: .875rem; }
     .gs-system-label small { font-size: .75rem; line-height: 1.4; }
 }
 

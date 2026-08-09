@@ -1,14 +1,16 @@
 import * as THREE from 'three';
 
 const NODE_DEFINITIONS = [
-    { key: 'problem', position: [0, 3.45, -0.6], labelOffset: [0, -14], color: 0x9a82ff, phase: 0.0 },
-    { key: 'people', position: [-3.45, 2.05, -1.15], labelOffset: [-18, -4], color: 0x5ee7f7, phase: 0.7 },
-    { key: 'data', position: [3.35, 2.2, -0.8], labelOffset: [18, -4], color: 0x5ee7f7, phase: 1.4 },
-    { key: 'workflow', position: [-3.75, -1.35, 0.65], labelOffset: [-18, 6], color: 0x4594ff, phase: 2.1 },
-    { key: 'system', position: [3.85, 0.05, 0.4], labelOffset: [20, 0], color: 0x5ee7f7, phase: 2.8 },
-    { key: 'automation', position: [3.15, -2.65, -0.7], labelOffset: [14, 10], color: 0x4594ff, phase: 3.5 },
-    { key: 'outcome', position: [-1.25, -3.35, 0.65], labelOffset: [-6, 12], color: 0x9a82ff, phase: 4.2 },
+    { key: 'problem', position: [0, 3.45, -0.6], labelOffset: [0, -12], color: 0x9a82ff, phase: 0.0 },
+    { key: 'people', position: [-3.45, 2.05, -1.15], labelOffset: [-15, -3], color: 0x5ee7f7, phase: 0.7 },
+    { key: 'data', position: [3.35, 2.2, -0.8], labelOffset: [15, -3], color: 0x5ee7f7, phase: 1.4 },
+    { key: 'workflow', position: [-3.75, -1.35, 0.65], labelOffset: [-15, 5], color: 0x4594ff, phase: 2.1 },
+    { key: 'system', position: [3.85, 0.05, 0.4], labelOffset: [17, 0], color: 0x5ee7f7, phase: 2.8 },
+    { key: 'automation', position: [3.15, -2.65, -0.7], labelOffset: [12, 8], color: 0x4594ff, phase: 3.5 },
+    { key: 'outcome', position: [-1.25, -3.35, 0.65], labelOffset: [-5, 10], color: 0x9a82ff, phase: 4.2 },
 ];
+
+const LABEL_SAFE_INSET = 16;
 
 const supportsWebGL = () => {
     try {
@@ -85,8 +87,8 @@ export function createHeroSystem(root) {
             projected.project(camera);
             const label = labels.get(definition.key);
             const size = labelSizes.get(definition.key) ?? { width: 0, height: 0 };
-            const insetX = size.width / 2 + 8;
-            const insetY = size.height / 2 + 8;
+            const insetX = size.width / 2 + LABEL_SAFE_INSET;
+            const insetY = size.height / 2 + LABEL_SAFE_INSET;
             const offsetScale = width < 640 ? 0.35 : width < 900 ? 0.7 : 1;
             const x = THREE.MathUtils.clamp((projected.x * 0.5 + 0.5) * width + definition.labelOffset[0] * offsetScale, insetX, width - insetX);
             const y = THREE.MathUtils.clamp((-projected.y * 0.5 + 0.5) * height + definition.labelOffset[1] * offsetScale, insetY, height - insetY);
