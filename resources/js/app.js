@@ -34,10 +34,10 @@ if (!reduceMotion && scrollStories.length) {
 
             if (isProcessFlow && window.innerWidth >= 768) {
                 // A horizontal row is much shorter than the mobile stack. Complete its
-                // sequence while the row moves from 82% to 35% of the viewport, leaving
+                // sequence while the row moves from 82% to 45% of the viewport, leaving
                 // the remaining visible scroll distance to register the completed state.
                 const desktopStart = viewportHeight * 0.82;
-                const desktopEnd = viewportHeight * 0.35;
+                const desktopEnd = viewportHeight * 0.45;
                 progress = (desktopStart - bounds.top) / (desktopStart - desktopEnd);
             }
 
