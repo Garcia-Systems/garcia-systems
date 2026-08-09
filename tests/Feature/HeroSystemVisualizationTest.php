@@ -17,6 +17,7 @@ class HeroSystemVisualizationTest extends TestCase
             ->assertSee('data-hero-system-fallback', false)
             ->assertSee('data-hero-system-canvas', false)
             ->assertSee('gs-system-mobile-concepts', false)
+            ->assertSee('System model concept descriptions')
             ->assertSee('Business Problem')
             ->assertSee('People')
             ->assertSee('Workflow')

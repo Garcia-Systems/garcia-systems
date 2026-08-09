@@ -51,9 +51,9 @@
     </figcaption>
 </figure>
 
-<div class="gs-system-mobile-concepts" aria-hidden="true">
+<div class="gs-system-mobile-concepts" role="list" aria-label="System model concept descriptions">
     @foreach ($nodes as [$key, $label, $detail])
-        <div class="gs-system-mobile-concept gs-system-mobile-concept--{{ $key }}">
+        <div class="gs-system-mobile-concept gs-system-mobile-concept--{{ $key }}" role="listitem">
             <strong>{{ $label }}</strong>
             <span>{{ $detail }}</span>
         </div>

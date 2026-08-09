@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 
 const NODE_DEFINITIONS = [
-    { key: 'problem', position: [0, 3.45, -0.6], labelOffset: [0, -12], color: 0x9a82ff, phase: 0.0 },
-    { key: 'people', position: [-3.45, 2.05, -1.15], labelOffset: [-15, -3], color: 0x5ee7f7, phase: 0.7 },
-    { key: 'data', position: [3.35, 2.2, -0.8], labelOffset: [15, -3], color: 0x5ee7f7, phase: 1.4 },
-    { key: 'workflow', position: [-3.75, -1.35, 0.65], labelOffset: [-15, 5], color: 0x4594ff, phase: 2.1 },
-    { key: 'system', position: [3.85, 0.05, 0.4], labelOffset: [17, 0], color: 0x5ee7f7, phase: 2.8 },
-    { key: 'automation', position: [3.15, -2.65, -0.7], labelOffset: [12, 8], color: 0x4594ff, phase: 3.5 },
-    { key: 'outcome', position: [-1.25, -3.35, 0.65], labelOffset: [-5, 10], color: 0x9a82ff, phase: 4.2 },
+    { key: 'problem', position: [0, 3.45, -0.6], mobilePosition: [0, 4.2, -0.6], labelOffset: [0, -12], color: 0x9a82ff, phase: 0.0 },
+    { key: 'people', position: [-3.45, 2.05, -1.15], mobilePosition: [-3.8, 2.35, -1.15], labelOffset: [-15, -3], color: 0x5ee7f7, phase: 0.7 },
+    { key: 'data', position: [3.35, 2.2, -0.8], mobilePosition: [3.8, 2.35, -0.8], labelOffset: [15, -3], color: 0x5ee7f7, phase: 1.4 },
+    { key: 'workflow', position: [-3.75, -1.35, 0.65], mobilePosition: [-4, -0.65, 0.65], labelOffset: [-15, 5], color: 0x4594ff, phase: 2.1 },
+    { key: 'system', position: [3.85, 0.05, 0.4], mobilePosition: [4, -0.65, 0.4], labelOffset: [17, 0], color: 0x5ee7f7, phase: 2.8 },
+    { key: 'automation', position: [3.15, -2.65, -0.7], mobilePosition: [2.9, -3.75, -0.7], labelOffset: [12, 8], color: 0x4594ff, phase: 3.5 },
+    { key: 'outcome', position: [-1.25, -3.35, 0.65], mobilePosition: [-2.9, -3.75, 0.65], labelOffset: [-5, 10], color: 0x9a82ff, phase: 4.2 },
 ];
 
 const LABEL_SAFE_INSET = 16;
@@ -66,15 +66,22 @@ export function createHeroSystem(root) {
     let frame = 0;
     let visible = true;
     let destroyed = false;
+    let useMobileLayout = root.clientWidth < 640;
 
     const resize = () => {
         const width = Math.max(root.clientWidth, 1);
         const height = Math.max(root.clientHeight, 1);
+        useMobileLayout = width < 640;
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 640 ? 1.25 : 1.75));
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.position.z = width < 520 ? 15.2 : width < 800 ? 14 : 12.8;
         camera.updateProjectionMatrix();
+        core.group.scale.setScalar(useMobileLayout ? 0.88 : 1);
+        nodes.forEach((node, index) => {
+            node.marker.position.set(...(useMobileLayout ? node.definition.mobilePosition : node.definition.position));
+            updateConnection(connections[index], node);
+        });
         labels.forEach((label, key) => labelSizes.set(key, { width: label.offsetWidth, height: label.offsetHeight }));
     };
 
@@ -108,7 +115,8 @@ export function createHeroSystem(root) {
         core.rings[0].rotation.z = elapsed * 0.11;
         core.rings[1].rotation.x = Math.PI / 2.8 + elapsed * 0.07;
         nodes.forEach(({ marker, definition }, index) => {
-            marker.position.y = definition.position[1] + Math.sin(elapsed * 0.42 + definition.phase) * 0.055;
+            const basePosition = useMobileLayout ? definition.mobilePosition : definition.position;
+            marker.position.y = basePosition[1] + Math.sin(elapsed * 0.42 + definition.phase) * 0.055;
             marker.rotation.y = elapsed * 0.16 + index;
         });
         connections.forEach(({ pulse, curve, phase }) => pulse.position.copy(curve.getPoint((elapsed * 0.075 + phase) % 1)));
@@ -215,14 +223,23 @@ function createNode(definition, geometry, parent) {
 }
 
 function createConnection(node, parent) {
-    const end = node.marker.position.clone();
-    const midpoint = end.clone().multiplyScalar(0.48);
-    midpoint.z += end.x > 0 ? 0.75 : -0.55;
-    const curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(), midpoint, end);
+    const curve = createConnectionCurve(node.marker.position);
     const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(40)), new THREE.LineBasicMaterial({ color: node.definition.color, transparent: true, opacity: 0.34 }));
     const pulse = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), new THREE.MeshBasicMaterial({ color: node.definition.color }));
     parent.add(line, pulse);
     return { curve, line, pulse, phase: node.definition.phase / 7 };
+}
+
+function updateConnection(connection, node) {
+    connection.curve = createConnectionCurve(node.marker.position);
+    connection.line.geometry.setFromPoints(connection.curve.getPoints(40));
+}
+
+function createConnectionCurve(position) {
+    const end = position.clone();
+    const midpoint = end.clone().multiplyScalar(0.48);
+    midpoint.z += end.x > 0 ? 0.75 : -0.55;
+    return new THREE.QuadraticBezierCurve3(new THREE.Vector3(), midpoint, end);
 }
 
 function createParticles(count) {
