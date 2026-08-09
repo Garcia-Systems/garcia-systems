@@ -34,11 +34,28 @@ if (!reduceMotion && scrollStories.length) {
 
             if (isProcessFlow && window.innerWidth >= 768) {
                 // A horizontal row is much shorter than the mobile stack. Complete its
-                // sequence while the row moves from 82% to 35% of the viewport, leaving
+                // sequence while the row moves from 82% to 45% of the viewport, leaving
                 // the remaining visible scroll distance to register the completed state.
                 const desktopStart = viewportHeight * 0.82;
-                const desktopEnd = viewportHeight * 0.35;
+                const desktopEnd = viewportHeight * 0.45;
                 progress = (desktopStart - bounds.top) / (desktopStart - desktopEnd);
+            } else if (isProcessFlow) {
+                // Calibrate the taller mobile stack against the cards instead of making
+                // it travel its full height. Discover is fully active when its center
+                // reaches 70% of the viewport; Execute is fully active by 65%.
+                const steps = story.querySelectorAll('.gs-process-step');
+                const firstStep = steps[0]?.getBoundingClientRect();
+                const lastStep = steps[steps.length - 1]?.getBoundingClientRect();
+
+                if (firstStep && lastStep) {
+                    const discoverProgress = 1 / 6;
+                    const executeProgress = 19 / 24;
+                    const discoverTop = viewportHeight * 0.70 - (firstStep.top - bounds.top + firstStep.height / 2);
+                    const executeTop = viewportHeight * 0.65 - (lastStep.top - bounds.top + lastStep.height / 2);
+                    const mobileTravel = (discoverTop - executeTop) / (executeProgress - discoverProgress);
+                    const mobileStart = discoverTop + discoverProgress * mobileTravel;
+                    progress = (mobileStart - bounds.top) / mobileTravel;
+                }
             }
 
             progress = Math.min(1, Math.max(0, progress));
