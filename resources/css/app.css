@@ -91,11 +91,12 @@ body {
     .gs-system-fallback-node--workflow { left: 9%; top: 52%; } .gs-system-fallback-node--data { left: 23%; top: 79%; }
     .gs-system-fallback-node--system { left: 83%; top: 23%; } .gs-system-fallback-node--automation { left: 91%; top: 51%; }
     .gs-system-fallback-node--outcome { left: 75%; top: 83%; }
-    .gs-system-label { left: 0; top: 0; display: flex; align-items: center; gap: .42rem; padding: .42rem .55rem; transform: translate(-50%, -50%) scale(var(--node-depth, 1)); transform-origin: center; }
+    .gs-system-label { left: 0; top: 0; display: flex; align-items: center; gap: .42rem; max-width: 11rem; padding: .5rem .65rem; pointer-events: auto; transform-origin: center; transition: border-color var(--gs-transition), background var(--gs-transition), box-shadow var(--gs-transition), opacity 160ms ease; will-change: transform; }
     .gs-system-label strong { display: block; font-size: inherit; line-height: 1.1; }
-    .gs-system-label small { display: none; margin-top: .2rem; max-width: 9.5rem; color: var(--gs-muted); font-size: .56rem; line-height: 1.25; white-space: normal; }
+    .gs-system-label small { display: block; margin-top: .2rem; max-width: 9.5rem; color: var(--gs-muted); font-size: .56rem; line-height: 1.25; white-space: normal; }
     .gs-system-label-dot { width: .28rem; height: .28rem; flex: none; border-radius: 50%; background: var(--gs-cyan); box-shadow: 0 0 10px var(--gs-cyan); }
-    .gs-system-hero:hover .gs-system-label small { display: block; }
+    .gs-system-label--problem, .gs-system-label--outcome { border-color: rgb(154 130 255 / .38); }
+    .gs-system-label:hover, .gs-system-label.is-highlighted { border-color: rgb(94 231 247 / .7); background: rgb(6 24 40 / .96); box-shadow: 0 8px 28px rgb(0 4 14 / .45), 0 0 22px rgb(94 231 247 / .15); }
     .gs-reveal { opacity: 0; transform: translateY(18px); transition: opacity 650ms ease, transform 650ms ease; }
     .gs-reveal.is-visible { opacity: 1; transform: none; }
 }
@@ -115,7 +116,7 @@ body {
     .gs-system-label, .gs-system-fallback-node { font-size: .53rem; }
     .gs-system-label { padding: .32rem .42rem; }
     .gs-system-label-dot { display: none; }
-    .gs-system-hero:hover .gs-system-label small { display: none; }
+    .gs-system-label small { display: none; }
 }
 
 @media (max-width: 380px) {

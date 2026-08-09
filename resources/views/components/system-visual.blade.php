@@ -1,12 +1,12 @@
 @php
     $nodes = [
-        ['problem', 'Business Problem', 'Friction, risk, or opportunity'],
-        ['people', 'People', 'Owners, teams, and customers'],
-        ['workflow', 'Workflow', 'The work as it happens today'],
-        ['data', 'Data', 'Signals, records, and evidence'],
-        ['system', 'System', 'A practical operating structure'],
-        ['automation', 'Automation', 'Repeatable work, executed reliably'],
-        ['outcome', 'Measurable Outcome', 'Observable business improvement'],
+        ['problem', 'Business Problem', 'Unclear process, friction, risk, or opportunity'],
+        ['people', 'People', 'Capabilities, roles, and collaboration'],
+        ['workflow', 'Workflow', 'Processes and steps that drive work'],
+        ['data', 'Data', 'Signals, records, constraints, and evidence'],
+        ['system', 'System', 'Integrated solutions that scale'],
+        ['automation', 'Automation', 'Repeatable work executed reliably'],
+        ['outcome', 'Measurable Outcome', 'Observable results that drive impact'],
     ];
 @endphp
 
@@ -37,9 +37,9 @@
     </div>
 
     <div class="gs-system-canvas" data-hero-system-canvas aria-hidden="true"></div>
-    <div class="gs-system-labels" data-hero-system-labels aria-hidden="true">
+    <div class="gs-system-labels" data-hero-system-labels role="list" aria-label="System model concepts">
         @foreach ($nodes as [$key, $label, $detail])
-            <span class="gs-system-label" data-system-node="{{ $key }}">
+            <span class="gs-system-label gs-system-label--{{ $key }}" data-system-node="{{ $key }}" role="listitem">
                 <span class="gs-system-label-dot"></span>
                 <span><strong>{{ $label }}</strong><small>{{ $detail }}</small></span>
             </span>

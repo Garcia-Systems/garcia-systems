@@ -23,6 +23,13 @@ class HeroSystemVisualizationTest extends TestCase
             ->assertSee('System')
             ->assertSee('Automation')
             ->assertSee('Measurable Outcome')
+            ->assertSee('Unclear process, friction, risk, or opportunity')
+            ->assertSee('Capabilities, roles, and collaboration')
+            ->assertSee('Signals, records, constraints, and evidence')
+            ->assertSee('Processes and steps that drive work')
+            ->assertSee('Integrated solutions that scale')
+            ->assertSee('Repeatable work executed reliably')
+            ->assertSee('Observable results that drive impact')
             ->assertSee('Garcia Systems brings business problems together with people, workflow, and data', false);
     }
 }

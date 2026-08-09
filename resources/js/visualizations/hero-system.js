@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 
 const NODE_DEFINITIONS = [
-    { key: 'problem', position: [-3.7, 2.25, -0.6], color: 0x9a82ff, phase: 0.0 },
-    { key: 'people', position: [-1.25, 3.15, -1.15], color: 0x5ee7f7, phase: 0.7 },
-    { key: 'workflow', position: [-3.85, -0.15, 0.65], color: 0x4594ff, phase: 1.4 },
-    { key: 'data', position: [-1.8, -2.75, -0.8], color: 0x5ee7f7, phase: 2.1 },
-    { key: 'system', position: [3.25, 2.35, 0.4], color: 0x5ee7f7, phase: 2.8 },
-    { key: 'automation', position: [4.05, 0.1, -0.7], color: 0x4594ff, phase: 3.5 },
-    { key: 'outcome', position: [3.05, -2.55, 0.65], color: 0x9a82ff, phase: 4.2 },
+    { key: 'problem', position: [0, 3.45, -0.6], color: 0x9a82ff, phase: 0.0 },
+    { key: 'people', position: [-3.45, 2.05, -1.15], color: 0x5ee7f7, phase: 0.7 },
+    { key: 'data', position: [3.35, 2.2, -0.8], color: 0x5ee7f7, phase: 1.4 },
+    { key: 'workflow', position: [-3.75, -1.35, 0.65], color: 0x4594ff, phase: 2.1 },
+    { key: 'system', position: [3.85, 0.05, 0.4], color: 0x5ee7f7, phase: 2.8 },
+    { key: 'automation', position: [3.15, -2.65, -0.7], color: 0x4594ff, phase: 3.5 },
+    { key: 'outcome', position: [-1.25, -3.35, 0.65], color: 0x9a82ff, phase: 4.2 },
 ];
 
 const supportsWebGL = () => {
@@ -58,7 +58,9 @@ export function createHeroSystem(root) {
     const pointer = new THREE.Vector2();
     const targetRotation = new THREE.Vector2();
     const projected = new THREE.Vector3();
+    const cameraSpace = new THREE.Vector3();
     const clock = new THREE.Clock();
+    const labelSizes = new Map();
     let frame = 0;
     let visible = true;
     let destroyed = false;
@@ -71,17 +73,27 @@ export function createHeroSystem(root) {
         camera.aspect = width / height;
         camera.position.z = width < 520 ? 15.2 : width < 800 ? 14 : 12.8;
         camera.updateProjectionMatrix();
+        labels.forEach((label, key) => labelSizes.set(key, { width: label.offsetWidth, height: label.offsetHeight }));
     };
 
     const positionLabels = () => {
         const width = root.clientWidth;
         const height = root.clientHeight;
         nodes.forEach(({ definition, marker }) => {
-            marker.getWorldPosition(projected).project(camera);
+            marker.getWorldPosition(projected);
+            cameraSpace.copy(projected).applyMatrix4(camera.matrixWorldInverse);
+            projected.project(camera);
             const label = labels.get(definition.key);
-            label.style.setProperty('--node-x', `${(projected.x * 0.5 + 0.5) * width}px`);
-            label.style.setProperty('--node-y', `${(-projected.y * 0.5 + 0.5) * height}px`);
-            label.style.setProperty('--node-depth', `${THREE.MathUtils.clamp(1.05 - (projected.z + 1) * 0.12, 0.86, 1.04)}`);
+            const size = labelSizes.get(definition.key) ?? { width: 0, height: 0 };
+            const insetX = size.width / 2 + 8;
+            const insetY = size.height / 2 + 8;
+            const x = THREE.MathUtils.clamp((projected.x * 0.5 + 0.5) * width, insetX, width - insetX);
+            const y = THREE.MathUtils.clamp((-projected.y * 0.5 + 0.5) * height, insetY, height - insetY);
+            const depth = THREE.MathUtils.clamp(1.05 - (projected.z + 1) * 0.12, 0.86, 1.04);
+            const onScreen = cameraSpace.z < 0 && projected.z > -1 && projected.z < 1;
+            label.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${depth})`;
+            label.style.opacity = onScreen ? '1' : '0';
+            label.style.visibility = onScreen ? 'visible' : 'hidden';
         });
     };
 
@@ -127,6 +139,21 @@ export function createHeroSystem(root) {
     root.addEventListener('pointermove', onPointerMove, { passive: true });
     root.addEventListener('pointerleave', onPointerLeave);
     document.addEventListener('visibilitychange', onVisibility);
+    const labelInteractions = nodes.map((node, index) => {
+        const label = labels.get(node.definition.key);
+        const connection = connections[index];
+        const setHighlighted = (highlighted) => {
+            node.marker.children[0].material.emissiveIntensity = highlighted ? 1.5 : 0.72;
+            node.marker.children[1].material.opacity = highlighted ? 0.8 : 0.42;
+            connection.line.material.opacity = highlighted ? 0.75 : 0.34;
+            label.classList.toggle('is-highlighted', highlighted);
+        };
+        const enter = () => setHighlighted(true);
+        const leave = () => setHighlighted(false);
+        label.addEventListener('pointerenter', enter);
+        label.addEventListener('pointerleave', leave);
+        return { label, enter, leave };
+    });
     resize();
     renderer.render(scene, camera);
     positionLabels();
@@ -141,6 +168,10 @@ export function createHeroSystem(root) {
         document.removeEventListener('visibilitychange', onVisibility);
         root.removeEventListener('pointermove', onPointerMove);
         root.removeEventListener('pointerleave', onPointerLeave);
+        labelInteractions.forEach(({ label, enter, leave }) => {
+            label.removeEventListener('pointerenter', enter);
+            label.removeEventListener('pointerleave', leave);
+        });
         scene.traverse((object) => {
             object.geometry?.dispose();
             if (Array.isArray(object.material)) object.material.forEach((material) => material.dispose());
@@ -189,7 +220,7 @@ function createConnection(node, parent) {
     const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(40)), new THREE.LineBasicMaterial({ color: node.definition.color, transparent: true, opacity: 0.34 }));
     const pulse = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), new THREE.MeshBasicMaterial({ color: node.definition.color }));
     parent.add(line, pulse);
-    return { curve, pulse, phase: node.definition.phase / 7 };
+    return { curve, line, pulse, phase: node.definition.phase / 7 };
 }
 
 function createParticles(count) {
