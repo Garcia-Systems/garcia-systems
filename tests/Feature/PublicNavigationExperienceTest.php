@@ -25,7 +25,7 @@ class PublicNavigationExperienceTest extends TestCase
             ->assertSee('Contact')
             ->assertSee('href="'.route('services').'"', false)
             ->assertSee('aria-current="page"', false)
-            ->assertSee('bg-cyan-400 text-slate-950', false)
+            ->assertSee('text-cyan-200 after:absolute', false)
             ->assertDontSee('href="'.route('admin.index').'"', false);
     }
 

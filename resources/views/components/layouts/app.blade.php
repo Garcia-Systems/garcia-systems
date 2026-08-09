@@ -58,10 +58,10 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
     </head>
-    <body class="bg-slate-950 text-slate-100">
+    <body class="antialiased">
         <x-header />
 
-        <main>{{ $slot }}</main>
+        <main id="main-content">{{ $slot }}</main>
 
         <x-footer />
     </body>

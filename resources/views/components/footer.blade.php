@@ -1,4 +1,4 @@
-<footer class="mt-20 border-t border-white/10 bg-slate-950">
+<footer class="relative mt-20 border-t border-cyan-100/10 bg-[#020711]/90 before:absolute before:left-1/2 before:top-0 before:h-px before:w-1/3 before:-translate-x-1/2 before:bg-cyan-300/40 before:shadow-[0_0_24px_rgb(34_211_238/.35)]">
     <div class="mx-auto grid max-w-6xl gap-10 px-6 py-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <section>
             <h2 class="text-lg font-bold text-white">Garcia Systems</h2>
