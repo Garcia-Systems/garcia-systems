@@ -66,10 +66,11 @@ body {
     .gs-link:hover { color: #b6f8ff; text-shadow: 0 0 18px rgb(94 231 247 / .35); }
     .gs-system-hero {
         position: relative; isolation: isolate; width: min(100%, 39rem); margin-inline: auto;
-        aspect-ratio: 1; overflow: hidden; contain: layout paint; border-radius: 42%;
+        aspect-ratio: 1; contain: layout; border-radius: 42%;
         background: radial-gradient(circle at 51% 48%, rgb(34 211 238 / .1), transparent 24%), radial-gradient(circle, rgb(69 148 255 / .045), transparent 65%);
     }
     .gs-system-canvas, .gs-system-fallback, .gs-system-labels { position: absolute; inset: 0; }
+    .gs-system-canvas, .gs-system-fallback { overflow: hidden; border-radius: inherit; }
     .gs-system-canvas { z-index: 2; opacity: 0; transition: opacity 700ms ease; }
     .gs-system-canvas canvas { display: block; width: 100%; height: 100%; }
     .gs-system-labels { z-index: 3; pointer-events: none; opacity: 0; transition: opacity 600ms 180ms ease; }

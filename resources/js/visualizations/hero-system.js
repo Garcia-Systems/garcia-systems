@@ -10,6 +10,8 @@ const NODE_DEFINITIONS = [
     { key: 'outcome', position: [-1.25, -3.35, 0.65], labelOffset: [-5, 10], color: 0x9a82ff, phase: 4.2 },
 ];
 
+const LABEL_SAFE_INSET = 16;
+
 const supportsWebGL = () => {
     try {
         const canvas = document.createElement('canvas');
@@ -85,8 +87,8 @@ export function createHeroSystem(root) {
             projected.project(camera);
             const label = labels.get(definition.key);
             const size = labelSizes.get(definition.key) ?? { width: 0, height: 0 };
-            const insetX = size.width / 2 + 8;
-            const insetY = size.height / 2 + 8;
+            const insetX = size.width / 2 + LABEL_SAFE_INSET;
+            const insetY = size.height / 2 + LABEL_SAFE_INSET;
             const offsetScale = width < 640 ? 0.35 : width < 900 ? 0.7 : 1;
             const x = THREE.MathUtils.clamp((projected.x * 0.5 + 0.5) * width + definition.labelOffset[0] * offsetScale, insetX, width - insetX);
             const y = THREE.MathUtils.clamp((-projected.y * 0.5 + 0.5) * height + definition.labelOffset[1] * offsetScale, insetY, height - insetY);
