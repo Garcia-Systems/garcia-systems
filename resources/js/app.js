@@ -1,5 +1,23 @@
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const reveals = document.querySelectorAll('[data-reveal]');
+const heroSystem = document.querySelector('[data-hero-system]');
+
+if (heroSystem && !reduceMotion) {
+    const initializeHero = () => import('./visualizations/hero-system.js')
+        .then(({ createHeroSystem }) => createHeroSystem(heroSystem))
+        .catch(() => heroSystem.classList.add('is-fallback'));
+
+    if ('IntersectionObserver' in window) {
+        const heroObserver = new IntersectionObserver((entries) => {
+            if (!entries.some((entry) => entry.isIntersecting)) return;
+            heroObserver.disconnect();
+            initializeHero();
+        }, { rootMargin: '240px' });
+        heroObserver.observe(heroSystem);
+    } else {
+        initializeHero();
+    }
+}
 
 if (!reduceMotion && 'IntersectionObserver' in window) {
     const observer = new IntersectionObserver((entries) => {

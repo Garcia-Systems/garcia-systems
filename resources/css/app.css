@@ -64,7 +64,44 @@ body {
     .gs-button:focus-visible, .gs-focus:focus-visible { outline: 2px solid var(--gs-cyan); outline-offset: 4px; }
     .gs-link { color: var(--gs-cyan); font-weight: 700; transition: color var(--gs-transition), text-shadow var(--gs-transition); }
     .gs-link:hover { color: #b6f8ff; text-shadow: 0 0 18px rgb(94 231 247 / .35); }
-    .gs-node { position: absolute; z-index: 2; max-width: 8.5rem; border: 1px solid rgb(94 231 247 / .28); border-radius: 999px; padding: .45rem .7rem; background: rgb(3 13 26 / .88); color: #c9d9e9; font-size: clamp(.58rem, 1.4vw, .72rem); text-align: center; box-shadow: 0 0 22px rgb(66 181 255 / .11); }
+    .gs-system-hero {
+        position: relative; isolation: isolate; width: min(100%, 39rem); margin-inline: auto;
+        aspect-ratio: 1; contain: layout; border-radius: 42%;
+        background: radial-gradient(circle at 51% 48%, rgb(34 211 238 / .1), transparent 24%), radial-gradient(circle, rgb(69 148 255 / .045), transparent 65%);
+    }
+    .gs-system-canvas, .gs-system-fallback, .gs-system-labels { position: absolute; inset: 0; }
+    .gs-system-canvas, .gs-system-fallback { overflow: hidden; border-radius: inherit; }
+    .gs-system-canvas { z-index: 2; opacity: 0; transition: opacity 700ms ease; }
+    .gs-system-canvas canvas { display: block; width: 100%; height: 100%; }
+    .gs-system-labels { z-index: 3; pointer-events: none; opacity: 0; transition: opacity 600ms 180ms ease; }
+    .gs-system-hero.is-three-ready .gs-system-canvas, .gs-system-hero.is-three-ready .gs-system-labels { opacity: 1; }
+    .gs-system-hero.is-three-ready .gs-system-fallback { opacity: 0; }
+    .gs-system-fallback { z-index: 1; transition: opacity 600ms ease; }
+    .gs-system-fallback::before { content: ''; position: absolute; inset: 17%; border-radius: 50%; box-shadow: 0 0 90px rgb(34 211 238 / .12); }
+    .gs-system-fallback-lines { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .gs-system-fallback-orbit { position: absolute; border: 1px solid rgb(94 231 247 / .11); border-radius: 50%; transform: rotate(-12deg); }
+    .gs-system-fallback-orbit--outer { inset: 10%; }
+    .gs-system-fallback-orbit--inner { inset: 28%; border-color: rgb(154 130 255 / .18); transform: rotate(20deg); }
+    .gs-system-fallback-core { position: absolute; left: 50%; top: 50%; display: grid; place-content: center; width: 7.2rem; aspect-ratio: 1; transform: translate(-50%, -50%) rotate(30deg); border: 1px solid rgb(94 231 247 / .55); border-radius: 31%; background: linear-gradient(145deg, rgb(16 61 86 / .95), rgb(4 14 28 / .96)); box-shadow: inset 0 0 30px rgb(94 231 247 / .15), 0 0 65px rgb(34 211 238 / .2); text-align: center; }
+    .gs-system-fallback-core > * { transform: rotate(-30deg); }
+    .gs-system-fallback-core span { font-size: 1.3rem; font-weight: 800; letter-spacing: .12em; color: #eaffff; }
+    .gs-system-fallback-core small { margin-top: .25rem; font-size: .5rem; letter-spacing: .16em; text-transform: uppercase; color: var(--gs-cyan); }
+    .gs-system-fallback-node, .gs-system-label { position: absolute; border: 1px solid rgb(94 231 247 / .34); border-radius: .8rem; background: rgb(3 13 26 / .94); box-shadow: 0 10px 30px rgb(0 4 14 / .44), inset 0 1px rgb(255 255 255 / .06); color: #d8e5f2; white-space: nowrap; }
+    .gs-system-fallback-node { padding: .5rem .7rem; transform: translate(-50%, -50%); font-size: .75rem; font-weight: 650; }
+    .gs-system-fallback-node--problem { left: 16%; top: 21%; } .gs-system-fallback-node--people { left: 50%; top: 10%; }
+    .gs-system-fallback-node--workflow { left: 9%; top: 52%; } .gs-system-fallback-node--data { left: 23%; top: 79%; }
+    .gs-system-fallback-node--system { left: 83%; top: 23%; } .gs-system-fallback-node--automation { left: 91%; top: 51%; }
+    .gs-system-fallback-node--outcome { left: 75%; top: 83%; }
+    .gs-system-label { left: 0; top: 0; display: flex; align-items: flex-start; gap: .5rem; width: max-content; min-width: 9rem; max-width: 12rem; padding: .56rem .72rem; border-radius: .7rem; background: rgb(3 13 26 / .91); box-shadow: 0 8px 24px rgb(0 4 14 / .38), inset 0 1px rgb(255 255 255 / .05); pointer-events: auto; transform-origin: center; transition: border-color var(--gs-transition), background var(--gs-transition), box-shadow var(--gs-transition), opacity 160ms ease; will-change: transform; }
+    .gs-system-label strong { display: block; color: #f2fbff; font-size: clamp(.875rem, 1vw, .9375rem); font-weight: 700; line-height: 1.2; letter-spacing: -.01em; }
+    .gs-system-label small { display: block; margin-top: .28rem; max-width: 9.75rem; color: #a9bdd2; font-size: clamp(.75rem, .82vw, .78125rem); line-height: 1.38; white-space: normal; }
+    .gs-system-label-dot { width: .38rem; height: .38rem; margin-top: .25rem; flex: none; border-radius: 50%; background: var(--gs-cyan); box-shadow: 0 0 10px var(--gs-cyan); }
+    .gs-system-label--problem, .gs-system-label--outcome { border-color: rgb(154 130 255 / .38); }
+    .gs-system-label:hover, .gs-system-label.is-highlighted { border-color: rgb(94 231 247 / .7); background: rgb(6 24 40 / .96); box-shadow: 0 8px 28px rgb(0 4 14 / .45), 0 0 22px rgb(94 231 247 / .15); }
+    .gs-system-mobile-concepts { display: none; }
+    .gs-system-mobile-concept { border: 1px solid rgb(94 231 247 / .22); border-radius: .75rem; padding: .75rem; background: rgb(3 13 26 / .76); }
+    .gs-system-mobile-concept strong { display: block; color: #eefaff; font-size: .875rem; line-height: 1.3; }
+    .gs-system-mobile-concept span { display: block; margin-top: .25rem; color: #a9bdd2; font-size: .75rem; line-height: 1.45; }
     .gs-reveal { opacity: 0; transform: translateY(18px); transition: opacity 650ms ease, transform 650ms ease; }
     .gs-reveal.is-visible { opacity: 1; transform: none; }
 }
@@ -76,6 +113,30 @@ body {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     .gs-reveal { opacity: 1; transform: none; }
     .gs-button:hover, .gs-card:hover { transform: none; }
+    .gs-system-canvas, .gs-system-labels { display: none; }
+    .gs-system-mobile-concepts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin-top: .75rem; }
+}
+
+@media (max-width: 899px) and (min-width: 640px) {
+    .gs-system-label { min-width: 8.5rem; max-width: 11rem; padding: .5rem .65rem; }
+    .gs-system-label strong { font-size: .875rem; }
+    .gs-system-label small { font-size: .75rem; line-height: 1.4; }
+}
+
+@media (max-width: 639px) {
+    .gs-system-hero { width: min(100%, 31rem); border-radius: 32%; }
+    .gs-system-label { min-width: 0; max-width: 7.5rem; padding: .42rem .52rem; }
+    .gs-system-label strong { font-size: .75rem; line-height: 1.25; }
+    .gs-system-label-dot { display: none; }
+    .gs-system-label small { display: none; }
+    .gs-system-fallback-node { padding: .4rem .5rem; font-size: .75rem; }
+    .gs-system-mobile-concepts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin-top: .75rem; }
+}
+
+@media (max-width: 380px) {
+    .gs-system-canvas, .gs-system-labels { display: none; }
+    .gs-system-hero.is-three-ready .gs-system-fallback { opacity: 1; }
+    .gs-system-fallback-node { font-size: .75rem; }
 }
 
 @layer components {

@@ -1,0 +1,36 @@
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class HeroSystemVisualizationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_homepage_provides_progressive_hero_system_visualization(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('data-hero-system', false)
+            ->assertSee('data-hero-system-fallback', false)
+            ->assertSee('data-hero-system-canvas', false)
+            ->assertSee('gs-system-mobile-concepts', false)
+            ->assertSee('Business Problem')
+            ->assertSee('People')
+            ->assertSee('Workflow')
+            ->assertSee('Data')
+            ->assertSee('System')
+            ->assertSee('Automation')
+            ->assertSee('Measurable Outcome')
+            ->assertSee('Unclear process, friction, risk, or opportunity')
+            ->assertSee('Capabilities, roles, and collaboration')
+            ->assertSee('Signals, records, constraints, and evidence')
+            ->assertSee('Processes and steps that drive work')
+            ->assertSee('Integrated solutions that scale')
+            ->assertSee('Repeatable work executed reliably')
+            ->assertSee('Observable results that drive impact')
+            ->assertSee('Garcia Systems brings business problems together with people, workflow, and data', false);
+    }
+}
