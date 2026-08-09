@@ -14,18 +14,20 @@
         $navItems[] = ['label' => 'Admin', 'route' => 'admin.index', 'patterns' => ['admin*']];
     }
 
-    $baseLink = 'rounded-full px-3 py-2 text-sm font-medium transition hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950';
+    $baseLink = 'gs-focus relative rounded-lg px-3 py-2 text-sm font-medium transition hover:text-white focus:outline-none';
     $inactiveLink = 'text-slate-300';
-    $activeLink = 'bg-cyan-400 text-slate-950 shadow-sm shadow-cyan-950/40 hover:bg-cyan-300 hover:text-slate-950';
+    $activeLink = 'text-cyan-200 after:absolute after:inset-x-3 after:-bottom-1 after:h-px after:bg-cyan-300 after:shadow-[0_0_9px_rgb(103_232_249)]';
 @endphp
 
-<header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/95 backdrop-blur">
-    <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4" aria-label="Primary navigation">
+<a href="#main-content" class="gs-button gs-button-primary fixed left-4 top-3 z-[60] -translate-y-24 focus:translate-y-0">Skip to content</a>
+<header class="sticky top-0 z-50 border-b border-cyan-200/10 bg-[#030914]/85 shadow-[0_8px_30px_rgb(0_0_0/.18)] backdrop-blur-xl">
+    <nav class="gs-shell flex min-h-16 items-center justify-between gap-4" aria-label="Primary navigation">
         <a
             href="{{ route('home') }}"
-            class="rounded text-xl font-bold tracking-tight text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+            class="gs-focus flex items-center gap-3 rounded text-lg font-bold tracking-tight text-white focus:outline-none"
         >
-            Garcia Systems
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-200/30 bg-cyan-300/5 text-xs text-cyan-200 shadow-[0_0_18px_rgb(34_211_238/.12)]" aria-hidden="true">GS</span>
+            <span>Garcia <span class="font-medium text-slate-400">Systems</span></span>
         </a>
 
         <div class="hidden items-center gap-1 lg:flex">
@@ -33,7 +35,7 @@
                 @php($isActive = request()->routeIs(...$item['patterns']))
                 <a
                     href="{{ route($item['route']) }}"
-                    class="{{ $baseLink }} {{ $isActive ? $activeLink : $inactiveLink }}"
+                    class="{{ $item['route'] === 'contact' ? 'gs-button gs-button-primary ml-2 min-h-0 px-4 py-2 text-sm' : $baseLink.' '.($isActive ? $activeLink : $inactiveLink) }}"
                     @if($isActive) aria-current="page" @endif
                 >
                     {{ $item['label'] }}
@@ -42,7 +44,7 @@
         </div>
 
         <details class="group relative lg:hidden">
-            <summary class="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300/50 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950" aria-label="Open primary navigation menu">
+            <summary class="gs-focus flex cursor-pointer list-none items-center gap-2 rounded-full border border-cyan-200/20 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300/50 hover:bg-white/5 focus:outline-none" aria-label="Open primary navigation menu">
                 <span>Menu</span>
                 <span class="flex h-5 w-5 flex-col justify-center gap-1" aria-hidden="true">
                     <span class="block h-0.5 rounded bg-current"></span>
@@ -51,7 +53,7 @@
                 </span>
             </summary>
 
-            <div class="absolute right-0 mt-3 w-72 rounded-3xl border border-white/10 bg-slate-900 p-3 shadow-2xl shadow-slate-950/60">
+            <div class="gs-panel absolute right-0 mt-3 w-[min(18rem,calc(100vw-2rem))] p-3">
                 <div class="grid gap-1" aria-label="Mobile primary navigation">
                     @foreach($navItems as $item)
                         @php($isActive = request()->routeIs(...$item['patterns']))
