@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class HeroSystemVisualizationTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_homepage_provides_progressive_hero_system_visualization(): void
     {
         $this->get('/')
