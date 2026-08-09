@@ -1,6 +1,7 @@
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const reveals = document.querySelectorAll('[data-reveal]');
 const heroSystem = document.querySelector('[data-hero-system]');
+const scrollStories = document.querySelectorAll('[data-friction-system], [data-process-flow]');
 
 if (heroSystem && !reduceMotion) {
     const initializeHero = () => import('./visualizations/hero-system.js')
@@ -17,6 +18,33 @@ if (heroSystem && !reduceMotion) {
     } else {
         initializeHero();
     }
+}
+
+if (!reduceMotion && scrollStories.length) {
+    document.documentElement.classList.add('gs-motion-ready');
+    let frameRequested = false;
+
+    const updateStories = () => {
+        const viewportHeight = window.innerHeight;
+        scrollStories.forEach((story) => {
+            const bounds = story.getBoundingClientRect();
+            const travel = viewportHeight + bounds.height;
+            const progress = Math.min(1, Math.max(0, (viewportHeight - bounds.top) / travel));
+            story.style.setProperty(story.matches('[data-process-flow]') ? '--process-progress' : '--story-progress', progress.toFixed(3));
+        });
+        frameRequested = false;
+    };
+
+    const requestStoryUpdate = () => {
+        if (frameRequested) return;
+        frameRequested = true;
+        window.requestAnimationFrame(updateStories);
+    };
+
+    updateStories();
+    window.addEventListener('scroll', requestStoryUpdate, { passive: true });
+    window.addEventListener('resize', requestStoryUpdate, { passive: true });
+    window.addEventListener('pageshow', requestStoryUpdate);
 }
 
 if (!reduceMotion && 'IntersectionObserver' in window) {

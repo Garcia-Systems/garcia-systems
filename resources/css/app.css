@@ -102,6 +102,54 @@ body {
     .gs-system-mobile-concept { border: 1px solid rgb(94 231 247 / .22); border-radius: .75rem; padding: .75rem; background: rgb(3 13 26 / .76); }
     .gs-system-mobile-concept strong { display: block; color: #eefaff; font-size: .875rem; line-height: 1.3; }
     .gs-system-mobile-concept span { display: block; margin-top: .25rem; color: #a9bdd2; font-size: .75rem; line-height: 1.45; }
+    .gs-friction-story { position: relative; isolation: isolate; display: grid; grid-template-columns: 1.15fr 3rem .9fr 3rem 1fr; align-items: stretch; min-height: 31rem; overflow: hidden; padding: 1.25rem; }
+    .gs-friction-grid { position: absolute; inset: 0; z-index: -1; opacity: .35; background-image: linear-gradient(rgb(94 231 247 / .06) 1px, transparent 1px), linear-gradient(90deg, rgb(94 231 247 / .06) 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+    .gs-friction-stage { position: relative; min-width: 0; border: 1px solid rgb(139 188 235 / .13); border-radius: 1.1rem; padding: 1rem; background: rgb(3 12 24 / .58); }
+    .gs-friction-label { position: relative; z-index: 2; font-size: .65rem; font-weight: 750; letter-spacing: .18em; text-transform: uppercase; color: #9bb1c8; }
+    .gs-friction-nodes { position: relative; height: 25rem; margin-top: .5rem; }
+    .gs-friction-nodes li { position: absolute; width: max-content; max-width: 9rem; border: 1px solid rgb(154 130 255 / .27); border-radius: .65rem; padding: .42rem .58rem; background: rgb(9 18 35 / .92); color: #c9d5e5; font-size: .72rem; box-shadow: 0 8px 20px rgb(0 0 0 / .22); }
+    .gs-friction-nodes li:nth-child(1) { left: 2%; top: 6%; transform: rotate(-3deg); } .gs-friction-nodes li:nth-child(2) { right: 5%; top: 1%; transform: rotate(2deg); }
+    .gs-friction-nodes li:nth-child(3) { left: 28%; top: 23%; transform: rotate(3deg); } .gs-friction-nodes li:nth-child(4) { right: 1%; top: 35%; transform: rotate(-3deg); }
+    .gs-friction-nodes li:nth-child(5) { left: 0; top: 45%; transform: rotate(2deg); } .gs-friction-nodes li:nth-child(6) { left: 36%; top: 61%; transform: rotate(-2deg); }
+    .gs-friction-nodes li:nth-child(7) { right: 2%; top: 72%; transform: rotate(4deg); } .gs-friction-nodes li:nth-child(8) { left: 1%; top: 82%; transform: rotate(-2deg); }
+    .gs-friction-nodes li:nth-child(9) { right: 4%; top: 93%; transform: translateY(-100%) rotate(2deg); }
+    .gs-friction-wires { position: absolute; inset: 3.25rem .5rem .5rem; width: calc(100% - 1rem); height: calc(100% - 3.75rem); color: rgb(154 130 255 / .3); }
+    .gs-friction-wires path { stroke-width: 1.2; stroke-dasharray: 5 8; }
+    .gs-friction-arrow { display: grid; place-items: center; overflow: hidden; }
+    .gs-friction-arrow span { width: 100%; height: 1px; background: linear-gradient(90deg, rgb(94 231 247 / .16), var(--gs-cyan)); transform-origin: left; }
+    .gs-friction-arrow span::after { content: ''; display: block; width: .45rem; height: .45rem; margin-left: auto; border-top: 1px solid var(--gs-cyan); border-right: 1px solid var(--gs-cyan); transform: translateY(-.2rem) rotate(45deg); }
+    .gs-friction-stage--system { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .gs-system-input-label { margin-bottom: .5rem; color: var(--gs-cyan); font-size: .58rem; font-weight: 750; letter-spacing: .18em; text-transform: uppercase; }
+    .gs-system-inputs { display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem; }
+    .gs-system-inputs span, .gs-outcome-list li { border: 1px solid rgb(94 231 247 / .22); border-radius: 999px; padding: .38rem .58rem; background: rgb(6 25 42 / .8); color: #c6dbea; font-size: .68rem; }
+    .gs-system-core { position: relative; display: grid; place-items: center; width: 9.5rem; aspect-ratio: 1; margin-block: 2.5rem; border: 1px solid rgb(94 231 247 / .65); border-radius: 30%; background: radial-gradient(circle at 50% 25%, rgb(94 231 247 / .18), transparent 55%), #061426; box-shadow: inset 0 0 35px rgb(94 231 247 / .12), 0 0 42px rgb(34 211 238 / .13); text-align: center; transform: rotate(45deg); }
+    .gs-system-core > * { transform: rotate(-45deg); }
+    .gs-system-core small, .gs-system-core span { position: absolute; color: var(--gs-cyan); font-size: .52rem; letter-spacing: .12em; text-transform: uppercase; }
+    .gs-system-core small { top: 1.55rem; left: -.25rem; } .gs-system-core span { right: -.9rem; bottom: 1.25rem; }
+    .gs-system-core strong { color: #f1fdff; font-size: 1rem; line-height: 1.25; }
+    .gs-system-path { width: 1px; height: 2.5rem; background: linear-gradient(var(--gs-cyan), transparent); }
+    .gs-friction-stage--outcomes { display: flex; flex-direction: column; justify-content: center; }
+    .gs-outcome-list { display: grid; gap: .65rem; margin-block: 1.5rem; }
+    .gs-outcome-list li { border-radius: .7rem; padding: .7rem; font-size: .75rem; }
+    .gs-measurable-outcome { display: flex; align-items: center; gap: .7rem; border: 1px solid rgb(94 231 247 / .5); border-radius: 1rem; padding: 1rem; background: linear-gradient(130deg, rgb(24 92 111 / .36), rgb(18 36 71 / .5)); box-shadow: 0 0 28px rgb(34 211 238 / .1); }
+    .gs-measurable-outcome span, .gs-process-complete span { display: grid; place-items: center; width: 2rem; aspect-ratio: 1; flex: none; border-radius: 50%; background: var(--gs-cyan); color: #02121b; font-weight: 900; }
+    .gs-measurable-outcome strong { color: #edfdff; font-size: .88rem; line-height: 1.35; text-transform: uppercase; letter-spacing: .08em; }
+    .gs-process-flow { position: relative; }
+    .gs-process-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+    .gs-process-track { position: absolute; left: 5%; right: 5%; top: 1.25rem; height: 2px; background: rgb(94 231 247 / .1); }
+    .gs-process-track span { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--gs-cyan), var(--gs-blue), var(--gs-violet)); box-shadow: 0 0 12px rgb(94 231 247 / .4); transform: scaleX(var(--process-progress)); transform-origin: left; }
+    .gs-process-step { z-index: 1; }
+    .gs-process-complete { display: flex; align-items: center; justify-content: flex-end; gap: .55rem; margin-top: 1.25rem; color: var(--gs-cyan); font-size: .72rem; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    .gs-process-complete span { width: 1.65rem; }
+    .gs-motion-ready .gs-friction-nodes li { opacity: clamp(.18, calc(var(--story-progress) * 7 - .5), 1); }
+    .gs-motion-ready .gs-friction-wires { opacity: clamp(.15, calc(var(--story-progress) * 5 - .3), 1); }
+    .gs-motion-ready .gs-friction-arrow span { transform: scaleX(clamp(0, calc(var(--story-progress) * 5 - 1.5), 1)); }
+    .gs-motion-ready .gs-friction-stage--system { opacity: clamp(.25, calc(var(--story-progress) * 5 - 1), 1); }
+    .gs-motion-ready .gs-system-core { scale: clamp(.86, calc(var(--story-progress) * 1.2), 1); }
+    .gs-motion-ready .gs-friction-stage--outcomes { opacity: clamp(.2, calc(var(--story-progress) * 5 - 2.15), 1); }
+    .gs-motion-ready .gs-measurable-outcome { transform: translateY(clamp(0px, calc((1 - var(--story-progress)) * 18px), 18px)); }
+    .gs-motion-ready .gs-process-step { --step-active: clamp(.35, calc(var(--process-progress) * 6 - var(--step-index) * 1.25), 1); border-color: rgb(94 231 247 / var(--step-active)); opacity: var(--step-active); transform: translateY(calc((1 - var(--step-active)) * 7px)); }
+    .gs-motion-ready .gs-process-complete { opacity: clamp(.2, calc(var(--process-progress) * 7 - 5.5), 1); }
     .gs-reveal { opacity: 0; transform: translateY(18px); transition: opacity 650ms ease, transform 650ms ease; }
     .gs-reveal.is-visible { opacity: 1; transform: none; }
 }
@@ -115,6 +163,21 @@ body {
     .gs-button:hover, .gs-card:hover { transform: none; }
     .gs-system-canvas, .gs-system-labels { display: none; }
     .gs-system-mobile-concepts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin-top: .75rem; }
+    .gs-friction-stage, .gs-friction-arrow, .gs-process-step, .gs-process-complete { opacity: 1 !important; transform: none !important; }
+    .gs-friction-arrow span, .gs-process-track span { transform: none !important; }
+}
+
+@media (max-width: 767px) {
+    .gs-friction-story { grid-template-columns: 1fr; gap: 0; min-height: 0; padding: .75rem; }
+    .gs-friction-nodes { height: 20rem; }
+    .gs-friction-arrow { height: 3rem; }
+    .gs-friction-arrow span { width: 2.25rem; transform: rotate(90deg); transform-origin: center; }
+    .gs-motion-ready .gs-friction-arrow span { transform: rotate(90deg) scaleX(clamp(0, calc(var(--story-progress) * 5 - 1.5), 1)); }
+    .gs-system-core { margin-block: 2.25rem; }
+    .gs-process-steps { grid-template-columns: 1fr; gap: 1rem; padding-left: 1rem; }
+    .gs-process-track { left: 0; right: auto; top: 1.25rem; bottom: 4.5rem; width: 2px; height: auto; }
+    .gs-process-track span { transform: scaleY(var(--process-progress)); transform-origin: top; }
+    .gs-process-complete { justify-content: flex-start; margin-left: .2rem; }
 }
 
 @media (max-width: 899px) and (min-width: 640px) {

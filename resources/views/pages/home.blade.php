@@ -41,13 +41,11 @@
         </div>
     </section>
 
+    <x-friction-system-section />
+
     <section class="gs-shell gs-section">
         <x-section-heading eyebrow="How I work" title="How Garcia Systems Works" description="A practical consulting rhythm for moving from ambiguous friction to decisions, plans, and execution." />
-        <div class="relative mt-10 grid gap-5 before:absolute before:left-[12.5%] before:right-[12.5%] before:top-5 before:hidden before:h-px before:bg-gradient-to-r before:from-cyan-300/10 before:via-cyan-300/45 before:to-blue-400/10 md:grid-cols-4 md:before:block">
-            @foreach($process as $index => [$step, $description])
-                <x-process-step :number="$index + 1" :title="$step" :description="$description" />
-            @endforeach
-        </div>
+        <x-process-flow :steps="$process" />
     </section>
 
     <section class="gs-shell gs-section">
