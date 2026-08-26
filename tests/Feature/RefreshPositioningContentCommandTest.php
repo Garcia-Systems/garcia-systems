@@ -17,12 +17,47 @@ class RefreshPositioningContentCommandTest extends TestCase
         $this->seed(LookupReferenceSeeder::class);
         $category = Category::where('managed_content_key', 'category.strategy')->firstOrFail();
         $category->update(['description' => 'Outdated managed copy']);
+        $category->forceFill([
+            'managed_content_hash' => hash('sha256', json_encode(['name' => 'Strategy', 'description' => 'Outdated managed copy'], JSON_THROW_ON_ERROR)),
+        ])->save();
 
         $this->artisan('garcia:refresh-positioning-content')
             ->expectsOutputToContain('Reference records updated: 1')
             ->assertSuccessful();
 
         $this->assertSame('Business-first options analysis across workflows, systems, economics, and implementation.', $category->fresh()->description);
+    }
+
+    public function test_a_managed_record_becomes_protected_after_manual_customization(): void
+    {
+        $this->seed(LookupReferenceSeeder::class);
+        $category = Category::where('managed_content_key', 'category.strategy')->firstOrFail();
+        $originalHash = $category->managed_content_hash;
+        $category->update(['description' => 'Administrator-customized managed copy']);
+
+        $this->artisan('garcia:refresh-positioning-content')
+            ->expectsOutputToContain('Protected/customized records skipped: 1')
+            ->assertSuccessful();
+
+        $this->assertSame('Administrator-customized managed copy', $category->fresh()->description);
+        $this->assertSame($originalHash, $category->fresh()->managed_content_hash);
+    }
+
+    public function test_a_managed_key_without_provenance_hash_is_treated_as_ambiguous(): void
+    {
+        $category = Category::create([
+            'name' => 'Strategy',
+            'slug' => 'strategy',
+            'description' => 'Legacy production wording',
+            'managed_content_key' => 'category.strategy',
+        ]);
+
+        $this->artisan('garcia:refresh-positioning-content')
+            ->expectsOutputToContain('Protected/customized records skipped: 1')
+            ->assertSuccessful();
+
+        $this->assertSame('Legacy production wording', $category->fresh()->description);
+        $this->assertNull($category->fresh()->managed_content_hash);
     }
 
     public function test_running_twice_is_idempotent_and_unrelated_records_are_unchanged(): void
