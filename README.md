@@ -157,14 +157,15 @@ After deploying an intentional Garcia Systems positioning/reference-data change 
 # 2. Run only the deployment's normal additive migrations, when present.
 php artisan migrate --force
 
-# 3. Preview the narrowly scoped managed-content refresh.
+# 3. Preview and apply the narrowly scoped managed reference-content refresh.
 php artisan garcia:refresh-positioning-content --dry-run
-
-# 4. Inspect every reported create, update, and protected/customized skip.
-# 5. Only after that review, apply the refresh.
 php artisan garcia:refresh-positioning-content
+
+# 4. Preview and apply the separately scoped managed Atlas-example refresh.
+php artisan garcia:refresh-atlas-content --dry-run
+php artisan garcia:refresh-atlas-content
 ```
 
-The command creates missing canonical reference records only when their identity does not collide with existing data. It updates a record only when both its explicit Garcia Systems managed-content key and its last-applied content hash prove ownership and show that it has not subsequently been customized. A matching slug is not ownership; an unmarked collision, a missing provenance hash, or a changed managed record is skipped rather than claimed or overwritten. Dry-run reports the same decisions with zero persistent writes.
+Inspect every reported create, update, relationship change, and protected/customized skip before applying either refresh. The positioning command creates missing canonical reference records only when their identity does not collide with existing data. The Atlas command manages only explicitly owned demo/case-study workflows, friction points, and their canonical solution-pattern relationships; it expects the positioning reference catalog to be present and does not broadly recreate or rewrite it. Each command updates a record only when both its explicit Garcia Systems managed-content key and its last-applied content hash prove ownership and show that it has not subsequently been customized. A matching slug is not ownership; an unmarked collision, a missing provenance hash, or a changed managed record is skipped rather than claimed or overwritten. Dry-run reports the same decisions with zero persistent writes.
 
-Never use database refresh/reset commands or broad production reseeding for this workflow. Articles, videos, publication states, real video URLs, inquiries, assessment submissions, administrator accounts, and all other unrelated production content are intentionally outside the refresh command's scope.
+Never use database refresh/reset commands or broad production reseeding for this workflow. Neither refresh command touches articles, videos, publication states, real video URLs, inquiries, assessment submissions, administrator accounts, or other unrelated production content. Legacy Atlas rows without explicit ownership remain protected and may coexist with managed examples.
