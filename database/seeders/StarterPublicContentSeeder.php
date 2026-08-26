@@ -22,6 +22,8 @@ class StarterPublicContentSeeder extends Seeder
     {
         foreach ([
             'AI Readiness',
+            'Solutions Engineering',
+            'Business Analysis',
             'Automation',
             'Workflow Design',
             'Data Quality',
@@ -77,14 +79,18 @@ class StarterPublicContentSeeder extends Seeder
     private function seedAtlasExamples(): void
     {
         $examples = [
-            ['Healthcare','Growing mid-market team','Clinical Operations','Patient intake follow-up','Customer intake bottlenecks','customer-intake-bottlenecks','Structured intake and routing'],
-            ['Healthcare','Multi-location operator','Compliance','Records reconciliation','Records reconciliation','records-reconciliation','Data cleanup workflow'],
+            ['Public Health','Growing mid-market team','Clinical Operations','Public health intake follow-up','Customer intake bottlenecks','customer-intake-bottlenecks','Structured intake and routing'],
+            ['Public Health','Multi-location operator','Compliance','Records reconciliation','Records reconciliation','records-reconciliation','Data cleanup workflow'],
             ['Education','Public agency','Compliance','Grant documentation','Knowledge silos','knowledge-silos','Shared knowledge base'],
             ['Education','Growing mid-market team','Student Services','Student services handoffs','Disconnected systems','disconnected-systems','Cross-system status layer'],
             ['Logistics','Multi-location operator','Operations','Inventory coordination','Inventory visibility','inventory-visibility','Operational dashboard'],
             ['Logistics','Regional service provider','Field Operations','Delivery exception review','Approval delays','approval-delays','Approval rules and exception queue'],
             ['Retail','Small business','Procurement','Supplier replenishment','Vendor coordination','vendor-coordination','Vendor coordination hub'],
             ['Retail','Multi-location operator','Customer Support','Return request intake','Duplicate work','duplicate-work','Structured intake and routing'],
+            ['Restaurants','Multi-location operator','Operations','Location closeout review','Manual reporting','restaurant-closeout-reporting','Operational dashboard'],
+            ['Hospitality & Tourism','Regional service provider','Customer Support','Guest request coordination','Disconnected systems','guest-request-disconnected-systems','Cross-system status layer'],
+            ['Construction & Trades','Regional service provider','Field Operations','Field change approval','Approval delays','field-change-approval-delays','Approval rules and exception queue'],
+            ['E-commerce','Growing mid-market team','Operations','Order exception review','Duplicate work','ecommerce-order-exceptions','Approval rules and exception queue'],
             ['Manufacturing','Enterprise division','Finance','Production reporting','Manual reporting','manual-reporting','Operational dashboard'],
             ['Manufacturing','Regional service provider','Operations','Quality issue tracking','Data quality','data-quality','Data cleanup workflow'],
             ['Government','Public agency','Customer Support','Permit request review','Legacy system dependency','legacy-system-dependency','System-of-record clarification'],
@@ -102,7 +108,7 @@ class StarterPublicContentSeeder extends Seeder
                     'company_type_id' => CompanyType::where('slug', Str::slug($companyTypeName))->value('id'),
                     'department_id' => Department::where('slug', Str::slug($departmentName))->value('id'),
                     'name' => $workflowName,
-                    'description' => 'A practical '.$workflowName.' workflow where Garcia Systems can map friction, clarify requirements, and shape useful systems improvements.',
+                    'description' => 'An Applied Systems Lab case study for mapping '.$workflowName.', clarifying the business question, and comparing practical implementation choices.',
                 ]
             );
             $friction = FrictionPoint::updateOrCreate(

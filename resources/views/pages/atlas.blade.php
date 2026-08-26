@@ -1,8 +1,8 @@
-<x-layouts.app title="Opportunity Atlas" page-description="Explore operational friction by industry, workflow, capability, and solution pattern before choosing a technology path.">
+<x-layouts.app title="Opportunity Atlas" page-description="Applied Systems Labs tracing operating context, workflow friction, business questions, solution patterns, and implementation decisions.">
     <section class="mx-auto max-w-6xl px-6 py-16">
         <p class="font-semibold text-cyan-300">Opportunity Atlas</p>
-        <h1 class="mt-4 text-4xl font-bold tracking-tight md:text-6xl">Explore operational friction by industry, workflow, capability, and solution pattern.</h1>
-        <p class="mt-5 max-w-3xl text-lg text-slate-300">Use the filters to combine discovery lenses and find practical places where better systems, automation, or product execution could help.</p>
+        <h1 class="mt-4 text-4xl font-bold tracking-tight md:text-6xl">Applied Systems Labs for tracing work into implementation decisions.</h1>
+        <p class="mt-5 max-w-3xl text-lg text-slate-300">These executable case studies exercise the Garcia Systems method across varied operating environments. They are explorations—not claims of paid client experience. Use the filters to follow workflows, friction, business questions, and possible solution patterns.</p>
 
         <div class="mt-8 grid gap-3 md:grid-cols-7">
             @foreach($summary as $label => $count)
@@ -82,8 +82,8 @@
                         <p class="mt-2 text-slate-300">{{ $workflow->description }}</p>
 
                         <div class="mt-5 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-4 text-sm text-slate-300">
-                            <strong class="text-cyan-200">Hierarchy:</strong>
-                            {{ $workflow->industry?->name ?? 'Industry' }} ↓ {{ $workflow->companyType?->name ?? 'Company Type' }} ↓ {{ $workflow->department?->name ?? 'Department' }} ↓ {{ $workflow->name }} ↓ Friction Point ↓ Solution Pattern ↓ Capability ↓ Articles ↓ Videos ↓ Services
+                            <strong class="text-cyan-200">Decision path:</strong>
+                            {{ $workflow->industry?->name ?? 'Operating context' }} ↓ {{ $workflow->name }} ↓ Friction ↓ Business Question ↓ Solution Pattern ↓ Implementation Decision
                         </div>
 
                         <div class="mt-5 grid gap-4 md:grid-cols-{{ max(1, min(2, $workflow->frictionPoints->count())) }}">

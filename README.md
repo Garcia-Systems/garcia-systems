@@ -2,7 +2,7 @@
 
 **Turning Business Problems Into Products, Systems, and Intelligent Workflows**
 
-Garcia Systems is a Laravel application for presenting practical systems consulting content, AI readiness tools, contact capture, and early opportunity atlas content for operations-focused teams.
+Garcia Systems is a Laravel application presenting a business-first Solutions Engineering and systems consulting practice, its specialized assessment tools, and applied Opportunity Atlas case studies.
 
 ## Current Phase
 
@@ -124,7 +124,7 @@ Run tests through Sail so PHPUnit uses the containerized PHP environment.
 
 ## Product Direction
 
-Garcia Systems helps teams turn operational friction into focused software, automation, and intelligent workflow improvements. Future phases may add richer Atlas functionality, admin workflows, authentication, and deeper implementation tooling after the public foundation is stable.
+Garcia Systems starts with the business question and operating reality, then evaluates existing capabilities, economics, feasibility, and solution options. Recommendations may include using or configuring an existing system, buying a product, integrating systems, building narrowly, deferring work, or doing nothing. AI remains one useful technology within that broader Solutions Engineering toolkit.
 
 ## Database Seeding
 

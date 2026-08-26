@@ -22,7 +22,7 @@ class RefreshPositioningContentCommandTest extends TestCase
             ->expectsOutputToContain('Reference records updated: 1')
             ->assertSuccessful();
 
-        $this->assertSame('Practical AI, automation, and systems planning.', $category->fresh()->description);
+        $this->assertSame('Business-first options analysis across workflows, systems, economics, and implementation.', $category->fresh()->description);
     }
 
     public function test_running_twice_is_idempotent_and_unrelated_records_are_unchanged(): void

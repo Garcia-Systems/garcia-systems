@@ -3,7 +3,7 @@
         <div class="max-w-3xl">
             <p class="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">Insights</p>
             <h1 class="mt-3 text-4xl font-bold tracking-tight md:text-5xl">Articles</h1>
-            <p class="mt-5 text-lg text-slate-300">Practical thinking on automation, workflow modernization, AI readiness, and systems strategy for teams turning business problems into durable operating improvements.</p>
+            <p class="mt-5 text-lg text-slate-300">Practical thinking on business questions, workflow and systems analysis, solution options, automation, and applied AI.</p>
         </div>
 
         <form method="get" action="{{ route('articles.index') }}" class="mt-10 grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-5 md:grid-cols-[1fr_220px_auto]">
