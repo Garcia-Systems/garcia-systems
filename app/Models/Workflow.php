@@ -16,7 +16,8 @@ class Workflow extends Model
         'name',
         'slug',
         'description',
-
+        'managed_content_key',
+        'managed_content_hash',
     ];
 
     public function industry()

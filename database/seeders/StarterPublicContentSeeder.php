@@ -2,19 +2,20 @@
 
 namespace Database\Seeders;
 
-use App\Models\{Article,Category,FrictionPoint,Industry,CompanyType,Department,SolutionPattern,Tag,Video,Workflow};
+use App\Models\{Article, Category, Tag, Video};
+use App\Support\GarciaContent\AtlasContentRefresher;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class StarterPublicContentSeeder extends Seeder
 {
-    public function run(): void
+    public function run(AtlasContentRefresher $atlasContentRefresher): void
     {
         $this->call(LookupReferenceSeeder::class);
         $this->seedTags();
         $this->seedArticles();
-        $this->seedAtlasExamples();
+        $atlasContentRefresher->refresh();
         $this->seedVideos();
     }
 
@@ -73,54 +74,6 @@ class StarterPublicContentSeeder extends Seeder
                 ]
             );
             $article->tags()->sync(Tag::whereIn('slug', $tagSlugs)->pluck('id')->all());
-        }
-    }
-
-    private function seedAtlasExamples(): void
-    {
-        $examples = [
-            ['Public Health','Growing mid-market team','Clinical Operations','Public health intake follow-up','Customer intake bottlenecks','customer-intake-bottlenecks','Structured intake and routing'],
-            ['Public Health','Multi-location operator','Compliance','Records reconciliation','Records reconciliation','records-reconciliation','Data cleanup workflow'],
-            ['Education','Public agency','Compliance','Grant documentation','Knowledge silos','knowledge-silos','Shared knowledge base'],
-            ['Education','Growing mid-market team','Student Services','Student services handoffs','Disconnected systems','disconnected-systems','Cross-system status layer'],
-            ['Logistics','Multi-location operator','Operations','Inventory coordination','Inventory visibility','inventory-visibility','Operational dashboard'],
-            ['Logistics','Regional service provider','Field Operations','Delivery exception review','Approval delays','approval-delays','Approval rules and exception queue'],
-            ['Retail','Small business','Procurement','Supplier replenishment','Vendor coordination','vendor-coordination','Vendor coordination hub'],
-            ['Retail','Multi-location operator','Customer Support','Return request intake','Duplicate work','duplicate-work','Structured intake and routing'],
-            ['Restaurants','Multi-location operator','Operations','Location closeout review','Manual reporting','restaurant-closeout-reporting','Operational dashboard'],
-            ['Hospitality & Tourism','Regional service provider','Customer Support','Guest request coordination','Disconnected systems','guest-request-disconnected-systems','Cross-system status layer'],
-            ['Construction & Trades','Regional service provider','Field Operations','Field change approval','Approval delays','field-change-approval-delays','Approval rules and exception queue'],
-            ['E-commerce','Growing mid-market team','Operations','Order exception review','Duplicate work','ecommerce-order-exceptions','Approval rules and exception queue'],
-            ['Manufacturing','Enterprise division','Finance','Production reporting','Manual reporting','manual-reporting','Operational dashboard'],
-            ['Manufacturing','Regional service provider','Operations','Quality issue tracking','Data quality','data-quality','Data cleanup workflow'],
-            ['Government','Public agency','Customer Support','Permit request review','Legacy system dependency','legacy-system-dependency','System-of-record clarification'],
-            ['Government','Public agency','Administration','Board packet preparation','Manual reporting','manual-reporting-government','Operational dashboard'],
-            ['Professional Services','Professional practice','Sales','Client intake and qualification','Customer intake bottlenecks','customer-intake-bottlenecks-professional-services','Structured intake and routing'],
-            ['Professional Services','Growing mid-market team','IT','Internal request triage','Disconnected systems','disconnected-systems-professional-services','Cross-system status layer'],
-        ];
-
-
-        foreach ($examples as [$industryName, $companyTypeName, $departmentName, $workflowName, $frictionName, $frictionSlug, $patternName]) {
-            $workflow = Workflow::updateOrCreate(
-                ['slug' => Str::slug($workflowName)],
-                [
-                    'industry_id' => Industry::where('slug', Str::slug($industryName))->value('id'),
-                    'company_type_id' => CompanyType::where('slug', Str::slug($companyTypeName))->value('id'),
-                    'department_id' => Department::where('slug', Str::slug($departmentName))->value('id'),
-                    'name' => $workflowName,
-                    'description' => 'An Applied Systems Lab case study for mapping '.$workflowName.', clarifying the business question, and comparing practical implementation choices.',
-                ]
-            );
-            $friction = FrictionPoint::updateOrCreate(
-                ['slug' => $frictionSlug],
-                [
-                    'workflow_id' => $workflow->id,
-                    'name' => $frictionName,
-                    'description' => $frictionName.' creates delays, rework, and limited visibility for the team.',
-                    'impact' => 'Slower decisions, duplicated effort, avoidable handoffs, and harder coordination.',
-                ]
-            );
-            $friction->solutionPatterns()->sync([SolutionPattern::where('slug', Str::slug($patternName))->value('id')]);
         }
     }
 
