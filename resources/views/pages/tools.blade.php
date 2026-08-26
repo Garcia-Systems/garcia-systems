@@ -1,6 +1,6 @@
 <x-layouts.app title="Tools" page-description="Use Garcia Systems tools including the AI Readiness Assessment and Opportunity Atlas.">
     <section class="mx-auto max-w-6xl px-6 py-16 md:py-20">
-        <x-section-heading eyebrow="Tools" title="Practical starting points for workflow and AI readiness conversations." description="Use these resources to connect operating friction with better questions, clearer risks, and focused next steps." />
+        <x-section-heading eyebrow="Tools" title="Focused tools within a broader Solutions Engineering practice." description="Use these resources when a business question benefits from structured exploration or a specialized readiness check." />
 
         <div class="mt-8 grid gap-5 md:grid-cols-2">
             @if(config('garcia.features.ai_assessment'))

@@ -55,7 +55,7 @@ class PublicNavigationExperienceTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('Garcia Systems')
-            ->assertSee('Practical systems, automation, product, and AI readiness consulting')
+            ->assertSee('Business-first Solutions Engineering and systems consulting')
             ->assertSee('Footer navigation')
             ->assertSee('Footer services navigation')
             ->assertSee('Consulting services')

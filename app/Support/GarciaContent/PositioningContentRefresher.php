@@ -25,12 +25,19 @@ final class PositioningContentRefresher
 
                     $modelClass = $definition['model'];
                     $model = new $modelClass([...$definition['identity'], ...$definition['values'], 'managed_content_key' => $definition['key']]);
+                    $model->managed_content_hash = $this->definitionHash($definition);
                     $summary['created']++;
                     if (! $dryRun) {
                         $model->save();
                     }
                 } else {
+                    if (! $this->isUnmodifiedManagedRecord($model, $definition)) {
+                        $summary['skipped']++;
+                        continue;
+                    }
+
                     $model->fill($definition['values']);
+                    $model->managed_content_hash = $this->definitionHash($definition);
                     if ($model->isDirty()) {
                         $summary['updated']++;
                         if (! $dryRun) {
@@ -65,7 +72,12 @@ final class PositioningContentRefresher
         foreach (PositioningContent::records() as $definition) {
             $managed = $this->findManaged($definition);
             if ($managed) {
+                if (! $this->isUnmodifiedManagedRecord($managed, $definition)) {
+                    continue;
+                }
+
                 $managed->update($definition['values']);
+                $managed->forceFill(['managed_content_hash' => $this->definitionHash($definition)])->save();
                 $this->syncCapabilities($managed, $definition);
                 continue;
             }
@@ -75,7 +87,9 @@ final class PositioningContentRefresher
             }
 
             $modelClass = $definition['model'];
-            $model = $modelClass::create([...$definition['identity'], ...$definition['values'], 'managed_content_key' => $definition['key']]);
+            $model = new $modelClass([...$definition['identity'], ...$definition['values'], 'managed_content_key' => $definition['key']]);
+            $model->managed_content_hash = $this->definitionHash($definition);
+            $model->save();
             $this->syncCapabilities($model, $definition);
         }
     }
@@ -107,5 +121,29 @@ final class PositioningContentRefresher
             ->pluck('id')
             ->all();
         $model->capabilities()->sync($ids);
+    }
+
+    private function isUnmodifiedManagedRecord(Model $model, array $definition): bool
+    {
+        if (! is_string($model->managed_content_hash) || $model->managed_content_hash === '') {
+            return false;
+        }
+
+        $currentValues = [];
+        foreach (array_keys($definition['values']) as $attribute) {
+            $currentValues[$attribute] = $model->getAttribute($attribute);
+        }
+
+        return hash_equals($model->managed_content_hash, $this->valuesHash($currentValues));
+    }
+
+    private function definitionHash(array $definition): string
+    {
+        return $this->valuesHash($definition['values']);
+    }
+
+    private function valuesHash(array $values): string
+    {
+        return hash('sha256', json_encode($values, JSON_THROW_ON_ERROR));
     }
 }

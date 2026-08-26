@@ -2,7 +2,7 @@
 
 **Turning Business Problems Into Products, Systems, and Intelligent Workflows**
 
-Garcia Systems is a Laravel application for presenting practical systems consulting content, AI readiness tools, contact capture, and early opportunity atlas content for operations-focused teams.
+Garcia Systems is a Laravel application presenting a business-first Solutions Engineering and systems consulting practice, its specialized assessment tools, and applied Opportunity Atlas case studies.
 
 ## Current Phase
 
@@ -124,7 +124,7 @@ Run tests through Sail so PHPUnit uses the containerized PHP environment.
 
 ## Product Direction
 
-Garcia Systems helps teams turn operational friction into focused software, automation, and intelligent workflow improvements. Future phases may add richer Atlas functionality, admin workflows, authentication, and deeper implementation tooling after the public foundation is stable.
+Garcia Systems starts with the business question and operating reality, then evaluates existing capabilities, economics, feasibility, and solution options. Recommendations may include using or configuring an existing system, buying a product, integrating systems, building narrowly, deferring work, or doing nothing. AI remains one useful technology within that broader Solutions Engineering toolkit.
 
 ## Database Seeding
 
@@ -150,10 +150,21 @@ For fresh environments, run seeders intentionally:
 
 ### Existing production database
 
-After deploying an intentional Garcia Systems positioning/reference-data change to Laravel Cloud, run:
+After deploying an intentional Garcia Systems positioning/reference-data change to Laravel Cloud, use this post-deployment sequence:
 
 ```bash
+# 1. Deploy tested application code.
+# 2. Run only the deployment's normal additive migrations, when present.
+php artisan migrate --force
+
+# 3. Preview the narrowly scoped managed-content refresh.
+php artisan garcia:refresh-positioning-content --dry-run
+
+# 4. Inspect every reported create, update, and protected/customized skip.
+# 5. Only after that review, apply the refresh.
 php artisan garcia:refresh-positioning-content
 ```
 
-Use `--dry-run` first to preview record counts without persisting changes. The command updates only records carrying an explicit Garcia Systems managed-content key. A matching slug is not ownership: an unmarked collision is skipped rather than claimed or overwritten. The command does not run broad seeders and is designed to preserve administrator/user-managed articles, videos, publication state, real video URLs, inquiries, assessment submissions, accounts, and all other unrelated production data.
+The command creates missing canonical reference records only when their identity does not collide with existing data. It updates a record only when both its explicit Garcia Systems managed-content key and its last-applied content hash prove ownership and show that it has not subsequently been customized. A matching slug is not ownership; an unmarked collision, a missing provenance hash, or a changed managed record is skipped rather than claimed or overwritten. Dry-run reports the same decisions with zero persistent writes.
+
+Never use database refresh/reset commands or broad production reseeding for this workflow. Articles, videos, publication states, real video URLs, inquiries, assessment submissions, administrator accounts, and all other unrelated production content are intentionally outside the refresh command's scope.

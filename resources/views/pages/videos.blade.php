@@ -1,6 +1,6 @@
-<x-layouts.app title="Videos" page-description="Watch Garcia Systems videos about workflow modernization, systems consulting, automation, and AI readiness.">
+<x-layouts.app title="Videos" page-description="Watch Garcia Systems explainers about business questions, workflow analysis, solution options, automation, and applied AI.">
     <section class="mx-auto max-w-6xl px-6 py-16 md:py-20">
-        <x-section-heading eyebrow="Videos" title="Short explainers for workflow, automation, and AI readiness decisions." description="Use these videos to frame common operating problems and practical technology choices before committing to heavier implementation work." />
+        <x-section-heading eyebrow="Videos" title="Short explainers for practical business and technology decisions." description="Use these videos to frame common operating problems and practical technology choices before committing to heavier implementation work." />
 
         <div class="mt-8 grid gap-5 md:grid-cols-3">
             @forelse($videos as $video)
