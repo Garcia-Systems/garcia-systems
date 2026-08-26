@@ -16,6 +16,7 @@ class AssessmentQuestion extends Model
         'category',
         'is_active',
         'sort_order',
+        'managed_content_key',
 
     ];
 

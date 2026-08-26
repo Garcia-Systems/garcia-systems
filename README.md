@@ -134,9 +134,11 @@ Required and optional environment variables are documented in `.env.example`; us
 
 The public contact form uses Cloudflare Turnstile. Both production and local environments require valid credentials configured through `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY`. Never commit the credentials to the repository.
 
-The default `DatabaseSeeder` is safe to run repeatedly for local development: it bootstraps the administrator only when needed, refreshes lookup/reference data, and loads starter public content idempotently.
+### Fresh/local database setup
 
-For production, run seeders intentionally:
+The default `DatabaseSeeder` establishes starter articles, videos, Opportunity Atlas examples, and lookup/reference content for a fresh local or test database. Seeders are installation tools; do not use the broad starter seeder to update an established production database.
+
+For fresh environments, run seeders intentionally:
 
 ```bash
 # One-time administrator bootstrap; requires ADMIN_EMAIL and ADMIN_PASSWORD only when the account does not already exist.
@@ -145,3 +147,13 @@ For production, run seeders intentionally:
 # Optional starter content and reference data.
 ./vendor/bin/sail artisan db:seed --class=Database\\Seeders\\StarterPublicContentSeeder --force
 ```
+
+### Existing production database
+
+After deploying an intentional Garcia Systems positioning/reference-data change to Laravel Cloud, run:
+
+```bash
+php artisan garcia:refresh-positioning-content
+```
+
+Use `--dry-run` first to preview record counts without persisting changes. The command updates only records carrying an explicit Garcia Systems managed-content key. A matching slug is not ownership: an unmarked collision is skipped rather than claimed or overwritten. The command does not run broad seeders and is designed to preserve administrator/user-managed articles, videos, publication state, real video URLs, inquiries, assessment submissions, accounts, and all other unrelated production data.
