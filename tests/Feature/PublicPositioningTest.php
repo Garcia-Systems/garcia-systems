@@ -38,8 +38,8 @@ class PublicPositioningTest extends TestCase
     public function test_assessment_and_published_content_routes_remain_available(): void
     {
         config(['garcia.features.ai_assessment' => true]);
-        $article = Article::create(['title' => 'Historical article', 'slug' => 'historical-article', 'body' => 'Historical copy', 'is_published' => true, 'published_at' => now()]);
-        Video::create(['title' => 'Existing video', 'slug' => 'existing-video', 'url' => 'https://example.com/video', 'is_published' => true]);
+        $article = Article::create(['title' => 'Historical article', 'slug' => 'historical-article', 'excerpt' => 'Historical excerpt', 'body' => 'Historical copy', 'is_published' => true, 'published_at' => now()]);
+        Video::create(['title' => 'Existing video', 'slug' => 'existing-video', 'url' => 'https://example.com/video', 'description' => 'Existing video description', 'is_published' => true]);
 
         $this->get(route('assessment'))->assertOk();
         $this->get(route('articles.show', $article))->assertOk()->assertSee('Historical copy');

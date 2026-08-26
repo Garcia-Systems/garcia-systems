@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\{Article, Category, Video};
+use App\Models\{Article, AssessmentQuestion, Category, Video};
 use Database\Seeders\LookupReferenceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -17,12 +17,47 @@ class RefreshPositioningContentCommandTest extends TestCase
         $this->seed(LookupReferenceSeeder::class);
         $category = Category::where('managed_content_key', 'category.strategy')->firstOrFail();
         $category->update(['description' => 'Outdated managed copy']);
+        $category->forceFill([
+            'managed_content_hash' => hash('sha256', json_encode(['name' => 'Strategy', 'description' => 'Outdated managed copy'], JSON_THROW_ON_ERROR)),
+        ])->save();
 
         $this->artisan('garcia:refresh-positioning-content')
             ->expectsOutputToContain('Reference records updated: 1')
             ->assertSuccessful();
 
         $this->assertSame('Business-first options analysis across workflows, systems, economics, and implementation.', $category->fresh()->description);
+    }
+
+    public function test_a_managed_record_becomes_protected_after_manual_customization(): void
+    {
+        $this->seed(LookupReferenceSeeder::class);
+        $category = Category::where('managed_content_key', 'category.strategy')->firstOrFail();
+        $originalHash = $category->managed_content_hash;
+        $category->update(['description' => 'Administrator-customized managed copy']);
+
+        $this->artisan('garcia:refresh-positioning-content')
+            ->expectsOutputToContain('Protected/customized records skipped: 1')
+            ->assertSuccessful();
+
+        $this->assertSame('Administrator-customized managed copy', $category->fresh()->description);
+        $this->assertSame($originalHash, $category->fresh()->managed_content_hash);
+    }
+
+    public function test_a_managed_key_without_provenance_hash_is_treated_as_ambiguous(): void
+    {
+        $category = Category::create([
+            'name' => 'Strategy',
+            'slug' => 'strategy',
+            'description' => 'Legacy production wording',
+            'managed_content_key' => 'category.strategy',
+        ]);
+
+        $this->artisan('garcia:refresh-positioning-content')
+            ->expectsOutputToContain('Protected/customized records skipped: 1')
+            ->assertSuccessful();
+
+        $this->assertSame('Legacy production wording', $category->fresh()->description);
+        $this->assertNull($category->fresh()->managed_content_hash);
     }
 
     public function test_running_twice_is_idempotent_and_unrelated_records_are_unchanged(): void
@@ -85,6 +120,40 @@ class RefreshPositioningContentCommandTest extends TestCase
         $this->assertNull($category->fresh()->managed_content_key);
     }
 
+    public function test_historical_assessment_questions_are_skipped_without_duplicate_replacements(): void
+    {
+        $historicalQuestions = $this->createHistoricalAssessmentQuestions();
+
+        $this->artisan('garcia:refresh-positioning-content')
+            ->expectsOutputToContain('Reference records created: 58')
+            ->expectsOutputToContain('Protected/customized records skipped: 2')
+            ->assertSuccessful();
+
+        $this->assertSame(4, AssessmentQuestion::count());
+        foreach ($historicalQuestions as $historicalQuestion) {
+            $historicalQuestion->refresh();
+            $this->assertNull($historicalQuestion->managed_content_key);
+            $this->assertNull($historicalQuestion->managed_content_hash);
+        }
+        $this->assertFalse(AssessmentQuestion::where('question', 'Is the workflow and business problem clearly documented?')->exists());
+        $this->assertFalse(AssessmentQuestion::where('question', 'Can your team define measurable value and compare AI with available alternatives?')->exists());
+    }
+
+    public function test_dry_run_with_historical_assessment_questions_is_write_free(): void
+    {
+        $this->createHistoricalAssessmentQuestions();
+        $before = AssessmentQuestion::query()->get()->map->getAttributes()->all();
+
+        $this->artisan('garcia:refresh-positioning-content', ['--dry-run' => true])
+            ->expectsOutputToContain('Reference records created: 58')
+            ->expectsOutputToContain('Protected/customized records skipped: 2')
+            ->expectsOutputToContain('No database changes were made.')
+            ->assertSuccessful();
+
+        $this->assertSame($before, AssessmentQuestion::query()->get()->map->getAttributes()->all());
+        $this->assertSame(2, AssessmentQuestion::count());
+    }
+
     public function test_dry_run_reports_but_persists_nothing(): void
     {
         $this->artisan('garcia:refresh-positioning-content', ['--dry-run' => true])
@@ -117,6 +186,23 @@ class RefreshPositioningContentCommandTest extends TestCase
             'company_types' => DB::table('company_types')->count(),
             'departments' => DB::table('departments')->count(),
             'assessment_questions' => DB::table('assessment_questions')->count(),
+        ];
+    }
+
+    /** @return array<int, AssessmentQuestion> */
+    private function createHistoricalAssessmentQuestions(): array
+    {
+        return [
+            AssessmentQuestion::create([
+                'question' => 'Do you have clearly documented workflows?',
+                'help_text' => 'Historical help text',
+                'sort_order' => 1,
+            ]),
+            AssessmentQuestion::create([
+                'question' => 'Can your team define measurable success for an AI or automation pilot?',
+                'help_text' => 'Historical help text',
+                'sort_order' => 3,
+            ]),
         ];
     }
 }

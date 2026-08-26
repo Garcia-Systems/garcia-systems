@@ -52,16 +52,16 @@ final class PositioningContent
         }
 
         foreach ([
-            ['workflow_documentation', 'Workflow documentation', 'Is the workflow and business problem clearly documented?'],
-            ['data_readiness', 'Data readiness', 'Is your operational data organized and accessible?'],
-            ['pilot_selection', 'Pilot selection', 'Can your team define measurable value and compare AI with available alternatives?'],
-            ['stakeholder_alignment', 'Stakeholder alignment', 'Do process owners have time to support implementation?'],
-        ] as $index => [$key, $category, $question]) {
+            ['workflow_documentation', 'Workflow documentation', 'Is the workflow and business problem clearly documented?', 'Do you have clearly documented workflows?'],
+            ['data_readiness', 'Data readiness', 'Is your operational data organized and accessible?', 'Is your operational data organized and accessible?'],
+            ['pilot_selection', 'Pilot selection', 'Can your team define measurable value and compare AI with available alternatives?', 'Can your team define measurable success for an AI or automation pilot?'],
+            ['stakeholder_alignment', 'Stakeholder alignment', 'Do process owners have time to support implementation?', 'Do process owners have time to support implementation?'],
+        ] as $index => [$key, $category, $question, $legacyQuestion]) {
             $records[] = [
                 'model' => AssessmentQuestion::class,
                 'key' => 'assessment-question.'.$key,
                 'identity' => ['key' => $key],
-                'legacy_identity' => ['question' => $question],
+                'legacy_identity' => ['question' => $legacyQuestion],
                 'values' => ['category' => $category, 'question' => $question, 'help_text' => 'Use your current operating reality, not an ideal future state.', 'sort_order' => $index + 1, 'is_active' => true],
             ];
         }
