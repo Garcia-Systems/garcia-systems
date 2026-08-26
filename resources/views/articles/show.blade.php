@@ -78,7 +78,7 @@
             </div>
             <div class="mt-6 flex flex-wrap gap-3 md:mt-0 md:justify-end">
                 <a class="rounded-2xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950" href="{{ route('atlas') }}">Explore the Opportunity Atlas</a>
-                <a class="rounded-2xl border border-white/15 px-5 py-3 font-semibold text-white" href="{{ route('assessment') }}">Book an AI Readiness Assessment</a>
+                <a class="rounded-2xl border border-white/15 px-5 py-3 font-semibold text-white" href="{{ route('assessment') }}">Discuss the business question</a>
                 <a class="rounded-2xl border border-white/15 px-5 py-3 font-semibold text-white" href="{{ route('contact') }}">Contact Garcia Systems</a>
             </div>
         </div>
