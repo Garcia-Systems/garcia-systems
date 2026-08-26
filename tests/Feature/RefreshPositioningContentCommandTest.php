@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\{Article, Category, Video};
+use App\Models\{Article, AssessmentQuestion, Category, Video};
 use Database\Seeders\LookupReferenceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -120,6 +120,40 @@ class RefreshPositioningContentCommandTest extends TestCase
         $this->assertNull($category->fresh()->managed_content_key);
     }
 
+    public function test_historical_assessment_questions_are_skipped_without_duplicate_replacements(): void
+    {
+        $historicalQuestions = $this->createHistoricalAssessmentQuestions();
+
+        $this->artisan('garcia:refresh-positioning-content')
+            ->expectsOutputToContain('Reference records created: 58')
+            ->expectsOutputToContain('Protected/customized records skipped: 2')
+            ->assertSuccessful();
+
+        $this->assertSame(4, AssessmentQuestion::count());
+        foreach ($historicalQuestions as $historicalQuestion) {
+            $historicalQuestion->refresh();
+            $this->assertNull($historicalQuestion->managed_content_key);
+            $this->assertNull($historicalQuestion->managed_content_hash);
+        }
+        $this->assertFalse(AssessmentQuestion::where('question', 'Is the workflow and business problem clearly documented?')->exists());
+        $this->assertFalse(AssessmentQuestion::where('question', 'Can your team define measurable value and compare AI with available alternatives?')->exists());
+    }
+
+    public function test_dry_run_with_historical_assessment_questions_is_write_free(): void
+    {
+        $this->createHistoricalAssessmentQuestions();
+        $before = AssessmentQuestion::query()->get()->map->getAttributes()->all();
+
+        $this->artisan('garcia:refresh-positioning-content', ['--dry-run' => true])
+            ->expectsOutputToContain('Reference records created: 58')
+            ->expectsOutputToContain('Protected/customized records skipped: 2')
+            ->expectsOutputToContain('No database changes were made.')
+            ->assertSuccessful();
+
+        $this->assertSame($before, AssessmentQuestion::query()->get()->map->getAttributes()->all());
+        $this->assertSame(2, AssessmentQuestion::count());
+    }
+
     public function test_dry_run_reports_but_persists_nothing(): void
     {
         $this->artisan('garcia:refresh-positioning-content', ['--dry-run' => true])
@@ -152,6 +186,23 @@ class RefreshPositioningContentCommandTest extends TestCase
             'company_types' => DB::table('company_types')->count(),
             'departments' => DB::table('departments')->count(),
             'assessment_questions' => DB::table('assessment_questions')->count(),
+        ];
+    }
+
+    /** @return array<int, AssessmentQuestion> */
+    private function createHistoricalAssessmentQuestions(): array
+    {
+        return [
+            AssessmentQuestion::create([
+                'question' => 'Do you have clearly documented workflows?',
+                'help_text' => 'Historical help text',
+                'sort_order' => 1,
+            ]),
+            AssessmentQuestion::create([
+                'question' => 'Can your team define measurable success for an AI or automation pilot?',
+                'help_text' => 'Historical help text',
+                'sort_order' => 3,
+            ]),
         ];
     }
 }

@@ -40,7 +40,7 @@ class Phase1FeatureTest extends TestCase
             ->assertOk()
             ->assertSee('Business-first systems consulting')
             ->assertSee('Turning Business Problems Into Products, Systems, and Intelligent Workflows')
-            ->assertSee('practical enough to adopt and specific enough to measure');
+            ->assertSee('decide what—if anything—is worth implementing', false);
     }
 
 
@@ -49,10 +49,10 @@ class Phase1FeatureTest extends TestCase
     {
         $this->get('/about')
             ->assertOk()
-            ->assertSee('solutions engineering platform')
-            ->assertSee('Workflow modernization practice')
-            ->assertSee('AI opportunity assessment lab')
-            ->assertSee('Business/technology liaison');
+            ->assertSee('business-first Solutions Engineering and systems consulting practice')
+            ->assertSee('Workflow &amp; Systems Analysis', false)
+            ->assertSee('Business / Technology Translation')
+            ->assertSee('Applied Technology, Automation &amp; AI', false);
     }
 
     public function test_tools_page_returns_successfully(): void
@@ -110,7 +110,7 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('Opportunity Atlas')
             ->assertSee('Latest Thinking')
             ->assertSee('Featured videos')
-            ->assertSee('Explore AI Readiness');
+            ->assertSee('Evaluate AI Readiness');
     }
 
     public function test_articles_index_returns_successfully_and_displays_sample_articles(): void
@@ -581,10 +581,24 @@ class Phase1FeatureTest extends TestCase
 
         $this->assertDatabaseCount(Article::class, 16);
         $this->assertDatabaseCount(Video::class, 8);
-        $this->assertDatabaseCount(Industry::class, 7);
+        $this->assertDatabaseCount(Industry::class, 12);
+        $this->assertEqualsCanonicalizing([
+            'Public Health',
+            'E-commerce',
+            'Restaurants',
+            'Hospitality & Tourism',
+            'Construction & Trades',
+            'Retail',
+            'Professional Services',
+            'Healthcare',
+            'Education',
+            'Logistics',
+            'Manufacturing',
+            'Government',
+        ], Industry::query()->pluck('name')->all());
         $this->assertDatabaseCount(Department::class, 12);
-        $this->assertDatabaseCount(Workflow::class, 14);
-        $this->assertDatabaseCount(FrictionPoint::class, 14);
+        $this->assertDatabaseCount(Workflow::class, 18);
+        $this->assertDatabaseCount(FrictionPoint::class, 18);
         $this->assertDatabaseCount(SolutionPattern::class, 8);
         $this->assertDatabaseCount(Capability::class, 12);
 
