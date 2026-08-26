@@ -15,7 +15,8 @@ class FrictionPoint extends Model
         'slug',
         'description',
         'impact',
-
+        'managed_content_key',
+        'managed_content_hash',
     ];
 
     public function workflow()
