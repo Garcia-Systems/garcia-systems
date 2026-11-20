@@ -1,4 +1,4 @@
-<x-layouts.app title="Garcia Systems" page-description="Business-first Solutions Engineering and systems consulting for choosing and implementing practical technology paths.">
+<x-layouts.app title="Garcia Systems">
     @php
         $process = [
             ['Discover','Frame the business problem, stakeholders, and workflow context.'],
@@ -8,11 +8,11 @@
         ];
         $services = [
             ['Product Discovery','Turn unclear product ideas into requirements, MVP definitions, and roadmap decisions.'],
-            ['Solutions Engineering','Evaluate existing capabilities and shape feasible buy, configure, integrate, build, or no-build paths.'],
-            ['Workflow Modernization','Redesign repeatable work so systems and automation have a stable foundation.'],
+            ['Solutions Engineering','Compare software options and plan how to adopt or integrate the right tools.'],
+            ['Workflow Modernization','Improve handoffs, reduce duplicate entry, and identify where automation can help.'],
             ['Technical Liaison Services','Translate between business stakeholders, vendors, software teams, and leadership.'],
             ['AI Opportunity Assessment','Prioritize practical AI and automation pilots by value, readiness, and risk.'],
-            ['Product Execution Support','Create execution rhythm, backlog clarity, launch plans, and iteration loops.'],
+            ['Product Execution Support','Define implementation milestones, prepare for launch, and measure adoption.'],
         ];
     @endphp
 
@@ -20,8 +20,8 @@
         <div class="grid items-center gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
             <div>
                 <p class="gs-eyebrow">Business-first systems consulting</p>
-                <h1 aria-label="Turning Business Problems Into Products, Systems, and Intelligent Workflows" class="mt-5 text-4xl font-bold leading-[1.04] tracking-[-0.045em] text-slate-50 sm:text-5xl md:text-6xl xl:text-7xl">Turning Business Problems Into <span class="gs-gradient-text">Products, Systems, and Intelligent Workflows</span></h1>
-                <p class="mt-7 max-w-2xl text-lg leading-8 text-slate-300">Garcia Systems helps organizations understand business problems, examine workflows and existing systems, and decide what—if anything—is worth implementing.</p>
+                <h1 aria-label="Helping Organizations Adopt, Integrate, and Improve Software" class="mt-5 text-4xl font-bold leading-[1.04] tracking-[-0.045em] text-slate-50 sm:text-5xl md:text-6xl xl:text-7xl">Helping Organizations <span class="gs-gradient-text">Adopt, Integrate, and Improve Software</span></h1>
+                <p class="mt-7 max-w-2xl text-lg leading-8 text-slate-300">Garcia Systems bridges the gap between business needs and technology by evaluating software solutions, integrating existing systems, and applying automation and AI where they create measurable value.</p>
                 <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <x-glow-button :href="route('contact')">Start a conversation <span aria-hidden="true">→</span></x-glow-button>
                     <x-glow-button :href="route('services')" variant="secondary">Explore services</x-glow-button>
@@ -35,9 +35,9 @@
             <div data-hero-visualization><x-system-visual /></div>
         </div>
         <div class="mt-16 grid gap-4 md:grid-cols-3" data-reveal>
-            <x-feature-card title="Business clarity before tools" description="Start with the problem, operating model, stakeholders, and outcome before choosing a technical path." />
-            <x-feature-card title="Options before implementation" description="Compare existing capabilities, products, configuration, integration, and focused custom work before committing." />
-            <x-feature-card title="Value that can be measured" description="Balance feasibility, cost, operational impact, adoption, and delivery risk—including when doing nothing is sound." />
+            <x-feature-card title="Software Integration" description="Connect applications, APIs, and data so new tools work with the business systems you already use." />
+            <x-feature-card title="Solutions Engineering" description="Define business requirements, evaluate the available software, and plan how to put it to work." />
+            <x-feature-card title="AI and Workflow Automation" description="Assess where AI can help and automate routine work where it can save time or improve quality." />
         </div>
     </section>
 

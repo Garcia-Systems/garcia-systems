@@ -17,9 +17,9 @@ class RefreshAtlasContentCommandTest extends TestCase
         $this->seed(LookupReferenceSeeder::class);
 
         $this->artisan('garcia:refresh-atlas-content')
-            ->expectsOutputToContain('Workflows created: 18')
-            ->expectsOutputToContain('Friction points created: 18')
-            ->expectsOutputToContain('Relationships changed: 18')
+            ->expectsOutputToContain('Workflows created: 19')
+            ->expectsOutputToContain('Friction points created: 19')
+            ->expectsOutputToContain('Relationships changed: 19')
             ->assertSuccessful();
 
         $workflow = Workflow::where('slug', 'location-closeout-review')->firstOrFail();
@@ -44,7 +44,7 @@ class RefreshAtlasContentCommandTest extends TestCase
             ->expectsOutputToContain('Friction points created: 0')
             ->expectsOutputToContain('Friction points updated: 0')
             ->expectsOutputToContain('Relationships changed: 0')
-            ->expectsOutputToContain('Managed content unchanged: 36')
+            ->expectsOutputToContain('Managed content unchanged: 38')
             ->expectsOutputToContain('No database changes were made.')
             ->assertSuccessful();
     }
@@ -55,8 +55,8 @@ class RefreshAtlasContentCommandTest extends TestCase
         $before = $this->databaseSnapshot();
 
         $this->artisan('garcia:refresh-atlas-content', ['--dry-run' => true])
-            ->expectsOutputToContain('Workflows created: 18')
-            ->expectsOutputToContain('Friction points created: 18')
+            ->expectsOutputToContain('Workflows created: 19')
+            ->expectsOutputToContain('Friction points created: 19')
             ->assertSuccessful();
 
         $this->assertSame($before, $this->databaseSnapshot());
@@ -176,10 +176,23 @@ class RefreshAtlasContentCommandTest extends TestCase
     {
         $this->seed(StarterPublicContentSeeder::class);
 
-        $this->assertSame(18, Workflow::whereNotNull('managed_content_key')->count());
-        $this->assertSame(18, FrictionPoint::whereNotNull('managed_content_key')->count());
-        $this->assertSame(18, DB::table('friction_point_solution_pattern')->count());
+        $this->assertSame(19, Workflow::whereNotNull('managed_content_key')->count());
+        $this->assertSame(19, FrictionPoint::whereNotNull('managed_content_key')->count());
+        $this->assertSame(19, DB::table('friction_point_solution_pattern')->count());
         $this->assertTrue(Workflow::where('slug', 'client-intake-and-qualification')->exists());
+
+        $scenario = Workflow::where('slug', 'open-source-software-adoption-and-integration')->firstOrFail();
+
+        $this->get(route('atlas', ['q' => 'open-source', 'capability' => 'systems-integration']))
+            ->assertOk()
+            ->assertSee('Open-Source Software Adoption and Integration')
+            ->assertSee('Illustrative scenario.')
+            ->assertSee('technical discovery')
+            ->assertSee('proof of concept');
+
+        $this->get(route('atlas.workflows.show', $scenario->slug))
+            ->assertOk()
+            ->assertSee('Illustrative scenario.');
     }
 
     private function databaseSnapshot(): array

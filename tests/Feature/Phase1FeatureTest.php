@@ -39,8 +39,11 @@ class Phase1FeatureTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('Business-first systems consulting')
-            ->assertSee('Turning Business Problems Into Products, Systems, and Intelligent Workflows')
-            ->assertSee('decide what—if anything—is worth implementing', false);
+            ->assertSee('Helping Organizations Adopt, Integrate, and Improve Software')
+            ->assertSee('Garcia Systems bridges the gap between business needs and technology by evaluating software solutions, integrating existing systems, and applying automation and AI where they create measurable value.')
+            ->assertSee('Software Integration')
+            ->assertSee('Solutions Engineering')
+            ->assertSee('AI and Workflow Automation');
     }
 
 
@@ -49,7 +52,8 @@ class Phase1FeatureTest extends TestCase
     {
         $this->get('/about')
             ->assertOk()
-            ->assertSee('business-first Solutions Engineering and systems consulting practice')
+            ->assertSee('backend development, enterprise integrations, e-commerce systems, and workflow automation')
+            ->assertSee('Successful technology projects are not simply about building new features. They are about understanding organizational needs, evaluating existing solutions, and making technology work within real business environments.')
             ->assertSee('Workflow &amp; Systems Analysis', false)
             ->assertSee('Business / Technology Translation')
             ->assertSee('Applied Technology, Automation &amp; AI', false);
@@ -597,8 +601,8 @@ class Phase1FeatureTest extends TestCase
             'Government',
         ], Industry::query()->pluck('name')->all());
         $this->assertDatabaseCount(Department::class, 12);
-        $this->assertDatabaseCount(Workflow::class, 18);
-        $this->assertDatabaseCount(FrictionPoint::class, 18);
+        $this->assertDatabaseCount(Workflow::class, 19);
+        $this->assertDatabaseCount(FrictionPoint::class, 19);
         $this->assertDatabaseCount(SolutionPattern::class, 8);
         $this->assertDatabaseCount(Capability::class, 12);
 

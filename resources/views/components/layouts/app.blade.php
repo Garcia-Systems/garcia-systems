@@ -10,7 +10,7 @@
 
 @php
     $siteName = 'Garcia Systems';
-    $defaultDescription = 'Business-first Solutions Engineering and systems consulting for evaluating problems, options, economics, and practical implementation.';
+    $defaultDescription = 'Garcia Systems helps organizations evaluate, adopt, integrate, and improve software through solutions engineering, workflow automation, and practical AI.';
     $resolvedTitle = $pageTitle ?? $title ?? $siteName;
     $metaTitle = $resolvedTitle === $siteName ? $siteName : $resolvedTitle.' | '.$siteName;
     $metaDescription = str($pageDescription ?? $defaultDescription)->squish()->limit(160, '')->toString();

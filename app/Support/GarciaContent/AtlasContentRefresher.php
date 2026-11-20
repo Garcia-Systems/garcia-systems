@@ -34,7 +34,7 @@ final class AtlasContentRefresher
                         'company_type_id' => $references['company_type']?->id,
                         'department_id' => $references['department']?->id,
                         'name' => $example['workflow'],
-                        'description' => 'An Applied Systems Lab case study for mapping '.$example['workflow'].', clarifying the business question, and comparing practical implementation choices.',
+                        'description' => $example['description'] ?? 'An Applied Systems Lab case study for mapping '.$example['workflow'].', clarifying the business question, and comparing practical implementation choices.',
                     ],
                 ];
 
@@ -62,8 +62,8 @@ final class AtlasContentRefresher
                     'values' => [
                         'workflow_id' => $workflow?->id,
                         'name' => $example['friction'],
-                        'description' => $example['friction'].' creates delays, rework, and limited visibility for the team.',
-                        'impact' => 'Slower decisions, duplicated effort, avoidable handoffs, and harder coordination.',
+                        'description' => $example['friction_description'] ?? $example['friction'].' creates delays, rework, and limited visibility for the team.',
+                        'impact' => $example['friction_impact'] ?? 'Slower decisions, duplicated effort, avoidable handoffs, and harder coordination.',
                     ],
                 ];
 

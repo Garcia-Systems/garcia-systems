@@ -3,7 +3,7 @@
         <section>
             <h2 class="text-lg font-bold text-white">Garcia Systems</h2>
             <p class="mt-4 max-w-sm text-sm leading-6 text-slate-300">
-                Business-first Solutions Engineering and systems consulting for teams that need clearer workflows and measurable execution paths.
+                Technology consulting for organizations choosing software, connecting existing systems, and improving workflows.
             </p>
             <p class="mt-5 text-sm font-semibold text-cyan-300">Newsletter</p>
             <p class="mt-2 text-sm text-slate-400">Field notes on Solutions Engineering, operating workflows, and practical technology decisions coming soon.</p>
