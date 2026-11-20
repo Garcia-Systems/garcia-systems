@@ -112,8 +112,7 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('Technical Liaison Services')
             ->assertSee('Product Execution Support')
             ->assertSee('Latest Thinking')
-            ->assertSee('Featured videos')
-            ->assertSee('Evaluate AI Readiness');
+            ->assertSee('Featured videos');
     }
 
     public function test_articles_index_returns_successfully_and_displays_sample_articles(): void
@@ -453,6 +452,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_ai_readiness_assessment_page_returns_successfully(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         AssessmentQuestion::create([
             'question' => 'Do you have clearly documented workflows?',
             'help_text' => 'Use your current operating reality, not an ideal future state.',
@@ -468,6 +469,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_assessment_rejects_unknown_question_keys_out_of_range_values_and_malformed_payloads(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         $question = AssessmentQuestion::create([
             'question' => 'Do you have clearly documented workflows?',
             'help_text' => 'Use your current operating reality, not an ideal future state.',
@@ -495,6 +498,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_assessment_submission_stores_assessment_responses_score_and_shows_result_page(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         $questions = collect([
             'Do you have clearly documented workflows?',
             'Is your operational data organized and accessible?',
@@ -552,6 +557,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_low_scoring_assessment_shows_early_recommendations(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         $questions = collect([
             ['Workflow documentation', 'Do you have clearly documented workflows?'],
             ['Data readiness', 'Is your operational data organized and accessible?'],

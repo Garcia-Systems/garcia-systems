@@ -2,7 +2,7 @@
 
 return [
     'features' => [
-        'ai_assessment' => env('FEATURE_AI_ASSESSMENT', true),
+        'ai_assessment' => env('FEATURE_AI_ASSESSMENT', false),
         'opportunity_atlas' => env('FEATURE_OPPORTUNITY_ATLAS', false),
         'opportunity_explorer' => env('FEATURE_OPPORTUNITY_EXPLORER', env('FEATURE_OPPORTUNITY_ATLAS', false)),
     ],

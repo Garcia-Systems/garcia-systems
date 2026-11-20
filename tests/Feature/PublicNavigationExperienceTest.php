@@ -12,6 +12,8 @@ class PublicNavigationExperienceTest extends TestCase
 
     public function test_public_navigation_renders_expected_links_and_active_state(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         config(['garcia.features.opportunity_atlas' => true]);
 
         $this->get('/services')
@@ -54,6 +56,8 @@ class PublicNavigationExperienceTest extends TestCase
 
     public function test_expanded_footer_renders_expected_links_and_content(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         config(['garcia.features.opportunity_atlas' => true]);
 
         $this->get('/')

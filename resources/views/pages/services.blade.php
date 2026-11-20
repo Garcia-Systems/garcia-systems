@@ -19,7 +19,9 @@
         <p class="mt-6 max-w-3xl text-lg text-slate-300">Garcia Systems helps you choose software, connect it to the systems you rely on, and improve how your team works. We start with your goals, current tools, budget, and constraints, then recommend a practical implementation path.</p>
         <div class="mt-8 flex flex-wrap gap-3">
             <a class="rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950" href="{{ route('contact') }}">Discuss a business problem</a>
-            <a class="rounded-full border border-white/15 px-6 py-3 font-semibold text-slate-100" href="{{ route('assessment') }}">Use the AI assessment</a>
+            @if(config('garcia.features.ai_assessment'))
+                <a class="rounded-full border border-white/15 px-6 py-3 font-semibold text-slate-100" href="{{ route('assessment') }}">Use the AI assessment</a>
+            @endif
         </div>
     </section>
 

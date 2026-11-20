@@ -47,6 +47,8 @@ class LeadTrackingTest extends TestCase
 
     public function test_assessment_creates_and_updates_lead_without_resetting_later_status(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         $question = AssessmentQuestion::create(['question' => 'Ready?', 'sort_order' => 1]);
         Lead::create(['name' => 'Morgan', 'email' => 'morgan@example.com', 'source' => 'contact_form', 'status' => 'contacted']);
 
@@ -169,6 +171,8 @@ class LeadTrackingTest extends TestCase
 
     public function test_assessment_submission_sends_admin_notification_with_score_and_tier(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         Mail::fake();
         Notification::fake();
         config([

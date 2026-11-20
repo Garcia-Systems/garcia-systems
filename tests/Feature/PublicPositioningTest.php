@@ -17,8 +17,7 @@ class PublicPositioningTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('Business-first systems consulting')
-            ->assertSee('where they create measurable value', false)
-            ->assertSee('Specialized assessment tool');
+            ->assertSee('where they create measurable value', false);
 
         $this->get(route('services'))
             ->assertOk()

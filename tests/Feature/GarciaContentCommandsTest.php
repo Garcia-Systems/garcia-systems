@@ -113,6 +113,21 @@ class GarciaContentCommandsTest extends TestCase
         $this->get('/opportunity-atlas/workflows/open-source-software-adoption-and-integration')->assertNotFound();
     }
 
+    public function test_ai_readiness_assessment_is_hidden_by_default(): void
+    {
+        $this->seed(StarterPublicContentSeeder::class);
+        $article = Article::published()->firstOrFail();
+        $assessment = Assessment::create(['score' => 40]);
+
+        foreach (['/', '/services', '/tools', route('articles.show', $article)] as $url) {
+            $this->get($url)->assertOk()->assertDontSee('ai-readiness-assessment', false);
+        }
+
+        $this->get(route('assessment'))->assertNotFound();
+        $this->post(route('assessment.submit'))->assertNotFound();
+        $this->get(route('assessment.result', $assessment))->assertNotFound();
+    }
+
     public function test_it_hides_disabled_public_features_from_navigation_and_routes(): void
     {
         Config::set('garcia.features.ai_assessment', false);

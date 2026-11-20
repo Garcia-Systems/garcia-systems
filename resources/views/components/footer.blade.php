@@ -26,7 +26,9 @@
                 @if(config('garcia.features.opportunity_atlas'))
                     <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('atlas') }}">Opportunity Atlas</a></li>
                 @endif
-                <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('assessment') }}">AI Readiness Assessment</a></li>
+                @if(config('garcia.features.ai_assessment'))
+                    <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('assessment') }}">AI Readiness Assessment</a></li>
+                @endif
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('contact') }}">Contact</a></li>
             </ul>
         </nav>

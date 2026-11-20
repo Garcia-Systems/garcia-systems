@@ -348,6 +348,8 @@ class PageController extends Controller
 
     public function assessmentResult(Assessment $assessment)
     {
+        abort_unless(config('garcia.features.ai_assessment'), 404);
+
         $assessment->loadMissing('responses.question');
 
         $categoryScores = $assessment->category_scores ?: $this->assessmentCategoryScores(
