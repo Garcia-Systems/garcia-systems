@@ -77,8 +77,12 @@
                 <p class="mt-3 max-w-2xl text-slate-300">Garcia Systems helps teams assess opportunities, clarify workflows, and turn operational friction into practical products, systems, and AI-ready improvements.</p>
             </div>
             <div class="mt-6 flex flex-wrap gap-3 md:mt-0 md:justify-end">
-                <a class="rounded-2xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950" href="{{ route('atlas') }}">Explore the Opportunity Atlas</a>
-                <a class="rounded-2xl border border-white/15 px-5 py-3 font-semibold text-white" href="{{ route('assessment') }}">Discuss the business question</a>
+                @if(config('garcia.features.opportunity_atlas'))
+                    <a class="rounded-2xl bg-cyan-400 px-5 py-3 font-semibold text-slate-950" href="{{ route('atlas') }}">Explore the Opportunity Atlas</a>
+                @endif
+                @if(config('garcia.features.ai_assessment'))
+                    <a class="rounded-2xl border border-white/15 px-5 py-3 font-semibold text-white" href="{{ route('assessment') }}">Discuss the business question</a>
+                @endif
                 <a class="rounded-2xl border border-white/15 px-5 py-3 font-semibold text-white" href="{{ route('contact') }}">Contact Garcia Systems</a>
             </div>
         </div>

@@ -18,6 +18,8 @@ class AtlasDetailPagesTest extends TestCase
 
     public function test_industry_detail_page_is_public(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         ['industry' => $industry] = $this->atlasGraph();
 
         $this->get(route('atlas.industries.show', $industry->slug))
@@ -29,6 +31,8 @@ class AtlasDetailPagesTest extends TestCase
 
     public function test_company_type_detail_page_is_public(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         ['companyType' => $companyType] = $this->atlasGraph();
 
         $this->get(route('atlas.company-types.show', $companyType->slug))
@@ -39,6 +43,8 @@ class AtlasDetailPagesTest extends TestCase
 
     public function test_department_detail_page_is_public(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         ['department' => $department] = $this->atlasGraph();
 
         $this->get(route('atlas.departments.show', $department->slug))
@@ -49,6 +55,8 @@ class AtlasDetailPagesTest extends TestCase
 
     public function test_workflow_detail_page_is_public(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         ['workflow' => $workflow] = $this->atlasGraph();
 
         $this->get(route('atlas.workflows.show', $workflow->slug))
@@ -59,6 +67,8 @@ class AtlasDetailPagesTest extends TestCase
 
     public function test_friction_point_detail_page_is_public(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         ['frictionPoint' => $frictionPoint] = $this->atlasGraph();
 
         $this->get(route('atlas.friction-points.show', $frictionPoint->slug))
@@ -69,6 +79,8 @@ class AtlasDetailPagesTest extends TestCase
 
     public function test_solution_pattern_detail_page_is_public(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         ['solutionPattern' => $solutionPattern] = $this->atlasGraph();
 
         $this->get(route('atlas.solution-patterns.show', $solutionPattern->slug))
@@ -79,6 +91,8 @@ class AtlasDetailPagesTest extends TestCase
 
     public function test_capability_detail_page_is_public(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         ['capability' => $capability] = $this->atlasGraph();
 
         $this->get(route('atlas.capabilities.show', $capability->slug))
@@ -89,6 +103,8 @@ class AtlasDetailPagesTest extends TestCase
 
     public function test_atlas_cards_link_to_detail_pages(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         ['workflow' => $workflow, 'frictionPoint' => $frictionPoint, 'solutionPattern' => $solutionPattern, 'capability' => $capability] = $this->atlasGraph();
 
         $this->get(route('atlas'))

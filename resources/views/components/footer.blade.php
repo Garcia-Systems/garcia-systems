@@ -3,7 +3,7 @@
         <section>
             <h2 class="text-lg font-bold text-white">Garcia Systems</h2>
             <p class="mt-4 max-w-sm text-sm leading-6 text-slate-300">
-                Business-first Solutions Engineering and systems consulting for teams that need clearer workflows and measurable execution paths.
+                Technology consulting for organizations choosing software, connecting existing systems, and improving workflows.
             </p>
             <p class="mt-5 text-sm font-semibold text-cyan-300">Newsletter</p>
             <p class="mt-2 text-sm text-slate-400">Field notes on Solutions Engineering, operating workflows, and practical technology decisions coming soon.</p>
@@ -23,8 +23,12 @@
             <h2 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-200">Services</h2>
             <ul class="mt-4 space-y-3 text-sm text-slate-400">
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('services') }}">Consulting services</a></li>
-                <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('atlas') }}">Opportunity Atlas</a></li>
-                <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('assessment') }}">AI Readiness Assessment</a></li>
+                @if(config('garcia.features.opportunity_atlas'))
+                    <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('atlas') }}">Opportunity Atlas</a></li>
+                @endif
+                @if(config('garcia.features.ai_assessment'))
+                    <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('assessment') }}">AI Readiness Assessment</a></li>
+                @endif
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('contact') }}">Contact</a></li>
             </ul>
         </nav>

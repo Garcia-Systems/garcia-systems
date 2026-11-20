@@ -15,6 +15,8 @@ class HomepageSystemsMapTest extends TestCase
 
     public function test_homepage_renders_an_atlas_relationship_from_existing_data(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $industry = Industry::create(['name' => 'Field Services', 'slug' => 'field-services', 'description' => 'Field operations.']);
         $workflow = Workflow::create(['industry_id' => $industry->id, 'name' => 'Dispatch Planning', 'slug' => 'dispatch-planning', 'description' => 'Plan daily dispatches.']);
         $friction = FrictionPoint::create(['workflow_id' => $workflow->id, 'name' => 'Manual Replanning', 'slug' => 'manual-replanning', 'description' => 'Changes require repeated manual work.']);
@@ -38,6 +40,8 @@ class HomepageSystemsMapTest extends TestCase
 
     public function test_homepage_handles_an_empty_atlas_and_keeps_services_available(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->get('/')
             ->assertOk()
             ->assertSee('Opportunity paths are being mapped.')

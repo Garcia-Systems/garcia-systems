@@ -54,7 +54,7 @@ class SeoMetadataTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('<title>Garcia Systems</title>', false)
-            ->assertSee('<meta name="description" content="Business-first Solutions Engineering and systems consulting for choosing and implementing practical technology paths.">', false)
+            ->assertSee('<meta name="description" content="Garcia Systems helps organizations evaluate, adopt, integrate, and improve software through solutions engineering, workflow automation, and practical AI.">', false)
             ->assertSee('<meta property="og:title" content="Garcia Systems">', false)
             ->assertSee('<link rel="canonical" href="'.route('home').'">', false)
             ->assertSee('"@type":"Organization"', false)

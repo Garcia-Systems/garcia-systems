@@ -12,11 +12,12 @@ class PublicPositioningTest extends TestCase
 
     public function test_core_pages_present_business_first_solutions_engineering_positioning(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('Business-first systems consulting')
-            ->assertSee('what—if anything—is worth implementing', false)
-            ->assertSee('Specialized assessment tool');
+            ->assertSee('where they create measurable value', false);
 
         $this->get(route('services'))
             ->assertOk()
@@ -26,7 +27,7 @@ class PublicPositioningTest extends TestCase
 
         $this->get(route('about'))
             ->assertOk()
-            ->assertSee('focused independent practice')
+            ->assertSee('independent technology consulting practice')
             ->assertSee('Workflow &amp; Systems Analysis', false);
 
         $this->get(route('atlas'))

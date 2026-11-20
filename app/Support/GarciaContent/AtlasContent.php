@@ -4,10 +4,10 @@ namespace App\Support\GarciaContent;
 
 final class AtlasContent
 {
-    /** @return array<int, array{industry: string, company_type: string, department: string, workflow: string, friction: string, friction_slug: string, solution_pattern: string}> */
+    /** @return array<int, array{industry: string, company_type: string, department: string, workflow: string, friction: string, friction_slug: string, solution_pattern: string, description?: string, friction_description?: string, friction_impact?: string}> */
     public static function examples(): array
     {
-        return array_map(
+        $examples = array_map(
             fn (array $example): array => array_combine(
                 ['industry', 'company_type', 'department', 'workflow', 'friction', 'friction_slug', 'solution_pattern'],
                 $example,
@@ -33,5 +33,20 @@ final class AtlasContent
                 ['Professional Services', 'Growing mid-market team', 'IT', 'Internal request triage', 'Disconnected systems', 'disconnected-systems-professional-services', 'Cross-system status layer'],
             ],
         );
+
+        $examples[] = [
+            'industry' => 'Professional Services',
+            'company_type' => 'Growing mid-market team',
+            'department' => 'IT',
+            'workflow' => 'Open-Source Software Adoption and Integration',
+            'description' => 'Illustrative scenario. A professional services organization identifies an open-source platform that could improve operations or reduce costs. Before adopting it, the team needs to evaluate compatibility with existing systems, security considerations, integration requirements, deployment options, and ongoing maintenance.',
+            'friction' => 'Uncertain platform fit and maintenance requirements',
+            'friction_slug' => 'uncertain-open-source-platform-fit',
+            'friction_description' => 'Garcia Systems could lead technical discovery to clarify requirements and review security, hosting, and upkeep. A proof of concept could test a critical workflow and verify that data can move between systems. If the platform fits, Garcia Systems could plan the integrations and support implementation, rollout, and handoff.',
+            'friction_impact' => 'A lower license cost may be offset by integration, hosting, security updates, and ongoing support.',
+            'solution_pattern' => 'System-of-record clarification',
+        ];
+
+        return $examples;
     }
 }

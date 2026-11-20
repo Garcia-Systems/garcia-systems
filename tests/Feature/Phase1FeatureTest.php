@@ -39,8 +39,11 @@ class Phase1FeatureTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('Business-first systems consulting')
-            ->assertSee('Turning Business Problems Into Products, Systems, and Intelligent Workflows')
-            ->assertSee('decide what—if anything—is worth implementing', false);
+            ->assertSee('Helping Organizations Adopt, Integrate, and Improve Software')
+            ->assertSee('Garcia Systems bridges the gap between business needs and technology by evaluating software solutions, integrating existing systems, and applying automation and AI where they create measurable value.')
+            ->assertSee('Software Integration')
+            ->assertSee('Solutions Engineering')
+            ->assertSee('AI and Workflow Automation');
     }
 
 
@@ -49,7 +52,8 @@ class Phase1FeatureTest extends TestCase
     {
         $this->get('/about')
             ->assertOk()
-            ->assertSee('business-first Solutions Engineering and systems consulting practice')
+            ->assertSee('backend development, enterprise integrations, e-commerce systems, and workflow automation')
+            ->assertSee('Successful technology projects are not simply about building new features. They are about understanding organizational needs, evaluating existing solutions, and making technology work within real business environments.')
             ->assertSee('Workflow &amp; Systems Analysis', false)
             ->assertSee('Business / Technology Translation')
             ->assertSee('Applied Technology, Automation &amp; AI', false);
@@ -107,10 +111,8 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('Solutions Engineering')
             ->assertSee('Technical Liaison Services')
             ->assertSee('Product Execution Support')
-            ->assertSee('Opportunity Atlas')
             ->assertSee('Latest Thinking')
-            ->assertSee('Featured videos')
-            ->assertSee('Evaluate AI Readiness');
+            ->assertSee('Featured videos');
     }
 
     public function test_articles_index_returns_successfully_and_displays_sample_articles(): void
@@ -266,6 +268,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_returns_successfully_and_displays_seeded_content(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $industry = Industry::create([
             'name' => 'Professional services',
             'slug' => 'professional-services',
@@ -297,6 +301,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_filters_by_query_parameters(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
         $this->createAtlasExample('Education', 'Public agency', 'Compliance', 'Grant documentation', 'Knowledge Silos', 'Knowledge Management', 'Shared knowledge base');
 
@@ -324,6 +330,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_filters_by_keyword_search(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
         $this->createAtlasExample('Education', 'Public agency', 'Compliance', 'Grant documentation', 'Knowledge Silos', 'Knowledge Management', 'Shared knowledge base');
 
@@ -335,6 +343,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_combines_filters(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
         $this->createAtlasExample('Healthcare', 'Public agency', 'Compliance', 'Records reconciliation', 'Data Quality', 'Reporting', 'Data cleanup workflow');
 
@@ -346,6 +356,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_empty_filters_return_all_results(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
         $this->createAtlasExample('Retail', 'Small business', 'Procurement', 'Supplier replenishment', 'Vendor Coordination', 'Vendor Coordination', 'Vendor coordination hub');
 
@@ -358,6 +370,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_invalid_filters_fail_gracefully(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
 
         $this->get('/opportunity-atlas?industry=does-not-exist&capability=unknown')
@@ -438,6 +452,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_ai_readiness_assessment_page_returns_successfully(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         AssessmentQuestion::create([
             'question' => 'Do you have clearly documented workflows?',
             'help_text' => 'Use your current operating reality, not an ideal future state.',
@@ -453,6 +469,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_assessment_rejects_unknown_question_keys_out_of_range_values_and_malformed_payloads(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         $question = AssessmentQuestion::create([
             'question' => 'Do you have clearly documented workflows?',
             'help_text' => 'Use your current operating reality, not an ideal future state.',
@@ -480,6 +498,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_assessment_submission_stores_assessment_responses_score_and_shows_result_page(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         $questions = collect([
             'Do you have clearly documented workflows?',
             'Is your operational data organized and accessible?',
@@ -537,6 +557,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_low_scoring_assessment_shows_early_recommendations(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
         $questions = collect([
             ['Workflow documentation', 'Do you have clearly documented workflows?'],
             ['Data readiness', 'Is your operational data organized and accessible?'],
@@ -577,6 +599,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_database_seeder_populates_content_library_and_atlas_examples(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->seed();
 
         $this->assertDatabaseCount(Article::class, 16);
@@ -597,8 +621,8 @@ class Phase1FeatureTest extends TestCase
             'Government',
         ], Industry::query()->pluck('name')->all());
         $this->assertDatabaseCount(Department::class, 12);
-        $this->assertDatabaseCount(Workflow::class, 18);
-        $this->assertDatabaseCount(FrictionPoint::class, 18);
+        $this->assertDatabaseCount(Workflow::class, 19);
+        $this->assertDatabaseCount(FrictionPoint::class, 19);
         $this->assertDatabaseCount(SolutionPattern::class, 8);
         $this->assertDatabaseCount(Capability::class, 12);
 

@@ -1,4 +1,4 @@
-<x-layouts.app title="Tools" page-description="Use Garcia Systems tools including the AI Readiness Assessment and Opportunity Atlas.">
+<x-layouts.app title="Tools" page-description="Garcia Systems tools for evaluating workflows and technology decisions.">
     <section class="mx-auto max-w-6xl px-6 py-16 md:py-20">
         <x-section-heading eyebrow="Tools" title="Focused tools within a broader Solutions Engineering practice." description="Use these resources when a business question benefits from structured exploration or a specialized readiness check." />
 

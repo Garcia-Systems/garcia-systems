@@ -12,6 +12,10 @@ class PublicNavigationExperienceTest extends TestCase
 
     public function test_public_navigation_renders_expected_links_and_active_state(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->get('/services')
             ->assertOk()
             ->assertSee('aria-label="Primary navigation"', false)
@@ -52,10 +56,14 @@ class PublicNavigationExperienceTest extends TestCase
 
     public function test_expanded_footer_renders_expected_links_and_content(): void
     {
+        config(['garcia.features.ai_assessment' => true]);
+
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->get('/')
             ->assertOk()
             ->assertSee('Garcia Systems')
-            ->assertSee('Business-first Solutions Engineering and systems consulting')
+            ->assertSee('Technology consulting for organizations choosing software, connecting existing systems, and improving workflows.')
             ->assertSee('Footer navigation')
             ->assertSee('Footer services navigation')
             ->assertSee('Consulting services')
@@ -82,7 +90,7 @@ class PublicNavigationExperienceTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('Turning Business Problems Into Products, Systems, and Intelligent Workflows')
+            ->assertSee('Helping Organizations Adopt, Integrate, and Improve Software')
             ->assertSee('Start a conversation')
             ->assertSee('Explore services');
     }
