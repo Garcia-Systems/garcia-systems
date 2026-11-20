@@ -23,7 +23,9 @@
             <h2 class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-200">Services</h2>
             <ul class="mt-4 space-y-3 text-sm text-slate-400">
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('services') }}">Consulting services</a></li>
-                <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('atlas') }}">Opportunity Atlas</a></li>
+                @if(config('garcia.features.opportunity_atlas'))
+                    <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('atlas') }}">Opportunity Atlas</a></li>
+                @endif
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('assessment') }}">AI Readiness Assessment</a></li>
                 <li><a class="hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300" href="{{ route('contact') }}">Contact</a></li>
             </ul>

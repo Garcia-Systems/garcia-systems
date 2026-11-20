@@ -111,7 +111,6 @@ class Phase1FeatureTest extends TestCase
             ->assertSee('Solutions Engineering')
             ->assertSee('Technical Liaison Services')
             ->assertSee('Product Execution Support')
-            ->assertSee('Opportunity Atlas')
             ->assertSee('Latest Thinking')
             ->assertSee('Featured videos')
             ->assertSee('Evaluate AI Readiness');
@@ -270,6 +269,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_returns_successfully_and_displays_seeded_content(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $industry = Industry::create([
             'name' => 'Professional services',
             'slug' => 'professional-services',
@@ -301,6 +302,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_filters_by_query_parameters(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
         $this->createAtlasExample('Education', 'Public agency', 'Compliance', 'Grant documentation', 'Knowledge Silos', 'Knowledge Management', 'Shared knowledge base');
 
@@ -328,6 +331,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_filters_by_keyword_search(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
         $this->createAtlasExample('Education', 'Public agency', 'Compliance', 'Grant documentation', 'Knowledge Silos', 'Knowledge Management', 'Shared knowledge base');
 
@@ -339,6 +344,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_combines_filters(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
         $this->createAtlasExample('Healthcare', 'Public agency', 'Compliance', 'Records reconciliation', 'Data Quality', 'Reporting', 'Data cleanup workflow');
 
@@ -350,6 +357,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_empty_filters_return_all_results(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
         $this->createAtlasExample('Retail', 'Small business', 'Procurement', 'Supplier replenishment', 'Vendor Coordination', 'Vendor Coordination', 'Vendor coordination hub');
 
@@ -362,6 +371,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_opportunity_atlas_invalid_filters_fail_gracefully(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->createAtlasExample('Healthcare', 'Growing mid-market team', 'Operations', 'Inventory visibility', 'Manual Reporting', 'Automation', 'Operational dashboard');
 
         $this->get('/opportunity-atlas?industry=does-not-exist&capability=unknown')
@@ -581,6 +592,8 @@ class Phase1FeatureTest extends TestCase
 
     public function test_database_seeder_populates_content_library_and_atlas_examples(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->seed();
 
         $this->assertDatabaseCount(Article::class, 16);

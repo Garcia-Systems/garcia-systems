@@ -174,6 +174,8 @@ class RefreshAtlasContentCommandTest extends TestCase
 
     public function test_starter_seeder_still_produces_all_canonical_atlas_examples(): void
     {
+        config(['garcia.features.opportunity_atlas' => true]);
+
         $this->seed(StarterPublicContentSeeder::class);
 
         $this->assertSame(19, Workflow::whereNotNull('managed_content_key')->count());

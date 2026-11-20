@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Article;
 use App\Models\Assessment;
 use App\Models\AssessmentQuestion;
 use App\Models\AssessmentResponse;
@@ -10,6 +11,7 @@ use App\Models\ContentInstallationRun;
 use App\Models\FrictionPoint;
 use App\Models\Industry;
 use App\Models\Workflow;
+use Database\Seeders\StarterPublicContentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
@@ -96,6 +98,19 @@ class GarciaContentCommandsTest extends TestCase
         $this->assertFalse($question->fresh()->is_active);
         $this->assertTrue(AssessmentResponse::where('assessment_question_id', $question->id)->exists());
         $this->assertSame('rolled_back', $run->fresh()->status);
+    }
+
+    public function test_opportunity_atlas_is_hidden_by_default(): void
+    {
+        $this->seed(StarterPublicContentSeeder::class);
+        $article = Article::published()->firstOrFail();
+
+        foreach (['/', '/tools', route('articles.show', $article)] as $url) {
+            $this->get($url)->assertOk()->assertDontSee('opportunity-atlas', false);
+        }
+
+        $this->get('/opportunity-atlas')->assertNotFound();
+        $this->get('/opportunity-atlas/workflows/open-source-software-adoption-and-integration')->assertNotFound();
     }
 
     public function test_it_hides_disabled_public_features_from_navigation_and_routes(): void

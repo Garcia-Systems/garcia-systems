@@ -57,16 +57,18 @@
         </div>
     </section>
 
-    <section class="gs-shell gs-section">
-        <div class="gs-panel overflow-hidden p-7 md:p-10">
-            <div class="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_70%_45%,rgb(34_211_238/.16),transparent_30%)]" aria-hidden="true"></div>
-            <div class="relative">
-                <div class="max-w-3xl"><x-section-heading eyebrow="Applied Systems Labs" title="Trace the work before choosing the technology." description="The Opportunity Atlas uses executable case studies to follow operating context, workflow, friction, and business questions toward solution patterns and implementation decisions." /></div>
-                <div class="mt-10"><x-opportunity-atlas-map :chains="$atlasChains" /></div>
-                <a class="gs-link gs-focus mt-8 inline-block rounded-sm" href="{{ route('atlas') }}">Explore the Opportunity Atlas <span aria-hidden="true">→</span></a>
+    @if(config('garcia.features.opportunity_atlas'))
+        <section class="gs-shell gs-section">
+            <div class="gs-panel overflow-hidden p-7 md:p-10">
+                <div class="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_70%_45%,rgb(34_211_238/.16),transparent_30%)]" aria-hidden="true"></div>
+                <div class="relative">
+                    <div class="max-w-3xl"><x-section-heading eyebrow="Applied Systems Labs" title="Trace the work before choosing the technology." description="The Opportunity Atlas uses executable case studies to follow operating context, workflow, friction, and business questions toward solution patterns and implementation decisions." /></div>
+                    <div class="mt-10"><x-opportunity-atlas-map :chains="$atlasChains" /></div>
+                    <a class="gs-link gs-focus mt-8 inline-block rounded-sm" href="{{ route('atlas') }}">Explore the Opportunity Atlas <span aria-hidden="true">→</span></a>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
     <section class="gs-shell gs-section">
         <div class="gs-panel grid gap-10 overflow-hidden border-cyan-300/30 p-8 md:grid-cols-[1fr_auto] md:items-center md:p-12">

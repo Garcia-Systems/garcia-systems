@@ -31,7 +31,16 @@ class PageController extends Controller
 {
     public function home()
     {
-        $atlasChains = Workflow::query()
+        return view('pages.home', [
+            'articles' => Article::published()->latest('published_at')->take(3)->get(),
+            'videos' => Video::published()->latest()->take(3)->get(),
+            'atlasChains' => config('garcia.features.opportunity_atlas') ? $this->atlasChains() : collect(),
+        ]);
+    }
+
+    private function atlasChains()
+    {
+        return Workflow::query()
             ->with(['industry', 'frictionPoints.solutionPatterns'])
             ->whereHas('industry')
             ->whereHas('frictionPoints.solutionPatterns')
@@ -48,12 +57,6 @@ class PageController extends Controller
             ))
             ->take(5)
             ->values();
-
-        return view('pages.home', [
-            'articles' => Article::published()->latest('published_at')->take(3)->get(),
-            'videos' => Video::published()->latest()->take(3)->get(),
-            'atlasChains' => $atlasChains,
-        ]);
     }
 
     public function about()
